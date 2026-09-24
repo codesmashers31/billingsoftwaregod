@@ -13,14 +13,19 @@ class RoleController extends Controller {
         $this->requirePermission('roles.view');
         $roleModel = new Role();
         $permModel = new Permission();
+        $userModel = new \App\Models\User();
 
         $roles = $roleModel->all('id ASC');
         $allPermissions = $permModel->getAllGroupedByModule();
+        
+        // Fetch all active users with their roles
+        $usersList = $userModel->getPaginatedList(1, 100, '', '', 'active');
 
         $this->render('roles.index', [
             'pageTitle' => 'Roles & Permissions Matrix',
             'roles' => $roles,
             'groupedPermissions' => $allPermissions,
+            'usersList' => $usersList['data'] ?? [],
         ]);
     }
 

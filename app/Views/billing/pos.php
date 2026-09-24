@@ -20,39 +20,130 @@
             </button>
         </div>
 
-        <!-- Category Filter Pills -->
-        <div class="py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 border-b border-slate-100">
-            <button onclick="filterCategory(null, this)" class="cat-pill-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-amber-600 text-white shadow-sm shrink-0">
-                All Idols & Items
-            </button>
-            <?php foreach ($categories as $cat): ?>
-                <button onclick="filterCategory(<?= $cat['id'] ?>, this)" class="cat-pill-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 shrink-0">
-                    <?= sanitize($cat['name']) ?>
+        <!-- Custom Category Dropdown Navigation -->
+        <div class="py-3 flex items-center shrink-0 border-b border-slate-100 relative z-40">
+            <div class="relative w-full sm:w-2/3 lg:w-1/2" id="custom-category-dropdown-container">
+                
+                <!-- Dropdown Button -->
+                <button type="button" onclick="toggleCategoryDropdown()" 
+                        class="relative w-full flex items-center bg-white border border-amber-500 shadow-md shadow-amber-500/20 hover:shadow-lg hover:shadow-amber-500/40 hover:border-amber-600 rounded-xl pl-10 pr-10 py-2.5 text-xs font-bold text-slate-800 cursor-pointer outline-none transition-all">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-amber-600">
+                        <i class="fas fa-layer-group text-sm"></i>
+                    </span>
+                    
+                    <span id="custom-category-selected-text" class="block truncate">All Idols & Items Catalog</span>
+                    
+                    <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-amber-600 transition-transform duration-200" id="custom-category-chevron">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </span>
                 </button>
-            <?php endforeach; ?>
+
+                <!-- Dropdown Menu List -->
+                <div id="custom-category-menu" class="hidden absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-200/50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top">
+                    <div class="max-h-60 overflow-y-auto py-1 custom-scrollbar">
+                        
+                        <!-- Option: All -->
+                        <div onclick='selectCustomCategory("all", "All Idols & Items Catalog")' 
+                             class="flex items-center px-4 py-3 text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 cursor-pointer transition-colors border-b border-slate-50">
+                            <i class="fas fa-box-open w-6 text-amber-500 text-center"></i>
+                            <span>All Idols & Items Catalog</span>
+                        </div>
+                        
+                        <!-- Dynamic Categories -->
+                        <?php foreach ($categories as $cat): ?>
+                        <div onclick='selectCustomCategory(<?= $cat['id'] ?>, <?= htmlspecialchars(json_encode($cat['name']), ENT_QUOTES) ?>)' 
+                             class="flex items-center px-4 py-3 text-xs font-semibold text-slate-600 hover:bg-amber-50 hover:text-amber-700 cursor-pointer transition-colors border-b border-slate-50 last:border-0">
+                            <i class="fas fa-tag w-6 text-slate-400 text-center group-hover:text-amber-500 transition-colors"></i>
+                            <span><?= sanitize($cat['name']) ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ml-4 hidden sm:block">
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                    <i class="fas fa-filter text-slate-300 mr-1"></i> Filter Category
+                </span>
+            </div>
         </div>
+
+        <style>
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: #f8fafc;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+        </style>
+
+        <script>
+            function toggleCategoryDropdown() {
+                const menu = document.getElementById('custom-category-menu');
+                const chevron = document.getElementById('custom-category-chevron');
+                
+                if (menu.classList.contains('hidden')) {
+                    menu.classList.remove('hidden');
+                    setTimeout(() => {
+                        menu.classList.remove('opacity-0', 'scale-95');
+                        menu.classList.add('opacity-100', 'scale-100');
+                        chevron.classList.add('rotate-180');
+                    }, 10);
+                } else {
+                    menu.classList.remove('opacity-100', 'scale-100');
+                    menu.classList.add('opacity-0', 'scale-95');
+                    chevron.classList.remove('rotate-180');
+                    setTimeout(() => {
+                        menu.classList.add('hidden');
+                    }, 200);
+                }
+            }
+
+            function selectCustomCategory(id, name) {
+                document.getElementById('custom-category-selected-text').textContent = name;
+                toggleCategoryDropdown();
+                
+                const catId = id === 'all' ? null : id;
+                if (typeof filterCategory === 'function') {
+                    filterCategory(catId, null);
+                }
+            }
+
+            document.addEventListener('click', function(event) {
+                const container = document.getElementById('custom-category-dropdown-container');
+                const menu = document.getElementById('custom-category-menu');
+                if (container && !container.contains(event.target) && menu && !menu.classList.contains('hidden')) {
+                    toggleCategoryDropdown();
+                }
+            });
+        </script>
 
         <!-- Product Grid (Scrollable) -->
         <div id="pos-product-grid" class="flex-1 overflow-y-auto pt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 pr-1">
             <?php foreach ($products as $p): ?>
                 <?php $isOutOfStock = $p['current_stock'] <= 0; ?>
                 <div onclick="addToCartById(<?= $p['id'] ?>, '<?= escapeHtml($p['name']) ?>', <?= $p['selling_price'] ?>, <?= $p['discount_percent'] ?? 0 ?>, <?= $p['gst_percent'] ?? 12 ?>, <?= $p['current_stock'] ?>)" 
-                     class="pos-product-card bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 <?= $isOutOfStock ? 'opacity-50 pointer-events-none' : '' ?>">
+                     class="pos-product-card h-32 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 <?= $isOutOfStock ? 'opacity-50 pointer-events-none' : '' ?>">
                     <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200"><?= $p['code'] ?: $p['sku'] ?></span>
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap truncate max-w-[55%]"><?= $p['code'] ?: $p['sku'] ?></span>
                             <?php if ($isOutOfStock): ?>
-                                <span class="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200">Out of Stock</span>
+                                <span class="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200 whitespace-nowrap shrink-0">Out of Stock</span>
                             <?php else: ?>
-                                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200"><?= $p['current_stock'] ?> in stock</span>
+                                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap shrink-0"><?= $p['current_stock'] ?> in stock</span>
                             <?php endif; ?>
                         </div>
-                        <h4 class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug">
+                        <h4 class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug mt-2">
                             <?= sanitize($p['name']) ?>
                         </h4>
-                        <p class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
-                            <i class="fas fa-om text-amber-600 text-[10px]"></i> <?= sanitize($p['material'] ?? '') ?> <?= $p['height'] ? '• ' . $p['height'] . '"' : '' ?>
-                        </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-200/80 flex items-center justify-between">
                         <div>
@@ -305,3 +396,7 @@
 
 <!-- Load POS Controller JS -->
 <script src="<?= asset('js/pos.js') ?>"></script>
+
+
+
+

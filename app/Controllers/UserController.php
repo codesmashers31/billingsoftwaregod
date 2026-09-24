@@ -41,6 +41,45 @@ class UserController extends Controller {
         ]);
     }
 
+    public function profile(Request $request): void {
+        $userModel = new User();
+        $user = $userModel->find(auth('id'));
+        $this->render('users.profile', [
+            'pageTitle' => 'My Profile',
+            'user' => $user
+        ]);
+    }
+
+    public function updateProfile(Request $request): void {
+        $userModel = new User();
+        $id = auth('id');
+        
+        $updateData = [
+            'name' => $request->input('name'),
+            'mobile' => $request->input('mobile')
+        ];
+
+        $newPass = $request->input('password');
+        if (!empty($newPass)) {
+            if (strlen($newPass) < 6) {
+                if ($request->isAjax()) Response::error('Password must be at least 6 characters.');
+                Session::flash('error', 'Password must be at least 6 characters.');
+                Response::redirect('/profile');
+            }
+            $updateData['password'] = password_hash($newPass, PASSWORD_BCRYPT);
+        }
+
+        $userModel->update($id, $updateData);
+        $this->logActivity('update', 'users', $id, auth('username'), "Updated own profile");
+
+        if ($request->isAjax()) {
+            Response::success('Profile updated successfully!');
+        }
+
+        Session::flash('success', 'Profile updated successfully.');
+        Response::redirect('/profile');
+    }
+
     public function store(Request $request): void {
         $this->requirePermission('users.create');
 
@@ -164,5 +203,72 @@ class UserController extends Controller {
         $this->logActivity('delete', 'users', $id, $user['username'], "Deleted user {$user['name']}");
 
         Response::success('User deleted successfully.');
+    }
+
+    public function getPermissions(Request $request, array $params): void {
+        $this->requirePermission('roles.view');
+        $userId = (int)($params['id'] ?? 0);
+        $userModel = new User();
+        $user = $userModel->find($userId);
+        
+        if (!$user) {
+            Response::error('User not found.');
+        }
+
+        $db = \App\Core\Database::getInstance();
+        
+        $rolePerms = $db->query("SELECT permission_id FROM `role_permissions` WHERE role_id = ?", [$user['role_id']]);
+        $rolePermIds = array_column($rolePerms, 'permission_id');
+        
+        $userOverrides = $db->query("SELECT permission_id, is_granted FROM `user_permissions` WHERE user_id = ?", [$userId]);
+        
+        $effectivePermIds = $rolePermIds;
+        foreach ($userOverrides as $override) {
+            $pid = (int)$override['permission_id'];
+            if ($override['is_granted']) {
+                if (!in_array($pid, $effectivePermIds)) $effectivePermIds[] = $pid;
+            } else {
+                $effectivePermIds = array_diff($effectivePermIds, [$pid]);
+            }
+        }
+        
+        Response::json([
+            'success' => true,
+            'permission_ids' => array_values($effectivePermIds)
+        ]);
+    }
+
+    public function updatePermissions(Request $request, array $params): void {
+        $this->requirePermission('roles.manage');
+        $userId = (int)($params['id'] ?? 0);
+        $userModel = new User();
+        $user = $userModel->find($userId);
+        
+        if (!$user) {
+            Response::error('User not found.');
+        }
+
+        $submittedPermIds = array_map('intval', (array)$request->input('permissions', []));
+        $db = \App\Core\Database::getInstance();
+
+        $rolePerms = $db->query("SELECT permission_id FROM `role_permissions` WHERE role_id = ?", [$user['role_id']]);
+        $rolePermIds = array_column($rolePerms, 'permission_id');
+
+        $db->query("DELETE FROM `user_permissions` WHERE user_id = ?", [$userId]);
+
+        foreach ($submittedPermIds as $pid) {
+            if (!in_array($pid, $rolePermIds)) {
+                $db->query("INSERT INTO `user_permissions` (user_id, permission_id, is_granted) VALUES (?, ?, 1)", [$userId, $pid]);
+            }
+        }
+        
+        foreach ($rolePermIds as $pid) {
+            if (!in_array($pid, $submittedPermIds)) {
+                $db->query("INSERT INTO `user_permissions` (user_id, permission_id, is_granted) VALUES (?, ?, 0)", [$userId, $pid]);
+            }
+        }
+        
+        $this->logActivity('update', 'users', $userId, $user['username'], "Updated custom permissions for user {$user['name']}");
+        Response::success('User permissions updated successfully!');
     }
 }

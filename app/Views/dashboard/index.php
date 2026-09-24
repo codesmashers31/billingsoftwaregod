@@ -1,21 +1,47 @@
 <div class="space-y-6 max-w-7xl mx-auto">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <!-- Top Welcome Banner -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-        <div>
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div class="flex-1">
             <div class="flex items-center gap-2">
                 <h1 class="text-xl font-extrabold text-slate-900">Welcome, <?= sanitize(auth('name', 'Admin')) ?></h1>
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
                     <?= sanitize(auth('role_name', 'Executive')) ?>
                 </span>
             </div>
-            <p class="text-xs text-slate-500 mt-1">Live business performance, inventory health, and billing summary for <?= date('l, d F Y') ?></p>
+            <p class="text-xs text-slate-500 mt-1">Live business performance, inventory health, and billing summary</p>
         </div>
         
-        <?php if (hasPermission('billing.pos')): ?>
-        <a href="<?= url('billing') ?>" class="gold-btn text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md">
-            <i class="fas fa-cash-register"></i> Open POS Terminal (F2)
-        </a>
-        <?php endif; ?>
+        <!-- Digital Clock Card (Obsidian & Gold Premium Design) -->
+        <div class="flex items-center bg-slate-900 rounded-xl border border-amber-500/30 p-1.5 pr-5 shadow-[0_4px_12px_rgba(217,119,6,0.15)] relative group cursor-pointer hover:border-amber-400 transition-all hover:shadow-[0_4px_16px_rgba(217,119,6,0.25)] overflow-hidden">
+            <!-- Accent glow -->
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent pointer-events-none"></div>
+            
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 shadow-inner mr-3 relative z-10">
+                <i class="fas fa-hourglass-half text-lg"></i>
+            </div>
+            
+            <div class="flex flex-col relative z-10">
+                <div class="flex items-baseline gap-1.5">
+                    <span id="pos-clock-time" class="text-xl font-bold tracking-widest text-amber-50" style="font-family: 'Share Tech Mono', monospace;">00:00:00</span>
+                    <span id="pos-clock-ampm" class="text-[10px] font-black text-amber-400">PM</span>
+                </div>
+                <span id="pos-clock-date" class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-0.5">JAN 01, 2025</span>
+            </div>
+            
+            <input type="datetime-local" id="time-picker-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onclick="try { this.showPicker(); } catch(e) {}" title="Click to change date/time" />
+            <button id="reset-time-btn" class="hidden absolute top-1.5 right-1.5 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[9px] shadow-lg hover:bg-rose-600 z-30 transition-transform hover:scale-110" title="Reset to real time" onclick="event.stopPropagation();">
+                <i class="fas fa-undo"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 flex justify-end">
+            <?php if (hasPermission('billing.pos')): ?>
+            <a href="<?= url('billing') ?>" class="gold-btn text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                <i class="fas fa-cash-register"></i> Open POS Terminal (F2)
+            </a>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- 4 Primary KPI Summary Cards -->
@@ -306,5 +332,72 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+});
+</script>
+
+<!-- Live Digital Clock Script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    let timeOffset = parseInt(localStorage.getItem('dashboard_time_offset') || 0);
+
+    const timePicker = document.getElementById('time-picker-input');
+    const resetBtn = document.getElementById('reset-time-btn');
+
+    if (timeOffset !== 0) {
+        resetBtn.classList.remove('hidden');
+    }
+
+    resetBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        timeOffset = 0;
+        localStorage.removeItem('dashboard_time_offset');
+        resetBtn.classList.add('hidden');
+        updateClock();
+    });
+
+    timePicker.addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        const selectedTime = new Date(e.target.value).getTime();
+        const realTime = Date.now();
+        timeOffset = selectedTime - realTime;
+        localStorage.setItem('dashboard_time_offset', timeOffset);
+        resetBtn.classList.remove('hidden');
+        updateClock();
+    });
+
+    function updateClock() {
+        const now = new Date(Date.now() + timeOffset);
+        
+        // Sync picker value with current simulated time
+        const tzOffset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now.getTime() - tzOffset)).toISOString().slice(0, 16);
+        if (document.activeElement !== timePicker) {
+            timePicker.value = localISOTime;
+        }
+
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const formattedHours = String(hours).padStart(2, '0');
+        
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const formattedDate = `${months[now.getMonth()]} ${String(now.getDate()).padStart(2, '0')}, ${now.getFullYear()}`;
+        
+        const timeEl = document.getElementById('pos-clock-time');
+        const ampmEl = document.getElementById('pos-clock-ampm');
+        const dateEl = document.getElementById('pos-clock-date');
+        
+        if (timeEl) timeEl.textContent = `${formattedHours}:${minutes}:${seconds}`;
+        if (ampmEl) ampmEl.textContent = ampm;
+        if (dateEl) dateEl.textContent = formattedDate;
+    }
+    
+    updateClock();
+    setInterval(updateClock, 1000);
 });
 </script>

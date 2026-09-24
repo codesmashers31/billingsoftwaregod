@@ -34,11 +34,15 @@ Router::post('/reset-password', [AuthController::class, 'processResetPassword'])
 Router::get('/dashboard', [DashboardController::class, 'index']);
 
 // 3. User Management
+Router::get('/profile', [UserController::class, 'profile']);
+Router::post('/profile', [UserController::class, 'updateProfile']);
 Router::get('/users', [UserController::class, 'index']);
 Router::post('/users/create', [UserController::class, 'store']);
 Router::post('/users/edit/{id}', [UserController::class, 'update']);
 Router::post('/users/toggle/{id}', [UserController::class, 'toggleStatus']);
 Router::post('/users/delete/{id}', [UserController::class, 'delete']);
+Router::get('/users/{id}/permissions', [UserController::class, 'getPermissions']);
+Router::post('/users/{id}/permissions', [UserController::class, 'updatePermissions']);
 
 // 4. Role & Permissions
 Router::get('/roles', [RoleController::class, 'index']);

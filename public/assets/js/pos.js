@@ -101,13 +101,13 @@ async function searchProducts(keyword = '') {
 function filterCategory(categoryId, btnEl) {
     activeCategoryId = categoryId;
     document.querySelectorAll('.cat-pill-btn').forEach(b => {
-        b.classList.remove('bg-amber-600', 'text-white', 'shadow-md');
-        b.classList.add('bg-slate-800', 'text-slate-300');
+        b.classList.remove('bg-amber-600', 'text-white', 'shadow-sm');
+        b.classList.add('bg-slate-100', 'text-slate-600');
     });
 
     if (btnEl) {
-        btnEl.classList.remove('bg-slate-800', 'text-slate-300');
-        btnEl.classList.add('bg-amber-600', 'text-white', 'shadow-md');
+        btnEl.classList.remove('bg-slate-100', 'text-slate-600');
+        btnEl.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
     }
 
     const searchInput = document.getElementById('pos-search-input');
@@ -133,30 +133,29 @@ function renderProductGrid(products) {
     products.forEach(p => {
         const isOutOfStock = parseInt(p.current_stock) <= 0;
         const stockBadge = isOutOfStock 
-            ? '<span class="bg-rose-900/80 text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Out of Stock</span>'
-            : `<span class="bg-emerald-900/80 text-emerald-300 text-[10px] font-semibold px-2 py-0.5 rounded-full">${p.current_stock} in stock</span>`;
+            ? '<span class="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200 whitespace-nowrap shrink-0">Out of Stock</span>'
+            : `<span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap shrink-0">${p.current_stock} in stock</span>`;
 
         const statueSpecs = p.material ? `${p.material} ${p.height ? '• ' + p.height + '"' : ''}` : '';
 
         html += `
             <div onclick="addToCartById(${p.id}, '${escapeHtml(p.name)}', ${p.selling_price}, ${p.discount_percent || 0}, ${p.gst_percent || 12}, ${p.current_stock})" 
-                 class="pos-product-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-slate-800 ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
+                 class="pos-product-card h-32 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-mono text-amber-400/90 font-medium">${p.code || p.sku}</span>
+                    <div class="flex items-center justify-between gap-1">
+                        <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap truncate max-w-[55%]">${p.code || p.sku}</span>
                         ${stockBadge}
                     </div>
-                    <h4 class="text-sm font-semibold text-slate-100 group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                    <h4 class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug mt-2">
                         ${p.name}
                     </h4>
-                    ${statueSpecs ? `<p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i class="fas fa-om text-amber-500/70 text-[10px]"></i> ${statueSpecs}</p>` : ''}
                 </div>
-                <div class="mt-3 pt-2.5 border-t border-slate-700/50 flex items-center justify-between">
+                <div class="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between">
                     <div>
-                        <span class="text-xs text-slate-400">Rate:</span>
-                        <span class="text-base font-bold text-amber-400 ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        <span class="text-[10px] text-slate-400">Rate:</span>
+                        <span class="text-sm font-black text-slate-900 font-mono ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                     </div>
-                    <button class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 flex items-center justify-center transition-all">
+                    <button class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center transition-all font-bold">
                         <i class="fas fa-plus text-xs"></i>
                     </button>
                 </div>

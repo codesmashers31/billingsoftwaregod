@@ -1,0 +1,1 @@
+<?php $passwords = ['password', '123456', '12345678', 'admin', 'admin123', 'admin@123', 'secret']; foreach ($passwords as $p) { if (password_verify($p, '$2y$10$j17r5KbQ8BXM5z8t0P1Nq.VB52XMsRWnjIEy/1Vb.hDxiVkEqPNVO')) echo 'MATCH: ' . $p; }

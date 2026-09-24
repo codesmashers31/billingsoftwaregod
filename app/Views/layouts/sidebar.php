@@ -169,6 +169,15 @@ $currentUri = (new \App\Core\Request())->uri();
             </a>
             <?php endif; ?>
             <?php endif; ?>
+
+            <!-- Permissions & Credits -->
+            <?php if (hasPermission('roles.view')): ?>
+            <div class="pt-3 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Permissions and Credits</div>
+            <a href="<?= url('roles') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/roles', $currentUri) ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
+                <i class="fas fa-key text-sm w-4 <?= isActiveRoute('/roles', $currentUri) ? 'text-amber-700' : 'text-slate-400' ?>"></i>
+                <span>Permissions</span>
+            </a>
+            <?php endif; ?>
         </nav>
     </div>
 
