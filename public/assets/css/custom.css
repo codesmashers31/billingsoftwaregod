@@ -1,0 +1,124 @@
+/* Enterprise God Statue ERP Clean Professional Light Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary-amber: #d97706;
+    --primary-dark-amber: #b45309;
+    --accent-amber: #f59e0b;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #64748b;
+    --sidebar-active: #d97706;
+    --bg-main: #f8fafc;
+}
+
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-spiritual {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Custom Clean Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Professional Card & Shadow Effects */
+.card-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+}
+
+.gold-btn {
+    background: #d97706;
+    color: #ffffff;
+    transition: all 0.15s ease-in-out;
+}
+.gold-btn:hover {
+    background: #b45309;
+    color: #ffffff;
+    box-shadow: 0 4px 12px 0 rgba(217, 119, 6, 0.25);
+}
+
+/* POS Specific High Performance CSS */
+.pos-product-card {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pos-product-card:hover {
+    transform: translateY(-2px);
+    border-color: #d97706;
+    box-shadow: 0 6px 18px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* Toast Container */
+#toast-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+.toast-msg {
+    pointer-events: auto;
+    animation: toastSlideIn 0.3s ease-out forwards;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+}
+
+/* Print CSS */
+@media print {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .thermal-receipt {
+        width: 80mm !important;
+        max-width: 80mm !important;
+        margin: 0 !important;
+        padding: 4mm !important;
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+    }
+}
