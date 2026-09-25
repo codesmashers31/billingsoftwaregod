@@ -34,10 +34,11 @@
         <!-- User Role Tag -->
         <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="font-bold text-slate-800"><?= sanitize(auth('name', 'Staff')) ?></span>
+            <span class="font-bold text-slate-800 truncate max-w-[150px]"><?= sanitize(auth('name', 'Staff')) ?></span>
             <span class="text-[10px] text-amber-800 font-semibold bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">
                 <?= sanitize(auth('role_name', 'Staff')) ?>
             </span>
         </div>
     </div>
 </header>
+

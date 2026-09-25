@@ -140,9 +140,9 @@ function renderProductGrid(products) {
 
         html += `
             <div onclick="addToCartById(${p.id}, '${escapeHtml(p.name)}', ${p.selling_price}, ${p.discount_percent || 0}, ${p.gst_percent || 12}, ${p.current_stock})" 
-                 class="pos-product-card h-32 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
-                <div>
-                    <div class="flex items-center justify-between gap-1">
+                 class="pos-product-card h-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
+                <div class="flex-1">
+                      <div class="flex items-center justify-between gap-1">
                         <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap truncate max-w-[55%]">${p.code || p.sku}</span>
                         ${stockBadge}
                     </div>
@@ -528,15 +528,28 @@ function openPaymentModal() {
             r.addEventListener('change', (e) => {
                 const upiContainer = document.getElementById('dynamic-upi-container');
                 const showQrBtn = document.getElementById('btn-show-qr');
-                if(upiContainer && showQrBtn) {
+                const doneQrBtn = document.getElementById('btn-done-qr');
+                const confirmBtn = document.getElementById('btn-confirm-checkout');
+                
+                if(upiContainer && showQrBtn && doneQrBtn && confirmBtn) {
                     if (e.target.value === 'upi') {
+                        // UPI Selected: Show "Show QR" button, Hide "Complete Transaction", Hide QR container
                         showQrBtn.classList.remove('hidden');
                         showQrBtn.classList.add('flex');
+                        confirmBtn.classList.add('hidden');
+                        confirmBtn.classList.remove('flex');
+                        doneQrBtn.classList.add('hidden');
+                        doneQrBtn.classList.remove('flex');
                         upiContainer.classList.add('hidden');
                         upiContainer.classList.remove('flex');
                     } else {
+                        // Other methods: Show "Complete Transaction", Hide UPI stuff
                         showQrBtn.classList.add('hidden');
                         showQrBtn.classList.remove('flex');
+                        doneQrBtn.classList.add('hidden');
+                        doneQrBtn.classList.remove('flex');
+                        confirmBtn.classList.remove('hidden');
+                        confirmBtn.classList.add('flex');
                         upiContainer.classList.add('hidden');
                         upiContainer.classList.remove('flex');
                     }
@@ -551,18 +564,23 @@ function openPaymentModal() {
     if (showQrBtn && !showQrBtn.dataset.hasListener) {
         showQrBtn.addEventListener('click', () => {
             const upiContainer = document.getElementById('dynamic-upi-container');
-            if (upiContainer) {
+            const doneQrBtn = document.getElementById('btn-done-qr');
+            if (upiContainer && doneQrBtn) {
+                // Show QR Container
                 upiContainer.classList.remove('hidden');
                 upiContainer.classList.add('flex');
+                // Hide "Show QR" button, Show "Done" button
                 showQrBtn.classList.add('hidden');
                 showQrBtn.classList.remove('flex');
+                doneQrBtn.classList.remove('hidden');
+                doneQrBtn.classList.add('flex');
             }
         });
         showQrBtn.dataset.hasListener = 'true';
     }
 
-    // Reset to cash and hide UPI container
-    const defaultRadio = document.querySelector('input[name="payment_method_radio"][value="cash"]');
+    // Reset to upi and hide UPI container
+    const defaultRadio = document.querySelector('input[name="payment_method_radio"][value="upi"]');
     if (defaultRadio) {
         defaultRadio.checked = true;
         defaultRadio.dispatchEvent(new Event('change'));
@@ -650,6 +668,9 @@ function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+
+
 
 
 

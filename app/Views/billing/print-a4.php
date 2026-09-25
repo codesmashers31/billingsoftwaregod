@@ -2,7 +2,8 @@
     <!-- Invoice Header -->
     <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4 mb-6">
         <div>
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-3 mb-1">
+                <img src="<?= asset('images/logo.png') ?>" alt="Logo" class="w-12 h-12 object-contain mix-blend-multiply">
                 <span class="text-2xl font-bold font-serif uppercase tracking-wider"><?= sanitize(getSetting('company_name', 'Divya Murti & God Statue Heritage')) ?></span>
             </div>
             <p class="text-slate-600 max-w-sm"><?= nl2br(sanitize(getSetting('company_address', '108 Sannidhi Square, Near Kapaleeshwarar Temple, Mylapore, Chennai - 600004'))) ?></p>
@@ -101,3 +102,4 @@
         </div>
     </div>
 </div>
+

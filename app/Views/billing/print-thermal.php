@@ -1,5 +1,6 @@
 <div class="thermal-receipt max-w-[80mm] mx-auto bg-white p-4 text-black font-mono text-[11px] leading-tight">
-    <div class="text-center pb-2 border-b border-dashed border-black">
+    <div class="text-center pb-2 border-b border-dashed border-black flex flex-col items-center">
+        <img src="<?= asset('images/logo.png') ?>" alt="Logo" class="w-10 h-10 object-contain mix-blend-multiply mb-1 grayscale">
         <h2 class="text-base font-bold uppercase tracking-wider"><?= sanitize(getSetting('company_name', 'Divya Murti Heritage')) ?></h2>
         <p class="text-[10px]"><?= sanitize(getSetting('company_address', '108 Sannidhi Square, Mylapore, Chennai - 600004')) ?></p>
         <p class="text-[10px]">Ph: <?= getSetting('company_phone', '+91 44 2464 1008') ?></p>
@@ -56,3 +57,4 @@
         <p class="mt-1 text-slate-600">Sacred Idols consecrated per Shilpa Shastra</p>
     </div>
 </div>
+

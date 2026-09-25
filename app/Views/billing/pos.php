@@ -131,10 +131,10 @@
             <?php foreach ($products as $p): ?>
                 <?php $isOutOfStock = $p['current_stock'] <= 0; ?>
                 <div onclick="addToCartById(<?= $p['id'] ?>, '<?= escapeHtml($p['name']) ?>', <?= $p['selling_price'] ?>, <?= $p['discount_percent'] ?? 0 ?>, <?= $p['gst_percent'] ?? 12 ?>, <?= $p['current_stock'] ?>)" 
-                     class="pos-product-card h-32 bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 <?= $isOutOfStock ? 'opacity-50 pointer-events-none' : '' ?>">
-                    <div>
-                        <div class="flex items-center justify-between gap-1">
-                            <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap truncate max-w-[55%]"><?= $p['code'] ?: $p['sku'] ?></span>
+                     class="pos-product-card h-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 <?= $isOutOfStock ? 'opacity-50 pointer-events-none' : '' ?>">
+                    <div class="flex-1">
+                          <div class="flex items-center justify-between gap-1">
+                              <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap truncate max-w-[55%]"><?= $p['code'] ?: $p['sku'] ?></span>
                             <?php if ($isOutOfStock): ?>
                                 <span class="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200 whitespace-nowrap shrink-0">Out of Stock</span>
                             <?php else: ?>
@@ -293,12 +293,12 @@
                 <label class="block font-bold text-slate-700 mb-2">Select Payment Mode</label>
                 <div class="grid grid-cols-3 gap-2">
                     <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="cash" checked class="hidden">
+                        <input type="radio" name="payment_method_radio" value="cash" class="hidden">
                         <i class="fas fa-money-bill-wave text-base"></i>
                         <span class="text-xs">Cash</span>
                     </label>
                     <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="upi" class="hidden">
+                        <input type="radio" name="payment_method_radio" value="upi" checked class="hidden">
                         <i class="fas fa-qrcode text-base"></i>
                         <span class="text-xs">UPI / QR</span>
                     </label>
@@ -321,6 +321,15 @@
             </div>
 
             <!-- Cash Drawer / Bank Account Destination -->
+            <!-- Dynamic UPI QR Code Container -->
+            <div id="dynamic-upi-container" class="hidden mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-center flex-col items-center justify-center">
+                <p class="text-xs font-bold text-slate-700 mb-2">Scan QR to Pay: <span id="upi-exact-amount" class="text-amber-700 font-extrabold text-sm"></span></p>
+                <div class="bg-white p-2 rounded-lg shadow-sm mb-2 inline-block">
+                    <img id="dynamic-upi-qr" src="" alt="UPI QR Code" class="w-40 h-40 object-contain mx-auto">
+                </div>
+                <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider"><i class="fab fa-google-pay text-xs mr-1 text-slate-600"></i> <i class="fas fa-rupee-sign text-xs mr-1 text-slate-600"></i> UPI Payments</p>
+            </div>
+            
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Deposit Account</label>
@@ -344,8 +353,11 @@
 
             <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="closeModal('pos-payment-modal')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
-                <button type="button" id="btn-show-qr" class="hidden px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold hover:bg-indigo-100 transition-colors items-center gap-1.5">
+                <button type="button" id="btn-show-qr" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-md items-center gap-2 transition-all">
                     <i class="fas fa-qrcode"></i> Show QR
+                </button>
+                <button type="button" onclick="processCheckout()" id="btn-done-qr" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-md items-center gap-2 transition-all">
+                    <i class="fas fa-check"></i> Done
                 </button>
                 <button type="button" onclick="processCheckout()" id="btn-confirm-checkout" class="gold-btn px-6 py-2.5 rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
                     <i class="fas fa-check-circle"></i> Complete Transaction
@@ -404,6 +416,10 @@
 
 <!-- Load POS Controller JS -->
 <script src="<?= asset('js/pos.js?v=' . time()) ?>"></script>
+
+
+
+
 
 
 

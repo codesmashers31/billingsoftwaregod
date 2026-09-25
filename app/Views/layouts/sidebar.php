@@ -6,8 +6,8 @@ $currentUri = (new \App\Core\Request())->uri();
     <!-- Brand Logo -->
     <div>
         <div class="p-5 border-b border-slate-100 flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-transparent flex items-center justify-center shrink-0 overflow-hidden">
-                <img src="<?= asset('images/logo.png') ?>" alt="Sastha Sasti" class="w-full h-full object-contain scale-125 transform">
+            <div class="w-14 h-14 bg-transparent flex items-center justify-center shrink-0">
+                <img src="<?= asset('images/logo.png') ?>" alt="Sastha Sasti" class="w-full h-full object-contain scale-150 transform mix-blend-multiply">
             </div>
             <div>
                 <h1 class="text-sm font-extrabold text-slate-900 leading-tight truncate"><?= sanitize(getSetting('company_name', 'Sastha Sasti')) ?></h1>
@@ -197,3 +197,4 @@ $currentUri = (new \App\Core\Request())->uri();
         </a>
     </div>
 </aside>
+
