@@ -344,6 +344,9 @@
 
             <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="closeModal('pos-payment-modal')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
+                <button type="button" id="btn-show-qr" class="hidden px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold hover:bg-indigo-100 transition-colors items-center gap-1.5">
+                    <i class="fas fa-qrcode"></i> Show QR
+                </button>
                 <button type="button" onclick="processCheckout()" id="btn-confirm-checkout" class="gold-btn px-6 py-2.5 rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
                     <i class="fas fa-check-circle"></i> Complete Transaction
                 </button>
@@ -394,8 +397,17 @@
     </div>
 </div>
 
+<script>
+    const SYSTEM_UPI_ID = "<?= sanitize(getSetting('company_upi_id', 'sasthasasti@sbi')) ?>";
+    const SYSTEM_COMPANY_NAME = "<?= sanitize(getSetting('company_name', 'Sastha Sasti')) ?>";
+</script>
+
 <!-- Load POS Controller JS -->
-<script src="<?= asset('js/pos.js') ?>"></script>
+<script src="<?= asset('js/pos.js?v=' . time()) ?>"></script>
+
+
+
+
 
 
 

@@ -510,15 +510,77 @@ function openPaymentModal() {
     if (posCart.length === 0) return;
 
     const elGrand = document.getElementById('summary-grandtotal');
-    const grandVal = elGrand ? elGrand.textContent.replace('₹', '').replace(/,/g, '') : '0';
+    const grandVal = elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : '0';
 
     const payModalGrand = document.getElementById('modal-pay-grandtotal');
     const payModalAmount = document.getElementById('modal-pay-amount');
 
     if (payModalGrand) payModalGrand.textContent = '₹' + parseFloat(grandVal).toLocaleString('en-IN', {minimumFractionDigits: 2});
     if (payModalAmount) payModalAmount.value = grandVal;
+    
+    // Setup UPI QR dynamically
+    generateUpiQrCode(grandVal);
+    
+    // Listen to payment method changes
+    const radios = document.querySelectorAll('input[name="payment_method_radio"]');
+    radios.forEach(r => {
+        if (!r.dataset.hasListener) {
+            r.addEventListener('change', (e) => {
+                const upiContainer = document.getElementById('dynamic-upi-container');
+                const showQrBtn = document.getElementById('btn-show-qr');
+                if(upiContainer && showQrBtn) {
+                    if (e.target.value === 'upi') {
+                        showQrBtn.classList.remove('hidden');
+                        showQrBtn.classList.add('flex');
+                        upiContainer.classList.add('hidden');
+                        upiContainer.classList.remove('flex');
+                    } else {
+                        showQrBtn.classList.add('hidden');
+                        showQrBtn.classList.remove('flex');
+                        upiContainer.classList.add('hidden');
+                        upiContainer.classList.remove('flex');
+                    }
+                }
+            });
+            r.dataset.hasListener = 'true';
+        }
+    });
+    
+    // Show QR Button logic
+    const showQrBtn = document.getElementById('btn-show-qr');
+    if (showQrBtn && !showQrBtn.dataset.hasListener) {
+        showQrBtn.addEventListener('click', () => {
+            const upiContainer = document.getElementById('dynamic-upi-container');
+            if (upiContainer) {
+                upiContainer.classList.remove('hidden');
+                upiContainer.classList.add('flex');
+                showQrBtn.classList.add('hidden');
+                showQrBtn.classList.remove('flex');
+            }
+        });
+        showQrBtn.dataset.hasListener = 'true';
+    }
+
+    // Reset to cash and hide UPI container
+    const defaultRadio = document.querySelector('input[name="payment_method_radio"][value="cash"]');
+    if (defaultRadio) {
+        defaultRadio.checked = true;
+        defaultRadio.dispatchEvent(new Event('change'));
+    }
 
     openModal('pos-payment-modal');
+}
+
+function generateUpiQrCode(amount) {
+    if (typeof SYSTEM_UPI_ID === 'undefined' || !SYSTEM_UPI_ID) return;
+    if (isNaN(amount) || amount <= 0) amount = 0;
+    const upiString = `upi://pay?pa=${SYSTEM_UPI_ID}&pn=${encodeURIComponent(typeof SYSTEM_COMPANY_NAME !== 'undefined' ? SYSTEM_COMPANY_NAME : 'Store')}&am=${amount}&cu=INR`;
+    const qrUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(upiString)}&choe=UTF-8`;
+    
+    const qrImg = document.getElementById('dynamic-upi-qr');
+    const amtTxt = document.getElementById('upi-exact-amount');
+    if (qrImg) qrImg.src = qrUrl;
+    if (amtTxt) amtTxt.textContent = '₹' + parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 2});
 }
 
 async function processCheckout() {
@@ -588,3 +650,8 @@ function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+
+
+
+

@@ -1,10 +1,10 @@
 <div class="bg-white border border-slate-200/90 rounded-2xl p-8 shadow-xl relative overflow-hidden">
     <!-- Top Emblem -->
     <div class="text-center mb-7">
-        <div class="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl mx-auto shadow-md mb-3.5">
-            <i class="fas fa-om"></i>
+        <div class="w-20 h-20 rounded-2xl bg-transparent flex items-center justify-center mx-auto mb-3.5 overflow-hidden">
+            <img src="<?= asset('images/logo.png') ?>" alt="Sastha Sasti" class="w-full h-full object-contain scale-125 transform drop-shadow-sm">
         </div>
-        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight"><?= sanitize(getSetting('company_name', 'Divya Murti Heritage')) ?></h2>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight"><?= sanitize(getSetting('company_name', 'Sastha Sasti')) ?></h2>
         <p class="text-xs text-amber-700 font-semibold uppercase tracking-wider mt-0.5">Enterprise God Statue Management ERP</p>
     </div>
 

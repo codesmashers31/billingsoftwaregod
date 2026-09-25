@@ -6,11 +6,11 @@ $currentUri = (new \App\Core\Request())->uri();
     <!-- Brand Logo -->
     <div>
         <div class="p-5 border-b border-slate-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center shadow-md shrink-0">
-                <i class="fas fa-om text-xl text-white"></i>
+            <div class="w-12 h-12 rounded-xl bg-transparent flex items-center justify-center shrink-0 overflow-hidden">
+                <img src="<?= asset('images/logo.png') ?>" alt="Sastha Sasti" class="w-full h-full object-contain scale-125 transform">
             </div>
             <div>
-                <h1 class="text-sm font-extrabold text-slate-900 leading-tight truncate"><?= sanitize(getSetting('company_name', 'Divya Murti ERP')) ?></h1>
+                <h1 class="text-sm font-extrabold text-slate-900 leading-tight truncate"><?= sanitize(getSetting('company_name', 'Sastha Sasti')) ?></h1>
                 <span class="text-[10px] uppercase font-bold tracking-wider text-amber-700 block">Enterprise ERP</span>
             </div>
         </div>
