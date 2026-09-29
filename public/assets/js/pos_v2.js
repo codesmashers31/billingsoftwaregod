@@ -133,29 +133,29 @@ function renderProductGrid(products) {
     products.forEach(p => {
         const isOutOfStock = parseInt(p.current_stock) <= 0;
         const stockBadge = isOutOfStock 
-            ? '<span class="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200 whitespace-nowrap shrink-0">Out of Stock</span>'
-            : `<span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap shrink-0">${p.current_stock} in stock</span>`;
+            ? '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-rose-200 whitespace-nowrap shrink-0">Out of Stock</span>'
+            : `<span class="bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0">${p.current_stock} in stock</span>`;
 
         const statueSpecs = p.material ? `${p.material} ${p.height ? '• ' + p.height + '"' : ''}` : '';
 
         html += `
             <div onclick="addToCartById(${p.id}, '${escapeHtml(p.name)}', ${p.selling_price}, ${p.discount_percent || 0}, ${p.gst_percent || 12}, ${p.current_stock})" 
-                 class="pos-product-card h-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between cursor-pointer group hover:bg-white hover:border-amber-400 ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
-                <div class="flex-1">
-                      <div class="flex items-center justify-between gap-1">
-                        <span class="text-[11px] font-mono text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap truncate max-w-[55%]">${p.code || p.sku}</span>
+                 class="pos-product-card h-[144px] bg-white border border-slate-100 shadow-sm rounded-2xl p-3.5 flex flex-col cursor-pointer group hover:border-amber-300 hover:shadow-md transition-all ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
+                <div>
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-[10px] font-bold text-amber-700 bg-[#fff8ef] px-2 py-1 rounded-md border border-amber-200 whitespace-nowrap truncate">${p.code || p.sku}</span>
                         ${stockBadge}
                     </div>
-                    <h4 class="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug mt-2">
+                    <h4 class="text-[13px] font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
                         ${p.name}
                     </h4>
                 </div>
-                <div class="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] text-slate-400">Rate:</span>
-                        <span class="text-sm font-black text-slate-900 font-mono ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                <div class="mt-auto pt-3 flex items-center justify-between">
+                    <div class="flex items-baseline">
+                        <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
+                        <span class="text-[14px] font-black text-slate-900 font-mono ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                     </div>
-                    <button class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center transition-all font-bold">
+                    <button class="w-7 h-7 rounded-lg bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white flex items-center justify-center transition-all shadow-sm">
                         <i class="fas fa-plus text-xs"></i>
                     </button>
                 </div>
