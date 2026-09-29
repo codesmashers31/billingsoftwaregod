@@ -4,11 +4,16 @@
             <h1 class="text-xl font-extrabold text-slate-900">Product Categories</h1>
             <p class="text-xs text-slate-500">Classify god statues, spiritual artifacts, pooja accessories, and temple decor</p>
         </div>
-        <?php if (hasPermission('categories.manage')): ?>
-        <button onclick="openModal('modal-add-category')" class="gold-btn px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
-            <i class="fas fa-plus"></i> Add New Category
-        </button>
-        <?php endif; ?>
+        <div class="flex items-center gap-2.5">
+            <?php if (hasPermission('categories.manage')): ?>
+            <button type="button" onclick="openModal('import-cat-modal')" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all">
+                <i class="fas fa-file-import text-indigo-600"></i> Import CSV
+            </button>
+            <button onclick="openModal('modal-add-category')" class="gold-btn px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
+                <i class="fas fa-plus"></i> Add New Category
+            </button>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- Categories Grid -->
@@ -142,4 +147,36 @@ async function deleteCategory(id) {
         }
     } catch(e) { console.error(e); }
 }
+
 </script>
+
+<!-- Import Categories CSV Modal -->
+<div id="import-cat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <h3 class="text-base font-extrabold text-slate-900"><i class="fas fa-file-csv text-indigo-600 mr-2"></i> Bulk Import Categories</h3>
+            <button type="button" onclick="closeModal('import-cat-modal')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+        </div>
+        <form action="<?= url('categories/import') ?>" method="POST" enctype="multipart/form-data" class="p-5">
+            <input type="hidden" name="_csrf_token" value="<?= csrf_token() ?>">
+            <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <p class="text-xs text-amber-800 font-medium mb-2">Ensure your CSV matches our strict data format.</p>
+                <a href="<?= url('categories/template') ?>" class="text-xs font-bold text-amber-700 hover:text-amber-900 underline flex items-center gap-1">
+                    <i class="fas fa-download"></i> Download Sample CSV Template
+                </a>
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-700 mb-2">Upload CSV File <span class="text-rose-500">*</span></label>
+                <input type="file" name="csv_file" accept=".csv" required 
+                       class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border border-slate-200 rounded-xl p-2 bg-slate-50">
+            </div>
+            <p class="text-[10px] text-slate-500 mb-6"><i class="fas fa-info-circle"></i> Strict validation enabled: Duplicate Names or Codes will be rejected.</p>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeModal('import-cat-modal')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt"></i> Start Import
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

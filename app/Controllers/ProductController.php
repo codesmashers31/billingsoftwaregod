@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Inventory;
+use App\Core\Database;
 
 class ProductController extends Controller {
     public function index(Request $request): void {
@@ -298,6 +299,131 @@ class ProductController extends Controller {
             ]);
         }
         fclose($output);
+        exit;
+    }
+
+    public function template(Request $request): void {
+        $this->requirePermission('products.import');
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=god_statues_import_template.csv');
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['Code', 'SKU', 'Barcode', 'Category ID', 'Product Name', 'God/Deity', 'Material', 'Height (in)', 'Weight (kg)', 'Finish', 'Selling Price', 'Wholesale Price', 'Stock', 'Status (Active/Inactive)']);
+        // Add sample row
+        fputcsv($output, ['PRD-GAN-001', 'SKU-GAN-BRS-18', '8901234567890', '1', 'Antique Brass Royal Ganesha 18 Inch', 'Ganesha', 'Brass (Antique)', '18.00', '12.50', 'Antique', '18900.00', '15000.00', '4', 'Active']);
+        fclose($output);
+        exit;
+    }
+
+    public function import(Request $request): void {
+        $this->requirePermission('products.import');
+        
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            Session::flash('error', 'Please select a valid CSV file.');
+            header('Location: ' . url('products'));
+            exit;
+        }
+
+        $file = $_FILES['csv_file']['tmp_name'];
+        $handle = fopen($file, "r");
+        if (!$handle) {
+            Session::flash('error', 'Failed to read the file.');
+            header('Location: ' . url('products'));
+            exit;
+        }
+
+        $header = fgetcsv($handle); // Read header row
+        
+        $db = Database::getInstance();
+        $db->beginTransaction();
+        
+        $productModel = new Product();
+        $catModel = new Category();
+
+        try {
+            $count = 0;
+            $rowNum = 1; // Header is row 1
+            $seenSkus = [];
+            
+            while (($data = fgetcsv($handle)) !== FALSE) {
+                $rowNum++;
+                // Check if row is empty
+                if (empty(array_filter($data))) continue;
+                
+                // Map columns:
+                // 0: Code, 1: SKU, 2: Barcode, 3: Category ID, 4: Name, 5: Deity, 6: Material, 7: Height, 8: Weight, 9: Finish, 10: Selling, 11: Wholesale, 12: Stock, 13: Status
+                
+                $sku = trim($data[1] ?? '');
+                $providedCategoryId = trim($data[3] ?? '');
+                $name = trim($data[4] ?? '');
+                
+                if (empty($sku)) {
+                    throw new \Exception("Row {$rowNum}: SKU is required but missing.");
+                }
+                if (empty($name)) {
+                    throw new \Exception("Row {$rowNum}: Product Name is required but missing.");
+                }
+                
+                if (in_array($sku, $seenSkus)) {
+                    throw new \Exception("Row {$rowNum}: Duplicate SKU '{$sku}' found within the CSV file itself.");
+                }
+                $seenSkus[] = $sku;
+                
+                // Determine category_id
+                $categoryId = null;
+                if (!empty($providedCategoryId) && is_numeric($providedCategoryId)) {
+                    $categoryId = (int)$providedCategoryId;
+                } else {
+                    // Fallback: Try to find category by Deity Name
+                    $deityName = trim($data[5] ?? '');
+                    if (!empty($deityName)) {
+                        $catResult = $db->query("SELECT id FROM categories WHERE name LIKE ?", ["%$deityName%"]);
+                        if (!empty($catResult)) {
+                            $categoryId = $catResult[0]['id'];
+                        }
+                    }
+                }
+                
+                // Validate Category ID
+                if (empty($categoryId)) {
+                    throw new \Exception("Row {$rowNum}: Category is required. Invalid or missing Category ID for SKU '{$sku}'.");
+                }
+                
+                $productData = [
+                    'code' => trim($data[0] ?? ''),
+                    'sku' => $sku,
+                    'barcode' => trim($data[2] ?? ''),
+                    'name' => $name,
+                    'category_id' => $categoryId,
+                    'god_name' => trim($data[5] ?? ''),
+                    'material' => trim($data[6] ?? ''),
+                    'height' => (float)($data[7] ?? 0),
+                    'weight' => (float)($data[8] ?? 0),
+                    'finish_type' => trim($data[9] ?? ''),
+                    'selling_price' => (float)($data[10] ?? 0),
+                    'wholesale_price' => (float)($data[11] ?? 0),
+                    'current_stock' => (int)($data[12] ?? 0),
+                    'status' => strtolower(trim($data[13] ?? '')) === 'inactive' ? 'inactive' : 'active'
+                ];
+                
+                $existing = $productModel->findBySKU($sku);
+                if ($existing) {
+                    throw new \Exception("Row {$rowNum}: Product with SKU '{$sku}' already exists in the database. Duplicate imports are not allowed.");
+                } else {
+                    $productModel->create($productData);
+                    $count++;
+                }
+            }
+            
+            fclose($handle);
+            $db->commit();
+            
+            Session::flash('success', "Successfully imported $count new products.");
+        } catch (\Exception $e) {
+            $db->rollback();
+            Session::flash('error', 'Import failed: ' . $e->getMessage());
+        }
+        
+        header('Location: ' . url('products'));
         exit;
     }
 }

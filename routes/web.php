@@ -61,12 +61,16 @@ Router::get('/categories', [CategoryController::class, 'index']);
 Router::post('/categories/create', [CategoryController::class, 'store']);
 Router::post('/categories/edit/{id}', [CategoryController::class, 'update']);
 Router::post('/categories/delete/{id}', [CategoryController::class, 'delete']);
+Router::post('/categories/import', [CategoryController::class, 'import']);
+Router::get('/categories/template', [CategoryController::class, 'template']);
 
 Router::get('/subcategories', [SubCategoryController::class, 'index']);
 Router::get('/subcategories/by-category/{id}', [SubCategoryController::class, 'getByCategory']);
 Router::post('/subcategories/create', [SubCategoryController::class, 'store']);
 Router::post('/subcategories/edit/{id}', [SubCategoryController::class, 'update']);
 Router::post('/subcategories/delete/{id}', [SubCategoryController::class, 'delete']);
+Router::post('/subcategories/import', [SubCategoryController::class, 'import']);
+Router::get('/subcategories/template', [SubCategoryController::class, 'template']);
 
 // 7. Products (God Statues)
 Router::get('/products', [ProductController::class, 'index']);
@@ -77,6 +81,8 @@ Router::post('/products/edit/{id}', [ProductController::class, 'update']);
 Router::get('/products/view/{id}', [ProductController::class, 'view']);
 Router::post('/products/delete/{id}', [ProductController::class, 'delete']);
 Router::get('/products/export', [ProductController::class, 'export']);
+Router::post('/products/import', [ProductController::class, 'import']);
+Router::get('/products/template', [ProductController::class, 'template']);
 
 // 8. Inventory
 Router::get('/inventory', [InventoryController::class, 'index']);

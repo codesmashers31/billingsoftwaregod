@@ -8,6 +8,7 @@ use App\Core\Session;
 use App\Core\Auth;
 use App\Models\Inventory;
 use App\Models\Product;
+use App\Core\Database;
 
 class InventoryController extends Controller {
     public function index(Request $request): void {

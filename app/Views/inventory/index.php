@@ -192,3 +192,4 @@ async function viewStockHistory(id, name) {
     } catch(e) { console.error(e); }
 }
 </script>
+

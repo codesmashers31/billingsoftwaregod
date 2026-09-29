@@ -118,6 +118,12 @@ class Product extends Model {
         return !empty($res) ? $res[0] : null;
     }
 
+    public function findBySKU(string $sku): ?array {
+        $sql = "SELECT * FROM `products` WHERE sku = ? LIMIT 1";
+        $res = $this->db->query($sql, [$sku]);
+        return !empty($res) ? $res[0] : null;
+    }
+
     public function getLowStockProducts(int $limit = 10): array {
         $sql = "SELECT p.*, c.name as category_name 
                 FROM `products` p 
