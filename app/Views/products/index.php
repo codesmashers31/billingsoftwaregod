@@ -292,3 +292,34 @@ async function deleteProduct(id) {
         </form>
     </div>
 </div>
+
+<!-- Live Search Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const tableBody = document.querySelector('tbody');
+    
+    if (searchInput && tableBody) {
+        // Get all rows except the empty state row
+        const rows = Array.from(tableBody.querySelectorAll('tr')).filter(row => {
+            return !row.querySelector('td[colspan]');
+        });
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            rows.forEach(row => {
+                // Get text content of the entire row
+                const rowText = row.textContent.toLowerCase();
+                
+                // Show or hide based on match
+                if (rowText.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>

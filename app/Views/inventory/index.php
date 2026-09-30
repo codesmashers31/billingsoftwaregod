@@ -191,5 +191,27 @@ async function viewStockHistory(id, name) {
         openModal('modal-stock-history');
     } catch(e) { console.error(e); }
 }
-</script>
 
+// Live Search for Inventory Table
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const tableBody = document.querySelector('tbody');
+    
+    if (searchInput && tableBody) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            rows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
