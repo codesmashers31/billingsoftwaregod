@@ -64,14 +64,19 @@ class AuthController extends Controller {
 
         // Successfully authenticated
         Auth::login($user, $remember);
+        
+        $redirectUrl = url('dashboard');
+        if ($user['username'] === 'priya' || strpos($user['role_slug'] ?? '', 'cashier') !== false) {
+            $redirectUrl = url('pos');
+        }
 
         if ($request->isAjax()) {
-            Response::success('Login successful! Redirecting to dashboard...', [
-                'redirect' => url('dashboard')
+            Response::success('Login successful! Redirecting...', [
+                'redirect' => $redirectUrl
             ]);
         }
 
-        Response::redirect('/dashboard');
+        Response::redirect($redirectUrl);
     }
 
     public function logout(): void {

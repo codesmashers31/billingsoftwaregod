@@ -12,6 +12,12 @@ use App\Models\AuditLog;
 class DashboardController extends Controller {
     public function index(Request $request): void {
         Auth::requireAuth();
+
+        $user = Auth::user();
+        if ($user && ($user['username'] === 'priya' || strpos($user['role_slug'] ?? '', 'cashier') !== false)) {
+            \App\Core\Response::redirect('/pos');
+        }
+
         $db = Database::getInstance();
 
         // 1. Core KPIs
