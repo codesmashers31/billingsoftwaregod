@@ -93,6 +93,16 @@
                     <input type="text" name="state" value="Tamil Nadu" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
                 </div>
             </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Product Supplied</label>
+                    <input type="text" name="product_supplied" placeholder="e.g. Bronze Idols" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Subcategory</label>
+                    <input type="text" name="subcategory" placeholder="e.g. Chola Style" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
+                </div>
+            </div>
             <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="closeModal('modal-add-supplier')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
                 <button type="submit" class="gold-btn px-5 py-2 rounded-xl text-xs font-bold shadow-sm">Save Sthapathi</button>
