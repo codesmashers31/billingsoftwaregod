@@ -9,7 +9,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
         <!-- Supplier Details Card -->
-        <button onclick="toggleSection('supplier-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        <button id="btn-supplier-section" onclick="toggleSection('supplier-section')" class="active-tab group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm border border-indigo-100 group-hover:border-indigo-600">
                 <i class="fas fa-truck text-2xl"></i>
@@ -19,7 +19,7 @@
         </button>
 
         <!-- Product Details Card -->
-        <button onclick="toggleSection('product-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
+        <button id="btn-product-section" onclick="toggleSection('product-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
             <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm border border-amber-100 group-hover:border-amber-500">
                 <i class="fas fa-box-open text-2xl"></i>
@@ -29,7 +29,7 @@
         </button>
 
         <!-- Barcode Details Card -->
-        <button onclick="toggleSection('barcode-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+        <button id="btn-barcode-section" onclick="toggleSection('barcode-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
             <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100 group-hover:border-emerald-500">
                 <i class="fas fa-barcode text-2xl"></i>
@@ -39,7 +39,7 @@
         </button>
 
         <!-- Invoice Details Card -->
-        <button onclick="toggleSection('invoice-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-rose-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+        <button id="btn-invoice-section" onclick="toggleSection('invoice-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-rose-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
             <div class="absolute inset-0 bg-gradient-to-br from-rose-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-rose-500 group-hover:text-white transition-all duration-300 shadow-sm border border-rose-100 group-hover:border-rose-500">
                 <i class="fas fa-file-invoice-dollar text-2xl"></i>
@@ -54,7 +54,7 @@
     <div id="dynamic-sections" class="mt-8">
         
         <!-- Supplier Section with Table -->
-        <div id="supplier-section" class="hidden animate-fade-in bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div id="supplier-section" class="animate-fade-in bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
                 <div>
                     <h4 class="text-xl font-extrabold text-slate-900">Supplier Management</h4>
@@ -170,26 +170,183 @@
         </div>
 
         <!-- Invoice Section -->
-        <div id="invoice-section" class="hidden animate-fade-in bg-rose-50/50 border border-rose-100 rounded-2xl p-6 shadow-inner">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div id="invoice-section" class="hidden animate-fade-in bg-white border border-rose-200/80 rounded-2xl p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6 pb-5 border-b border-rose-100">
                 <div>
-                    <h4 class="text-lg font-extrabold text-rose-900">Invoice Management</h4>
-                    <p class="text-xs text-rose-600/80 mt-1 font-medium">Create new purchase or sales invoices for transactions.</p>
+                    <div class="flex items-center gap-2 justify-center sm:justify-start">
+                        <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold shadow-sm">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </span>
+                        <h4 class="text-xl font-extrabold text-slate-900">Invoice Management</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">Create and track dynamic customer tax invoices, payments, and stock movements.</p>
                 </div>
-                <button class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                    <i class="fas fa-plus"></i> Create New Invoice
-                </button>
+                <div class="flex items-center gap-2.5 flex-wrap justify-center">
+                    <a href="<?= url('billing/invoices') ?>" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                        <i class="fas fa-list-ul"></i> All Invoices
+                    </a>
+                    <a href="<?= url('billing/invoices/create') ?>" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                        <i class="fas fa-plus"></i> Create New Invoice
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Invoice Search & Stats Bar -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+                <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Total Invoices</p>
+                        <p id="inv-stat-count" class="text-lg font-black text-rose-950 mt-0.5">0</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-sm font-bold">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                </div>
+                <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Total Billed</p>
+                        <p id="inv-stat-total" class="text-lg font-black text-indigo-950 mt-0.5">₹0.00</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-sm font-bold">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                </div>
+                <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total Collected</p>
+                        <p id="inv-stat-paid" class="text-lg font-black text-emerald-950 mt-0.5">₹0.00</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                </div>
+                <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-amber-600">Total Outstanding</p>
+                        <p id="inv-stat-due" class="text-lg font-black text-amber-950 mt-0.5">₹0.00</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+                <div class="relative w-full sm:w-72">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="inv-search-input" oninput="filterInvoicesTable()" placeholder="Search invoice #, customer..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-rose-400 focus:bg-white transition-all">
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="inv-status-filter" onchange="filterInvoicesTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-rose-400">
+                        <option value="">All Payment Statuses</option>
+                        <option value="paid">Paid</option>
+                        <option value="partial">Partially Paid</option>
+                        <option value="unpaid">Unpaid</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Invoices Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">Invoice #</th>
+                            <th class="py-3 px-4">Customer</th>
+                            <th class="py-3 px-4">Date / Due</th>
+                            <th class="py-3 px-4 text-right">Grand Total</th>
+                            <th class="py-3 px-4 text-right">Paid / Balance</th>
+                            <th class="py-3 px-4 text-center">Payment</th>
+                            <th class="py-3 px-4 text-center">Status</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-table-body" class="divide-y divide-slate-100 bg-white">
+                        <tr id="invoice-empty-state-row">
+                            <td colspan="8" class="py-12 text-center text-slate-400">
+                                <i class="fas fa-file-invoice text-3xl mb-3 block text-rose-300"></i>
+                                <p class="font-bold text-slate-600 text-sm">No invoices found</p>
+                                <p class="text-xs mt-1">Click "Create New Invoice" to start billing.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
     </div>
 </div>
 
+<!-- Quick Add Category Modal -->
+<div id="quick-add-category-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6 relative">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="text-base font-bold text-slate-900"><i class="fas fa-folder-plus text-amber-600 mr-2"></i> Add Product Category</h3>
+            <button type="button" onclick="document.getElementById('quick-add-category-modal').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Category Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="quick-cat-name" onkeydown="if(event.key==='Enter'){event.preventDefault();submitQuickCategory();}" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. Hindu God Statues">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Status</label>
+                <select id="quick-cat-status" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                    <option value="active">Available</option>
+                    <option value="inactive">Not Available</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-5 pt-3 border-t border-slate-100">
+            <button type="button" onclick="document.getElementById('quick-add-category-modal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors">Cancel</button>
+            <button type="button" onclick="submitQuickCategory()" class="gold-btn px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-transform transform hover:-translate-y-0.5">Save Category</button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Subcategory Modal -->
+<div id="quick-add-subcategory-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6 relative">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="text-base font-bold text-slate-900"><i class="fas fa-folder-plus text-amber-600 mr-2"></i> Add Subcategory</h3>
+            <button type="button" onclick="document.getElementById('quick-add-subcategory-modal').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Parent Category <span class="text-rose-500">*</span></label>
+                <select id="quick-subcat-parent" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                    <!-- Populated via JS -->
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Subcategory Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="quick-subcat-name" onkeydown="if(event.key==='Enter'){event.preventDefault();submitQuickSubcategory();}" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. Lord Ganesha (Vinayagar)">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Status</label>
+                <select id="quick-subcat-status" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                    <option value="active">Available</option>
+                    <option value="inactive">Not Available</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-5 pt-3 border-t border-slate-100">
+            <button type="button" onclick="document.getElementById('quick-add-subcategory-modal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors">Cancel</button>
+            <button type="button" onclick="submitQuickSubcategory()" class="gold-btn px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-transform transform hover:-translate-y-0.5">Save Subcategory</button>
+        </div>
+    </div>
+</div>
 
 <!-- Supplier Form Modal -->
 <div id="supplier-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-    <div class="flex min-h-full items-start sm:items-center justify-center p-4 py-10">
-        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl relative animate-fade-in">
+    <div class="min-h-full w-full flex items-center justify-center p-4 sm:p-6 py-10">
+        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl relative animate-fade-in mx-auto">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
             <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2" id="supplier-modal-title">
@@ -223,7 +380,7 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Address <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Address</label>
                         <input type="text" name="address" id="address" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                         <span class="text-[10px] text-rose-500 hidden mt-1" id="err-address">Address is required</span>
                     </div>
@@ -352,8 +509,8 @@
 
 <!-- Product Form Modal -->
 <div id="product-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-    <div class="flex min-h-full items-start sm:items-center justify-center p-4 py-10">
-        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl relative animate-fade-in">
+    <div class="min-h-full w-full flex items-center justify-center p-4 sm:p-6 py-10">
+        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl relative animate-fade-in mx-auto">
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
                 <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2" id="product-modal-title">
@@ -552,8 +709,8 @@
 
 <!-- Supplier View Modal -->
 <div id="supplier-view-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-    <div class="flex min-h-full items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl relative animate-fade-in">
+    <div class="min-h-full w-full flex items-center justify-center p-4 sm:p-6 py-10">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl relative animate-fade-in mx-auto">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
                 <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
                     <i class="fas fa-eye text-indigo-600"></i> View Supplier Details
@@ -576,8 +733,8 @@
 
 <!-- Product View Modal -->
 <div id="product-view-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-    <div class="flex min-h-full items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl relative animate-fade-in">
+    <div class="min-h-full w-full flex items-center justify-center p-4 sm:p-6 py-10">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl relative animate-fade-in mx-auto">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
                 <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
                     <i class="fas fa-eye text-amber-600"></i> View Product Details
@@ -596,32 +753,631 @@
             </div>
         </div>
     </div>
+<!-- Interactive Confirmation Modal (Self-Contained) -->
+<div id="interactive-confirm-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+    <div id="interactive-confirm-box" class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm sm:max-w-md shadow-2xl p-6 relative transform scale-95 opacity-0 transition-all duration-200 text-center">
+        <div id="interactive-confirm-icon-wrap" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-sm bg-rose-50 border border-rose-100 text-rose-500">
+            <i id="interactive-confirm-icon" class="fas fa-trash-alt"></i>
+        </div>
+        <h3 id="interactive-confirm-title" class="text-lg font-extrabold text-slate-900 tracking-tight mb-2">Delete Confirmation</h3>
+        <div id="interactive-confirm-message" class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 font-medium">Are you sure you want to proceed?</div>
+        <div class="flex items-center justify-center gap-3">
+            <button type="button" id="interactive-confirm-cancel-btn" class="w-1/2 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer">
+                Cancel
+            </button>
+            <button type="button" id="interactive-confirm-ok-btn" class="w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-rose-500/25 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 cursor-pointer">
+                <i class="fas fa-trash-alt mr-1"></i> Yes, Delete
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
+    // --- INTERACTIVE CONFIRMATION DIALOG (PROMISE-BASED) ---
+    function showConfirmDialog(options = {}) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('interactive-confirm-modal');
+            const box = document.getElementById('interactive-confirm-box');
+            const titleEl = document.getElementById('interactive-confirm-title');
+            const msgEl = document.getElementById('interactive-confirm-message');
+            const iconWrap = document.getElementById('interactive-confirm-icon-wrap');
+            const iconEl = document.getElementById('interactive-confirm-icon');
+            const okBtn = document.getElementById('interactive-confirm-ok-btn');
+            const cancelBtn = document.getElementById('interactive-confirm-cancel-btn');
+
+            if (!modal || !box) {
+                resolve(true);
+                return;
+            }
+
+            const title = options.title || 'Delete Confirmation';
+            const message = typeof options === 'string' ? options : (options.message || 'Are you sure you want to proceed?');
+            const confirmText = options.confirmText || 'Yes, Delete';
+            const cancelText = options.cancelText || 'Cancel';
+            const type = options.type || 'danger';
+
+            titleEl.textContent = title;
+            msgEl.innerHTML = message;
+            okBtn.innerHTML = `<i class="fas fa-trash-alt mr-1.5"></i> ${confirmText}`;
+            cancelBtn.textContent = cancelText;
+
+            if (type === 'danger') {
+                iconWrap.className = 'w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-4 shadow-sm';
+                iconEl.className = 'fas fa-trash-alt text-rose-500';
+                okBtn.className = 'w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-rose-500/25 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 cursor-pointer';
+            } else if (type === 'warning') {
+                iconWrap.className = 'w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center text-2xl mx-auto mb-4 shadow-sm';
+                iconEl.className = 'fas fa-exclamation-triangle text-amber-500';
+                okBtn.className = 'w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-amber-500/25 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 cursor-pointer';
+            } else {
+                iconWrap.className = 'w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-500 flex items-center justify-center text-2xl mx-auto mb-4 shadow-sm';
+                iconEl.className = 'fas fa-info-circle text-indigo-500';
+                okBtn.className = 'w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-indigo-500/25 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 cursor-pointer';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                box.classList.remove('scale-95', 'opacity-0');
+                box.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            function cleanup(result) {
+                box.classList.remove('scale-100', 'opacity-100');
+                box.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.remove('flex');
+                    modal.classList.add('hidden');
+                    resolve(result);
+                }, 180);
+                document.removeEventListener('keydown', handleKey);
+            }
+
+            function handleKey(e) {
+                if (e.key === 'Escape') cleanup(false);
+            }
+
+            okBtn.onclick = () => cleanup(true);
+            cancelBtn.onclick = () => cleanup(false);
+            modal.onclick = (e) => {
+                if (e.target === modal) cleanup(false);
+            };
+            document.addEventListener('keydown', handleKey);
+        });
+    }
+    window.showConfirmDialog = showConfirmDialog;
+
+    // Toast notification fallback if app.js is not loaded
+    if (typeof window.showToast !== 'function') {
+        window.showToast = function(type, message) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed bottom-5 right-5 z-[10001] flex flex-col space-y-3 pointer-events-none';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto flex items-center p-4 min-w-[300px] max-w-md rounded-xl shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 border ' + 
+                (type === 'success' ? 'bg-slate-900 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-rose-300 border-rose-500/40');
+            toast.innerHTML = `<div class="mr-3 text-lg"><i class="fas ${type === 'success' ? 'fa-check-circle text-emerald-400' : 'fa-exclamation-triangle text-rose-400'}"></i></div><div class="flex-1 text-xs font-bold">${message}</div>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 3500);
+        };
+    }
+
     // --- SECTION TOGGLE LOGIC ---
     function toggleSection(sectionId) {
         const sections = ['supplier-section', 'product-section', 'barcode-section', 'invoice-section'];
-        let wasHidden = document.getElementById(sectionId).classList.contains('hidden');
         
         sections.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.classList.add('hidden');
             }
+            const btn = document.getElementById('btn-' + id);
+            if (btn) {
+                btn.classList.remove('active-tab');
+            }
         });
 
-        if (wasHidden) {
-            const target = document.getElementById(sectionId);
-            if (target) {
-                target.classList.remove('hidden');
-            }
+        const target = document.getElementById(sectionId);
+        if (target) {
+            target.classList.remove('hidden');
+        }
+        const activeBtn = document.getElementById('btn-' + sectionId);
+        if (activeBtn) {
+            activeBtn.classList.add('active-tab');
+        }
+
+        if (sectionId === 'invoice-section' && typeof renderInvoiceTable === 'function') {
+            renderInvoiceTable();
         }
     }
 
-    // --- SUPPLIER MANAGEMENT LOGIC ---
+    // --- URL HELPER ---
+    function getAppUrl(path = '') {
+        const base = (window.APP_URL || '').replace(/\/+$/, '');
+        const cleanPath = (path || '').replace(/^\/+/, '');
+        return cleanPath ? base + '/' + cleanPath : base;
+    }
+
+    // --- QUICK ADD CATEGORY LOGIC ---
+    window.CATEGORIES_DATA = <?= json_encode($categories ?? []) ?>;
+    
+    function renderCategoryDropdown(inputElement, filterText = '') {
+        const container = inputElement.parentElement;
+        const dropdown = container.querySelector('.category-dropdown');
+        if (!dropdown) return;
+        dropdown.innerHTML = '';
+        
+        let filtered = window.CATEGORIES_DATA || [];
+        if (filterText) {
+            filtered = filtered.filter(c => (c.name || '').toLowerCase().includes(filterText.toLowerCase()));
+        }
+        
+        if (filtered.length > 0) {
+            filtered.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'px-3 py-2 text-xs text-slate-700 hover:bg-amber-50 cursor-pointer border-b border-slate-50 last:border-0 flex items-center justify-between transition-colors';
+                item.textContent = c.name;
+                item.onmousedown = function(e) {
+                    e.preventDefault();
+                    inputElement.value = c.name;
+                    const hidden = container.querySelector('input[type="hidden"]');
+                    if (hidden) hidden.value = c.name;
+                    dropdown.classList.add('hidden');
+                    onCategoryChanged(inputElement);
+                };
+                dropdown.appendChild(item);
+            });
+
+            // Option to add category at bottom
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'w-full text-left px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition-colors border-t border-slate-100 flex items-center gap-1.5';
+            addBtn.innerHTML = '<i class="fas fa-plus text-[10px]"></i> Add Category';
+            addBtn.onmousedown = function(e) {
+                e.preventDefault();
+                openQuickAddCategoryModal(inputElement);
+                dropdown.classList.add('hidden');
+            };
+            dropdown.appendChild(addBtn);
+        } else {
+            const noData = document.createElement('div');
+            noData.className = 'px-3 py-2 text-xs text-slate-500 italic border-b border-slate-100 bg-slate-50';
+            noData.textContent = 'No category found';
+            dropdown.appendChild(noData);
+            
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'w-full text-left px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition-colors flex items-center gap-1.5';
+            addBtn.innerHTML = '<i class="fas fa-plus text-[10px]"></i> Add Category';
+            addBtn.onmousedown = function(e) {
+                e.preventDefault();
+                openQuickAddCategoryModal(inputElement);
+                dropdown.classList.add('hidden');
+            };
+            dropdown.appendChild(addBtn);
+        }
+        dropdown.classList.remove('hidden');
+    }
+
+    function showCategoryDropdown(el) {
+        renderCategoryDropdown(el, el.value.trim());
+    }
+
+    function filterCategoryDropdown(el) {
+        renderCategoryDropdown(el, el.value.trim());
+        const hidden = el.parentElement.querySelector('input[type="hidden"]');
+        if (hidden) hidden.value = el.value.trim();
+        onCategoryChanged(el);
+    }
+
+    function onCategoryChanged(categoryInput) {
+        const parentBlock = categoryInput.closest('.supplier-product-block') || categoryInput.closest('.product-product-block');
+        if (!parentBlock) return;
+        const subcatInput = parentBlock.querySelector('.subcat-search-input');
+        const subcatHidden = parentBlock.querySelector('input[name="sp_product_subcategory[]"]') || parentBlock.querySelector('input[name="ap_product_subcategory[]"]');
+        if (!subcatInput) return;
+        
+        const catName = (categoryInput.value || '').trim().toLowerCase();
+        const catObj = (window.CATEGORIES_DATA || []).find(c => (c.name || '').toLowerCase() === catName);
+        
+        const curSubVal = (subcatInput.value || '').trim().toLowerCase();
+        if (curSubVal && catObj) {
+            // Only reset subcategory if it belongs to a known DIFFERENT category
+            const knownSub = (window.SUBCATEGORIES_DATA || []).find(s => (s.name || '').toLowerCase() === curSubVal);
+            if (knownSub && String(knownSub.category_id) !== String(catObj.id)) {
+                subcatInput.value = '';
+                if (subcatHidden) subcatHidden.value = '';
+            }
+        }
+    }
+    
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.category-dropdown') && !e.target.classList.contains('cat-search-input')) {
+            document.querySelectorAll('.category-dropdown').forEach(d => d.classList.add('hidden'));
+        }
+        if (!e.target.closest('.subcategory-dropdown') && !e.target.classList.contains('subcat-search-input')) {
+            document.querySelectorAll('.subcategory-dropdown').forEach(d => d.classList.add('hidden'));
+        }
+    });
+
+    function openQuickAddCategoryModal(inputElement) {
+        window.currentCategoryInput = inputElement;
+        const nameInput = document.getElementById('quick-cat-name');
+        nameInput.value = inputElement ? inputElement.value : ''; 
+        document.getElementById('quick-cat-status').value = 'active';
+        document.getElementById('quick-add-category-modal').classList.remove('hidden');
+        setTimeout(() => nameInput.focus(), 50);
+    }
+
+    async function submitQuickCategory() {
+        const nameInput = document.getElementById('quick-cat-name');
+        const name = nameInput.value.trim();
+        const status = document.getElementById('quick-cat-status').value;
+        
+        if (!name) {
+            showToast('error', 'Category Name is required.');
+            nameInput.focus();
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('_csrf_token', window.CSRF_TOKEN || ''); 
+            formData.append('name', name);
+            formData.append('status', status);
+            
+            const res = await fetch(getAppUrl('categories/create'), {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                const catId = (data.data && data.data.id) ? data.data.id : (data.id || Date.now());
+                const newCat = { id: catId, name: name, status: status };
+                if (!window.CATEGORIES_DATA) window.CATEGORIES_DATA = [];
+                const existIdx = window.CATEGORIES_DATA.findIndex(c => (c.name || '').toLowerCase() === name.toLowerCase());
+                if (existIdx >= 0) {
+                    window.CATEGORIES_DATA[existIdx] = { ...window.CATEGORIES_DATA[existIdx], ...newCat };
+                } else {
+                    window.CATEGORIES_DATA.push(newCat);
+                }
+                
+                if (window.currentCategoryInput) {
+                    window.currentCategoryInput.value = name;
+                    const hidden = window.currentCategoryInput.parentElement.querySelector('input[type="hidden"]');
+                    if (hidden) hidden.value = name;
+                    onCategoryChanged(window.currentCategoryInput);
+                }
+                showToast('success', data.message || 'Category added successfully!');
+                document.getElementById('quick-add-category-modal').classList.add('hidden');
+                nameInput.value = '';
+            } else {
+                showToast('error', data.message || 'Error saving category');
+            }
+        } catch(e) {
+            console.error(e);
+            showToast('error', 'Network error occurred.');
+        }
+    }
+
+    // --- QUICK ADD SUBCATEGORY LOGIC ---
+    window.SUBCATEGORIES_DATA = <?= json_encode($subcategories ?? []) ?>;
+    
+    function renderSubcategoryDropdown(inputElement, filterText = '') {
+        const container = inputElement.parentElement;
+        const dropdown = container.querySelector('.subcategory-dropdown');
+        if (!dropdown) return;
+        dropdown.innerHTML = '';
+        
+        // Check if parent category is selected in the same product block (supports both Add Supplier & Add Products Detail)
+        const parentBlock = inputElement.closest('.supplier-product-block') || inputElement.closest('.product-product-block');
+        let selectedCatName = '';
+        if (parentBlock) {
+            const catInput = parentBlock.querySelector('input[name="sp_product_category[]"]') || parentBlock.querySelector('input[name="ap_product_category[]"]') || parentBlock.querySelector('.cat-search-input');
+            if (catInput) selectedCatName = (catInput.value || '').trim();
+        }
+
+        let catObj = null;
+        if (selectedCatName && window.CATEGORIES_DATA) {
+            catObj = window.CATEGORIES_DATA.find(c => (c.name || '').toLowerCase() === selectedCatName.toLowerCase());
+        }
+
+        let filtered = window.SUBCATEGORIES_DATA || [];
+        if (catObj) {
+            filtered = filtered.filter(c => String(c.category_id) === String(catObj.id));
+        }
+
+        if (filterText) {
+            filtered = filtered.filter(c => (c.name || '').toLowerCase().includes(filterText.toLowerCase()));
+        }
+        
+        if (filtered.length > 0) {
+            filtered.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'px-3 py-2 text-xs text-slate-700 hover:bg-amber-50 cursor-pointer border-b border-slate-50 last:border-0 flex items-center justify-between transition-colors';
+                item.textContent = c.name;
+                item.onmousedown = function(e) {
+                    e.preventDefault();
+                    inputElement.value = c.name;
+                    const hidden = container.querySelector('input[type="hidden"]');
+                    if (hidden) hidden.value = c.name;
+                    dropdown.classList.add('hidden');
+                };
+                dropdown.appendChild(item);
+            });
+
+            // Option to add subcategory at bottom
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'w-full text-left px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition-colors border-t border-slate-100 flex items-center gap-1.5';
+            addBtn.innerHTML = '<i class="fas fa-plus text-[10px]"></i> Add Subcategory';
+            addBtn.onmousedown = function(e) {
+                e.preventDefault();
+                openQuickAddSubcategoryModal(inputElement);
+                dropdown.classList.add('hidden');
+            };
+            dropdown.appendChild(addBtn);
+        } else {
+            const noData = document.createElement('div');
+            noData.className = 'px-3 py-2 text-xs text-slate-500 italic border-b border-slate-100 bg-slate-50';
+            noData.textContent = catObj ? 'No subcategory found for ' + catObj.name : 'No subcategory found';
+            dropdown.appendChild(noData);
+            
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'w-full text-left px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 transition-colors flex items-center gap-1.5';
+            addBtn.innerHTML = '<i class="fas fa-plus text-[10px]"></i> Add Subcategory';
+            addBtn.onmousedown = function(e) {
+                e.preventDefault();
+                openQuickAddSubcategoryModal(inputElement);
+                dropdown.classList.add('hidden');
+            };
+            dropdown.appendChild(addBtn);
+        }
+        dropdown.classList.remove('hidden');
+    }
+
+    function showSubcategoryDropdown(el) {
+        renderSubcategoryDropdown(el, el.value.trim());
+    }
+
+    function filterSubcategoryDropdown(el) {
+        renderSubcategoryDropdown(el, el.value.trim());
+        const hidden = el.parentElement.querySelector('input[type="hidden"]');
+        if (hidden) hidden.value = el.value.trim(); 
+    }
+
+    function openQuickAddSubcategoryModal(inputElement) {
+        window.currentSubcategoryInput = inputElement;
+        
+        const parentSelect = document.getElementById('quick-subcat-parent');
+        parentSelect.innerHTML = '<option value="">Select Parent Category</option>';
+        (window.CATEGORIES_DATA || []).forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            parentSelect.appendChild(opt);
+        });
+
+        // Pre-select category if entered in the adjacent category field
+        const parentBlock = inputElement ? (inputElement.closest('.supplier-product-block') || inputElement.closest('.product-product-block')) : null;
+        if (parentBlock) {
+            const catInput = parentBlock.querySelector('input[name="sp_product_category[]"]') || parentBlock.querySelector('input[name="ap_product_category[]"]') || parentBlock.querySelector('.cat-search-input');
+            const selectedCatName = catInput ? (catInput.value || '').trim() : '';
+            if (selectedCatName) {
+                const foundCat = (window.CATEGORIES_DATA || []).find(c => (c.name || '').toLowerCase() === selectedCatName.toLowerCase());
+                if (foundCat) parentSelect.value = foundCat.id;
+            }
+        }
+
+        const nameInput = document.getElementById('quick-subcat-name');
+        nameInput.value = inputElement ? inputElement.value : ''; 
+        document.getElementById('quick-subcat-status').value = 'active';
+        document.getElementById('quick-add-subcategory-modal').classList.remove('hidden');
+        setTimeout(() => nameInput.focus(), 50);
+    }
+
+    async function submitQuickSubcategory() {
+        const nameInput = document.getElementById('quick-subcat-name');
+        const name = nameInput.value.trim();
+        const parentSelect = document.getElementById('quick-subcat-parent');
+        const parentId = parentSelect.value;
+        const status = document.getElementById('quick-subcat-status').value;
+        
+        if (!parentId) {
+            showToast('error', 'Parent Category is required.');
+            parentSelect.focus();
+            return;
+        }
+
+        if (!name) {
+            showToast('error', 'Subcategory Name is required.');
+            nameInput.focus();
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('_csrf_token', window.CSRF_TOKEN || ''); 
+            formData.append('name', name);
+            formData.append('category_id', parentId);
+            formData.append('status', status);
+            
+            const res = await fetch(getAppUrl('subcategories/create'), {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                const subId = (data.data && data.data.id) ? data.data.id : (data.id || Date.now());
+                const newSub = { id: subId, name: name, category_id: parentId, status: status };
+                if (!window.SUBCATEGORIES_DATA) window.SUBCATEGORIES_DATA = [];
+                const existIdx = window.SUBCATEGORIES_DATA.findIndex(s => String(s.category_id) === String(parentId) && (s.name || '').toLowerCase() === name.toLowerCase());
+                if (existIdx >= 0) {
+                    window.SUBCATEGORIES_DATA[existIdx] = { ...window.SUBCATEGORIES_DATA[existIdx], ...newSub };
+                } else {
+                    window.SUBCATEGORIES_DATA.push(newSub);
+                }
+
+                if (window.currentSubcategoryInput) {
+                    window.currentSubcategoryInput.value = name;
+                    const hidden = window.currentSubcategoryInput.parentElement.querySelector('input[type="hidden"]');
+                    if (hidden) hidden.value = name;
+                }
+                showToast('success', data.message || 'Subcategory added successfully!');
+                document.getElementById('quick-add-subcategory-modal').classList.add('hidden');
+                nameInput.value = '';
+            } else {
+                showToast('error', data.message || 'Error saving subcategory');
+            }
+        } catch(e) {
+            console.error(e);
+            showToast('error', 'Network error occurred.');
+        }
+    }
+
+    // --- SUPPLIER & PRODUCT DATA PERSISTENCE ---
+    window.DB_SUPPLIERS = <?= json_encode($allSuppliers ?? $suppliers ?? []) ?>;
+    window.DB_PRODUCTS = <?= json_encode($allProducts ?? []) ?>;
+    window.DB_INVOICES = <?= json_encode($recentInvoices ?? []) ?>;
     let suppliers = [];
+    let products = [];
+    let invoices = [];
     let currentEditId = null;
+    let currentProductEditId = null;
+
+    function mapSupplierFromDb(s) {
+        return {
+            id: s.id,
+            supplier_name: s.name || s.supplier_name || '',
+            mobile_number: s.mobile || s.mobile_number || s.phone || '',
+            purchase_date: s.created_at ? s.created_at.split(' ')[0] : (s.purchase_date || new Date().toISOString().split('T')[0]),
+            email: s.email || '',
+            alt_mobile_number: s.alt_phone || s.alt_mobile_number || '',
+            address: s.address || '',
+            city: s.city || '',
+            state: s.state || 'Tamil Nadu',
+            gst_number: s.gst_number || s.tax_number || '',
+            barcode: s.supplier_code || s.barcode || ('SUP-' + String(s.id).padStart(4, '0')),
+            payment_methods: s.payment_methods || 'Cash',
+            payment_amount_cash: s.payment_amount_cash || '',
+            payment_amount_upi: s.payment_amount_upi || '',
+            payment_amount_bank: s.payment_amount_bank || '',
+            payment_amount_credit: s.payment_amount_credit || '',
+            total_amount_purchased: s.total_amount_purchased || '0.00',
+            status: (s.status && s.status.toLowerCase() === 'inactive') ? 'Inactive' : 'Active'
+        };
+    }
+
+    function mapProductFromDb(p) {
+        return {
+            id: p.id,
+            prod_supplier_id: p.supplier_id || p.prod_supplier_id || null,
+            prod_name: p.name || p.prod_name || '',
+            prod_sku: p.sku || p.prod_sku || ('SKU-' + p.id),
+            prod_barcode: p.barcode || p.prod_barcode || ('BAR-' + p.id),
+            prod_category: p.category_name || p.prod_category || 'General',
+            prod_subcategory: p.subcategory_name || p.prod_subcategory || '',
+            prod_category_id: p.category_id || null,
+            prod_subcategory_id: p.subcategory_id || null,
+            prod_unit: p.unit || 'Pieces',
+            prod_piece_rate: parseFloat(p.piece_rate || p.prod_piece_rate || 0),
+            prod_purchase_price: parseFloat(p.purchase_price || p.prod_purchase_price || 0),
+            prod_selling_price: parseFloat(p.selling_price || p.prod_selling_price || 0),
+            prod_gst: parseFloat(p.gst_percent !== undefined ? p.gst_percent : (p.gst_rate !== undefined ? p.gst_rate : (p.prod_gst || 0))),
+            prod_tax_inclusive: p.tax_inclusive || p.prod_tax_inclusive || 'No',
+            prod_offer_available: p.offer_available || p.prod_offer_available || 'No',
+            prod_offer_type: p.offer_type || p.prod_offer_type || '%',
+            prod_offer_amount: p.offer_amount || p.prod_offer_amount || '',
+            prod_opening_stock: parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_opening_stock || 0))),
+            prod_current_stock: parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_current_stock || 0))),
+            prod_status: (p.status && p.status.toLowerCase() === 'inactive') ? 'Inactive' : 'Active'
+        };
+    }
+
+    function saveState() {
+        try {
+            localStorage.setItem('god_erp_suppliers', JSON.stringify(suppliers));
+            localStorage.setItem('god_erp_products', JSON.stringify(products));
+        } catch (e) {
+            console.error('Error saving state to localStorage', e);
+        }
+    }
+
+    function loadState() {
+        if (window.DB_SUPPLIERS && window.DB_SUPPLIERS.length > 0) {
+            suppliers = window.DB_SUPPLIERS.map(mapSupplierFromDb);
+        } else {
+            const savedSuppliers = localStorage.getItem('god_erp_suppliers');
+            if (savedSuppliers) {
+                try { suppliers = JSON.parse(savedSuppliers) || []; } catch(e) {}
+            }
+        }
+
+        if (window.DB_PRODUCTS && window.DB_PRODUCTS.length > 0) {
+            products = window.DB_PRODUCTS.map(mapProductFromDb);
+        } else {
+            const savedProducts = localStorage.getItem('god_erp_products');
+            if (savedProducts) {
+                try { products = JSON.parse(savedProducts) || []; } catch(e) {}
+            }
+        }
+
+        if (window.DB_INVOICES && Array.isArray(window.DB_INVOICES)) {
+            invoices = window.DB_INVOICES.slice();
+        }
+
+        updateSupplierDropdowns();
+    }
+
+    async function refreshStateFromDb() {
+        try {
+            const res = await fetch(getAppUrl('products/api-data'), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.CATEGORIES_DATA = data.categories || [];
+                window.SUBCATEGORIES_DATA = data.subcategories || [];
+                suppliers = (data.suppliers || []).map(mapSupplierFromDb);
+                products = (data.products || []).map(mapProductFromDb);
+                if (data.invoices && Array.isArray(data.invoices)) {
+                    invoices = data.invoices;
+                    renderInvoiceTable();
+                }
+                saveState();
+                renderSupplierTable();
+                renderProductTable();
+                renderBarcodeTable();
+                updateSupplierDropdowns();
+            }
+        } catch (err) {
+            console.error('Error refreshing state from DB:', err);
+        }
+    }
+
+    function updateSupplierDropdowns() {
+        const sel = document.getElementById('prod_supplier_id');
+        if (!sel) return;
+        const curVal = sel.value;
+        sel.innerHTML = '<option value="">Select Supplier</option>';
+        suppliers.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.supplier_name;
+            if (String(s.id) === String(curVal)) opt.selected = true;
+            sel.appendChild(opt);
+        });
+    }
 
     function openSupplierModal() {
         document.getElementById('supplier-form').reset();
@@ -629,12 +1385,28 @@
         currentEditId = null;
         document.getElementById('supplier-products-container').innerHTML = '';
         addSupplierProductField(); // Add at least one empty product field
+        
+        // Hide payment amount inputs
+        ['payment_amount_cash', 'payment_amount_upi', 'payment_amount_bank', 'payment_amount_credit'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('hidden'); el.value = ''; }
+        });
+        const totalPaid = document.getElementById('total_payment_entered');
+        if (totalPaid) totalPaid.value = '';
+        const balance = document.getElementById('balance_amount');
+        if (balance) balance.value = '';
+
         document.getElementById('supplier-modal-title').innerHTML = '<i class="fas fa-truck-loading text-indigo-600"></i> Add Supplier';
-        document.getElementById('supplier-modal').classList.remove('hidden');
+        const modal = document.getElementById('supplier-modal');
+        modal.classList.remove('hidden');
+        modal.classList.remove('flex');
     }
 
     function closeSupplierModal() {
-        document.getElementById('supplier-modal').classList.add('hidden');
+        currentEditId = null;
+        const modal = document.getElementById('supplier-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 
     function clearErrors() {
@@ -668,33 +1440,32 @@
                 <i class="fas fa-times text-xs"></i>
             </button>
             <div class="md:col-span-1">
-                <label class="block text-[10px] font-bold text-slate-700 mb-1">Product Name <span class="text-rose-500">*</span></label>
-                <input type="text" name="sp_product_name[]" value="${productData ? productData.prod_name : ''}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                <label class="block text-[10px] font-bold text-slate-700 mb-1">Product Name</label>
+                <input type="text" name="sp_product_name[]" value="${productData ? (productData.prod_name || '') : ''}" placeholder="e.g. Brass Ganesha Idol" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
             </div>
-            <div>
-                <label class="block text-[10px] font-bold text-slate-700 mb-1">Category <span class="text-rose-500">*</span></label>
-                <select name="sp_product_category[]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
-                    <option value="">Select</option>
-                    <option value="Statues" ${productData && productData.prod_category === 'Statues' ? 'selected' : ''}>Statues</option>
-                    <option value="Accessories" ${productData && productData.prod_category === 'Accessories' ? 'selected' : ''}>Accessories</option>
-                    <option value="Metals" ${productData && productData.prod_category === 'Metals' ? 'selected' : ''}>Metals</option>
-                </select>
+            <div class="relative">
+                <label class="block text-[10px] font-bold text-slate-700 mb-1">Category</label>
+                <input type="text" autocomplete="off" onfocus="showCategoryDropdown(this)" onclick="showCategoryDropdown(this)" oninput="filterCategoryDropdown(this)" onchange="const h=this.parentElement.querySelector('input[type=hidden]');if(h)h.value=this.value.trim();" placeholder="Search category or Add category" class="cat-search-input w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" value="${productData ? (productData.prod_category || '') : ''}">
+                <input type="hidden" name="sp_product_category[]" value="${productData ? (productData.prod_category || '') : ''}">
+                <div class="category-dropdown absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-xl hidden max-h-48 overflow-y-auto mt-1" style="top: 100%;"></div>
             </div>
-            <div>
+            <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Subcategory</label>
-                <input type="text" name="sp_product_subcategory[]" value="${productData ? (productData.prod_subcategory || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. Chola Style">
+                <input type="text" autocomplete="off" onfocus="showSubcategoryDropdown(this)" onclick="showSubcategoryDropdown(this)" oninput="filterSubcategoryDropdown(this)" onchange="const h=this.parentElement.querySelector('input[type=hidden]');if(h)h.value=this.value.trim();" placeholder="Search subcategory or Add subcategory" class="subcat-search-input w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" value="${productData ? (productData.prod_subcategory || '') : ''}">
+                <input type="hidden" name="sp_product_subcategory[]" value="${productData ? (productData.prod_subcategory || '') : ''}">
+                <div class="subcategory-dropdown absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-xl hidden max-h-48 overflow-y-auto mt-1" style="top: 100%;"></div>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Pieces Count</label>
-                <input type="number" min="0" name="sp_unit[]" value="${productData ? (productData.prod_unit || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. 10" oninput="calculateSupplierPurchase(this)">
+                <input type="number" min="0" name="sp_unit[]" value="${productData ? (productData.prod_current_stock !== undefined ? productData.prod_current_stock : (productData.prod_unit || '')) : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. 10" oninput="calculateSupplierPurchase(this)">
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">One Piece Rate (₹)</label>
                 <input type="number" step="0.01" min="0" name="sp_piece_rate[]" value="${productData ? (productData.prod_piece_rate || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" oninput="calculateSupplierPurchase(this)">
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-slate-700 mb-1">Total Purchase Price (₹) <span class="text-rose-500">*</span></label>
-                <input type="number" step="0.01" min="0" name="sp_purchase_price[]" value="${productData ? productData.prod_purchase_price : ''}" required class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none" readonly>
+                <label class="block text-[10px] font-bold text-slate-700 mb-1">Total Purchase Price (₹)</label>
+                <input type="number" step="0.01" min="0" name="sp_purchase_price[]" value="${productData ? (productData.prod_purchase_price || '') : ''}" class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none" readonly>
             </div>
 
             <div>
@@ -708,7 +1479,7 @@
 
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Barcode (Auto)</label>
-                <input type="text" name="sp_barcode[]" value="${productData && productData.barcode ? productData.barcode : generateSupplierBarcode()}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-500 font-mono outline-none" readonly>
+                <input type="text" name="sp_barcode[]" value="${productData && (productData.barcode || productData.prod_barcode) ? (productData.barcode || productData.prod_barcode) : generateSupplierBarcode()}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-500 font-mono outline-none" readonly>
             </div>
             <input type="hidden" name="sp_product_id[]" value="${productData ? productData.id : ''}">
         `;
@@ -853,106 +1624,86 @@
     }
 
 
-    function handleSupplierSubmit(event) {
-        event.preventDefault();
+    async function handleSupplierSubmit(event) {
+        if (event) event.preventDefault();
         clearErrors();
-        let isValid = true;
         
-        const formData = new FormData(event.target);
-        
-        // Build supplier object
-        const data = {
-            supplier_name: formData.get('supplier_name'),
-            mobile_number: formData.get('mobile_number'),
-            alt_mobile_number: formData.get('alt_mobile_number'),
-            email: formData.get('email'),
-            address: formData.get('address'),
-            city: formData.get('city'),
-            state: formData.get('state'),
-            pincode: formData.get('pincode'),
-            gst_number: formData.get('gst_number'),
-            pan_number: formData.get('pan_number'),
-            payment_method: formData.get('payment_method'),
-            total_amount_purchased: formData.get('total_amount_purchased'),
-            notes: formData.get('notes'),
-            status: formData.get('status')
-        };
+        const form = document.getElementById('supplier-form');
 
-        // 1. Validate Required Fields for Supplier
-        const requiredFields = ['supplier_name', 'mobile_number', 'address'];
-        requiredFields.forEach(field => {
-            if (!data[field] || data[field].trim() === '') {
-                showError(field, 'Required');
-                isValid = false;
+        // Sync visible category and subcategory inputs to hidden inputs
+        form.querySelectorAll('.supplier-product-block').forEach(block => {
+            const catVis = block.querySelector('.cat-search-input');
+            const catHid = block.querySelector('input[name="sp_product_category[]"]');
+            if (catVis && catHid) {
+                catHid.value = catVis.value.trim();
+            }
+            const subVis = block.querySelector('.subcat-search-input');
+            const subHid = block.querySelector('input[name="sp_product_subcategory[]"]');
+            if (subVis && subHid) {
+                subHid.value = subVis.value.trim();
             }
         });
 
-        // Add to array
-        let supplierId;
+        const formData = new FormData(form);
+        
+        const supplierName = (formData.get('supplier_name') || '').trim();
+        const mobileNumber = (formData.get('mobile_number') || '').trim();
+        
+        let isValid = true;
+        if (!supplierName) {
+            showError('supplier_name', 'Supplier name is required');
+            isValid = false;
+        }
+        if (!mobileNumber) {
+            showError('mobile_number', 'Mobile number is required');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Payment methods
+        const paymentMethods = formData.getAll('payment_methods[]').join(', ') || 'Cash';
+        formData.set('payment_methods', paymentMethods);
+        formData.append('_csrf_token', window.CSRF_TOKEN || '');
         if (currentEditId) {
-            supplierId = currentEditId;
-            const index = suppliers.findIndex(s => s.id === currentEditId);
-            if (index > -1) {
-                data.barcode = suppliers[index].barcode || Math.floor(100000 + Math.random() * 900000).toString();
-                suppliers[index] = { ...data, id: currentEditId };
+            formData.append('supplier_id', currentEditId);
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]') || document.querySelector('button[form="supplier-form"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Saving...';
+        }
+
+        try {
+            const res = await fetch(getAppUrl('suppliers/save-with-products'), {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('success', data.message || (currentEditId ? 'Supplier updated successfully.' : 'Supplier and products saved.'));
+                closeSupplierModal();
+                currentEditId = null;
+                await refreshStateFromDb();
+            } else {
+                showToast('error', data.message || 'Failed to save supplier.');
             }
-        } else {
-            supplierId = Date.now();
-            data.id = supplierId;
-            data.barcode = Math.floor(100000 + Math.random() * 900000).toString();
-            suppliers.push(data);
-        }
-
-        // Process products
-        const sp_names = formData.getAll('sp_product_name[]');
-        const sp_cats = formData.getAll('sp_product_category[]');
-        const sp_units = formData.getAll('sp_unit[]');
-        const sp_piece_rates = formData.getAll('sp_piece_rate[]');
-        const sp_purchases = formData.getAll('sp_purchase_price[]');
-        const sp_sells = formData.getAll('sp_selling_price[]');
-        const sp_gsts = formData.getAll('sp_gst[]');
-
-        const sp_barcodes = formData.getAll('sp_barcode[]');
-        const sp_ids = formData.getAll('sp_product_id[]');
-        
-        // Remove old products linked to this supplier if editing (to replace with the new list)
-        if (currentEditId) {
-            products = products.filter(p => p.prod_supplier_id !== currentEditId);
-        }
-
-        // Add new product list
-        for (let i = 0; i < sp_names.length; i++) {
-            if (sp_names[i].trim() !== '') {
-                let prodId = sp_ids[i] ? parseInt(sp_ids[i]) : Date.now() + i;
-                products.push({
-                    id: prodId,
-                    prod_supplier_id: supplierId,
-                    prod_name: sp_names[i],
-                    prod_sku: 'SKU-' + Math.floor(Math.random() * 90000),
-                    prod_barcode: sp_barcodes[i] || ('BAR-' + Math.floor(1000000000 + Math.random() * 9000000000)),
-                    prod_category: sp_cats[i],
-                    prod_unit: sp_units[i],
-                    prod_piece_rate: sp_piece_rates[i],
-                    prod_purchase_price: sp_purchases[i],
-                    prod_selling_price: sp_sells[i],
-                    prod_gst: sp_gsts[i],
-                    prod_opening_stock: 0,
-                    prod_current_stock: 0,
-                    prod_status: 'Active'
-                });
+        } catch (err) {
+            console.error('Error saving supplier:', err);
+            showToast('error', 'Network error occurred while saving supplier.');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save mr-1.5"></i> Save Supplier';
             }
         }
-        
-        showToast('success', currentEditId ? 'Supplier and associated products updated.' : 'Supplier and products saved.');
-        
-        closeSupplierModal();
-        renderSupplierTable();
-        renderProductTable();
-        renderBarcodeTable();
     }
 
     function renderBarcodeTable() {
         const tbody = document.getElementById('barcode-table-body');
+        if (!tbody) return;
         if (products.length === 0) {
             tbody.innerHTML = `
                 <tr id="barcode-empty-state-row">
@@ -967,7 +1718,7 @@
 
         tbody.innerHTML = '';
         products.forEach(p => {
-            const supplier = suppliers.find(s => s.id === p.prod_supplier_id);
+            const supplier = suppliers.find(s => s.id == p.prod_supplier_id);
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-emerald-50/50 transition-colors';
             
@@ -998,6 +1749,7 @@
 
     function renderSupplierTable() {
         const tbody = document.getElementById('supplier-table-body');
+        if (!tbody) return;
         if (suppliers.length === 0) {
             tbody.innerHTML = `
                 <tr id="empty-state-row">
@@ -1016,57 +1768,90 @@
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50 transition-colors';
             
-            // Fetch products for this supplier
-            const supplierProducts = products.filter(p => p.prod_supplier_id === s.id);
+            // Fetch products for this supplier using loose string comparison
+            const supplierProducts = products.filter(p => String(p.prod_supplier_id) === String(s.id));
+            const suppName = s.supplier_name || s.name || 'Unnamed Supplier';
+            const suppMobile = s.mobile_number || s.mobile || s.phone || 'N/A';
+            const suppCode = s.barcode || s.supplier_code || ('SUP-' + s.id);
+            const suppGst = s.gst_number || s.tax_number || 'N/A';
+            const suppStatus = s.status || 'Active';
             
             tr.innerHTML = `
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-800">${s.supplier_name}</div>
+                    <div class="font-bold text-slate-800">${suppName}</div>
                     <div class="text-[10px] text-slate-500 mt-0.5"><i class="fas fa-envelope text-slate-400 mr-1"></i>${s.email || 'N/A'}</div>
                 </td>
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-700">${s.mobile_number}</div>
+                    <div class="font-bold text-slate-700">${suppMobile}</div>
                 </td>
                 <td class="py-3 px-4 font-mono text-[12px] font-bold text-indigo-700 bg-indigo-50/50 rounded-lg text-center tracking-wider">
-                    ${s.barcode || 'N/A'}
+                    ${suppCode}
                 </td>
                 <td class="py-3 px-4">
                     <div class="font-bold text-indigo-700 text-xs">${supplierProducts.length} Products</div>
                 </td>
-                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${s.gst_number || 'N/A'}</td>
+                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${suppGst}</td>
                 <td class="py-3 px-4">
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${s.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
-                        ${s.status || 'Active'}
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${suppStatus.toLowerCase() === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                        ${suppStatus}
                     </span>
                 </td>
                 <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="viewSupplier(${s.id})" title="View" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs transition-colors"><i class="fas fa-eye"></i></button>
-                    <button onclick="editSupplier(${s.id})" title="Edit" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs transition-colors"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteSupplier(${s.id})" title="Delete" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs transition-colors"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="viewSupplier('${s.id}')" title="View Supplier" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs transition-colors"><i class="fas fa-eye"></i></button>
+                    <button onclick="editSupplier('${s.id}')" title="Edit Supplier" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs transition-colors"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteSupplier('${s.id}')" title="Delete Supplier" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs transition-colors"><i class="fas fa-trash-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    function deleteSupplier(id) {
-        if (confirm('Are you sure you want to delete this supplier? All associated products will also be removed.')) {
-            suppliers = suppliers.filter(s => s.id !== id);
-            products = products.filter(p => p.prod_supplier_id !== id);
-            renderSupplierTable();
-            renderProductTable();
+    async function deleteSupplier(id) {
+        const confirmed = await showConfirmDialog({
+            title: 'Delete Supplier',
+            message: 'Are you sure you want to delete this supplier?<br><span class="text-rose-500 text-xs font-semibold mt-1 inline-block">All associated products will also be removed.</span>',
+            confirmText: 'Yes, Delete',
+            type: 'danger'
+        });
+        if (!confirmed) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('_csrf_token', window.CSRF_TOKEN || '');
+            const res = await fetch((window.APP_URL || '') + '/suppliers/delete/' + id, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('success', data.message || 'Supplier deleted successfully.');
+                await refreshStateFromDb();
+            } else {
+                showToast('error', data.message || 'Failed to delete supplier.');
+            }
+        } catch (err) {
+            console.error('Error deleting supplier:', err);
+            showToast('error', 'Network error occurred while deleting supplier.');
         }
     }
 
     function closeSupplierViewModal() {
-        document.getElementById('supplier-view-modal').classList.add('hidden');
+        const modal = document.getElementById('supplier-view-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function viewSupplier(id) {
-        const s = suppliers.find(sup => sup.id === id);
-        if (!s) return;
+        const s = suppliers.find(sup => String(sup.id) === String(id));
+        if (!s) {
+            showToast('error', 'Supplier details not found.');
+            return;
+        }
         
-        const supplierProducts = products.filter(p => p.prod_supplier_id === id);
+        const supplierProducts = products.filter(p => String(p.prod_supplier_id) === String(id));
         
         let productsHtml = '';
         if(supplierProducts.length > 0) {
@@ -1074,11 +1859,11 @@
                 <div class="flex items-center justify-between border-b border-slate-100 last:border-0 py-2">
                     <div>
                         <p class="font-bold text-slate-800 text-sm">${p.prod_name}</p>
-                        <p class="text-[10px] text-slate-500">${p.prod_category} | ${p.prod_barcode || p.prod_sku}</p>
+                        <p class="text-[10px] text-slate-500">${p.prod_category || 'General'} ${p.prod_subcategory ? ' - ' + p.prod_subcategory : ''} | ${p.prod_barcode || p.prod_sku || 'N/A'}</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-bold text-emerald-600 text-sm">₹${parseFloat(p.prod_purchase_price).toFixed(2)}</p>
-                        <p class="text-[10px] text-slate-500">${p.prod_unit} units</p>
+                        <p class="font-bold text-emerald-600 text-sm">₹${(parseFloat(p.prod_purchase_price) || 0).toFixed(2)}</p>
+                        <p class="text-[10px] text-slate-500">${p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)} units</p>
                     </div>
                 </div>
             `).join('');
@@ -1086,25 +1871,35 @@
             productsHtml = '<p class="text-sm text-slate-500 italic py-2">No products linked.</p>';
         }
 
+        const suppName = s.supplier_name || s.name || 'Unnamed Supplier';
+        const suppMobile = s.mobile_number || s.mobile || s.phone || 'N/A';
+        const suppAltMobile = s.alt_mobile_number || 'N/A';
+        const suppEmail = s.email || 'N/A';
+        const suppGst = s.gst_number || s.tax_number || 'N/A';
+        const suppMethods = s.payment_methods || 'N/A';
+        const suppAddress = s.address || 'N/A';
+        const suppCity = s.city || '';
+        const suppState = s.state || '';
+
         const html = `
             <div class="space-y-6">
                 <!-- Basic Info -->
                 <div class="grid grid-cols-2 gap-4 border-b border-slate-100 pb-4">
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Supplier Name</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${s.supplier_name}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${suppName}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Mobile Number</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${s.mobile_number}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${suppMobile}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${s.email || 'N/A'}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${suppEmail}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Alt Mobile</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${s.alt_mobile_number || 'N/A'}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${suppAltMobile}</p>
                     </div>
                 </div>
                 
@@ -1112,16 +1907,16 @@
                 <div class="grid grid-cols-2 gap-4 border-b border-slate-100 pb-4 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">GST Number</p>
-                        <p class="font-mono text-indigo-700 text-sm font-semibold mt-0.5">${s.gst_number || 'N/A'}</p>
+                        <p class="font-mono text-indigo-700 text-sm font-semibold mt-0.5">${suppGst}</p>
                     </div>
                     <div>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">PAN Number</p>
-                        <p class="font-mono text-indigo-700 text-sm font-semibold mt-0.5">${s.pan_number || 'N/A'}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Payment Methods</p>
+                        <p class="font-mono text-indigo-700 text-sm font-semibold mt-0.5">${suppMethods}</p>
                     </div>
                     <div class="col-span-2 mt-2 border-t border-slate-200/50 pt-2">
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Address</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${s.address || 'N/A'}</p>
-                        <p class="text-xs text-slate-600">${s.city || ''} ${s.state ? ', ' + s.state : ''} ${s.pincode ? '- ' + s.pincode : ''}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${suppAddress}</p>
+                        <p class="text-xs text-slate-600">${suppCity} ${suppState ? ', ' + suppState : ''}</p>
                     </div>
                 </div>
 
@@ -1135,28 +1930,68 @@
             </div>
         `;
         document.getElementById('supplier-view-content').innerHTML = html;
-        document.getElementById('supplier-view-modal').classList.remove('hidden');
+        const modal = document.getElementById('supplier-view-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
     }
 
     function editSupplier(id) {
-        const s = suppliers.find(sup => sup.id === id);
-        if (!s) return;
+        const s = suppliers.find(sup => String(sup.id) === String(id));
+        if (!s) {
+            showToast('error', 'Supplier not found.');
+            return;
+        }
         
         currentEditId = id;
         clearErrors();
         document.getElementById('supplier-modal-title').innerHTML = '<i class="fas fa-edit text-amber-500"></i> Edit Supplier';
         
         const form = document.getElementById('supplier-form');
+        form.reset();
         
         // Load basic supplier fields
         Object.keys(s).forEach(key => {
             const input = form.elements[key];
-            if (input && input.name && !input.name.includes('[]')) input.value = s[key];
+            if (input && input.name && !input.name.includes('[]')) input.value = s[key] || '';
+        });
+
+        // Ensure name and mobile are populated even with alternative keys
+        if (form.elements['supplier_name'] && !form.elements['supplier_name'].value) {
+            form.elements['supplier_name'].value = s.name || '';
+        }
+        if (form.elements['mobile_number'] && !form.elements['mobile_number'].value) {
+            form.elements['mobile_number'].value = s.mobile || s.phone || '';
+        }
+
+        // Restore payment method checkboxes and amount fields
+        const paymentMethods = (s.payment_methods || '').toLowerCase();
+        const methodsMap = [
+            { name: 'cash', valName: 'Cash', inputId: 'payment_amount_cash', amount: s.payment_amount_cash },
+            { name: 'upi', valName: 'UPI', inputId: 'payment_amount_upi', amount: s.payment_amount_upi },
+            { name: 'bank transfer', valName: 'Bank Transfer', inputId: 'payment_amount_bank', amount: s.payment_amount_bank },
+            { name: 'credit', valName: 'Credit', inputId: 'payment_amount_credit', amount: s.payment_amount_credit }
+        ];
+
+        methodsMap.forEach(item => {
+            const chk = form.querySelector(`input[name="payment_methods[]"][value="${item.valName}"]`);
+            const amtInput = document.getElementById(item.inputId);
+            const isChecked = paymentMethods.includes(item.name) || (item.amount && parseFloat(item.amount) > 0);
+            if (chk) chk.checked = isChecked;
+            if (amtInput) {
+                if (isChecked) {
+                    amtInput.classList.remove('hidden');
+                    amtInput.value = item.amount || '';
+                } else {
+                    amtInput.classList.add('hidden');
+                    amtInput.value = '';
+                }
+            }
         });
         
         // Load associated products
         document.getElementById('supplier-products-container').innerHTML = '';
-        const supplierProducts = products.filter(p => p.prod_supplier_id === id);
+        const supplierProducts = products.filter(p => String(p.prod_supplier_id) === String(id));
         
         if (supplierProducts.length > 0) {
             supplierProducts.forEach(p => addSupplierProductField(p));
@@ -1164,13 +1999,16 @@
             addSupplierProductField();
         }
         
-        document.getElementById('supplier-modal').classList.remove('hidden');
+        calculateTotalSupplierPurchase();
+        calculateTotalPaid();
+        const modal = document.getElementById('supplier-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     // --- PRODUCT MANAGEMENT LOGIC ---
-    let products = [];
-    let currentProductEditId = null;
-
     function openProductModal() {
         document.getElementById('product-form').reset();
         clearProductErrors();
@@ -1191,15 +2029,27 @@
         addProductProductField();
 
         toggleProductOffer();
-        document.getElementById('product-modal').classList.remove('hidden');
+        const modal = document.getElementById('product-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function closeProductModal() {
-        document.getElementById('product-modal').classList.add('hidden');
+        const modal = document.getElementById('product-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function closeProductViewModal() {
-        document.getElementById('product-view-modal').classList.add('hidden');
+        const modal = document.getElementById('product-view-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function clearProductErrors() {
@@ -1246,80 +2096,104 @@
         }
     }
 
-    function handleProductSubmit(event) {
-        event.preventDefault();
+    async function handleProductSubmit(event) {
+        if (event) event.preventDefault();
         clearProductErrors();
         
-        const formData = new FormData(event.target);
-        const prod_supplier_id = formData.get('prod_supplier_id');
-        const prod_tax_inclusive = formData.get('prod_tax_inclusive');
-        const prod_offer_available = formData.get('prod_offer_available');
-        const prod_offer_type = formData.get('prod_offer_type');
-        const prod_offer_amount = formData.get('prod_offer_amount');
+        const form = document.getElementById('product-form');
 
-        const ap_names = formData.getAll('ap_product_name[]');
-        const ap_cats = formData.getAll('ap_product_category[]');
-        const ap_subcats = formData.getAll('ap_product_subcategory[]');
-        const ap_units = formData.getAll('ap_unit[]');
-        const ap_piece_rates = formData.getAll('ap_piece_rate[]');
-        const ap_purchases = formData.getAll('ap_purchase_price[]');
-        const ap_sells = formData.getAll('ap_selling_price[]');
-        const ap_gsts = formData.getAll('ap_gst[]');
-        const ap_barcodes = formData.getAll('ap_barcode[]');
-        const ap_ids = formData.getAll('ap_product_id[]');
+        // Sync visible category and subcategory inputs to hidden inputs
+        form.querySelectorAll('.product-product-block').forEach(block => {
+            const catVis = block.querySelector('.cat-search-input');
+            const catHid = block.querySelector('input[name="ap_product_category[]"]');
+            if (catVis && catHid) {
+                catHid.value = catVis.value.trim();
+            }
+            const subVis = block.querySelector('.subcat-search-input');
+            const subHid = block.querySelector('input[name="ap_product_subcategory[]"]');
+            if (subVis && subHid) {
+                subHid.value = subVis.value.trim();
+            }
+        });
+
+        const formData = new FormData(form);
+        const prod_supplier_id = formData.get('prod_supplier_id');
         
-        for (let i = 0; i < ap_names.length; i++) {
-            if (ap_names[i].trim() !== '') {
-                let prodId = ap_ids[i] ? parseInt(ap_ids[i]) : Date.now() + i;
-                
-                let data = {
-                    id: prodId,
-                    prod_supplier_id: prod_supplier_id,
-                    prod_name: ap_names[i],
-                    prod_sku: 'SKU-' + Math.floor(Math.random() * 90000),
-                    prod_barcode: ap_barcodes[i] || ('BAR-' + Math.floor(1000000000 + Math.random() * 9000000000)),
-                    prod_category: ap_cats[i],
-                    prod_subcategory: ap_subcats[i],
-                    prod_unit: ap_units[i],
-                    prod_piece_rate: ap_piece_rates[i],
-                    prod_purchase_price: ap_purchases[i],
-                    prod_selling_price: ap_sells[i],
-                    prod_gst: ap_gsts[i],
-                    prod_tax_inclusive: prod_tax_inclusive,
-                    prod_offer_available: prod_offer_available,
-                    prod_offer_type: prod_offer_type,
-                    prod_offer_amount: prod_offer_amount,
-                    prod_opening_stock: 0,
-                    prod_current_stock: 0,
-                    prod_status: 'Active'
-                };
-                
-                if (currentProductEditId) {
-                    const index = products.findIndex(p => p.id === currentProductEditId);
-                    if (index > -1) {
-                        data.prod_barcode = products[index].prod_barcode || data.prod_barcode;
-                        data.prod_sku = products[index].prod_sku || data.prod_sku;
-                        products[index] = data;
-                    }
-                } else {
-                    products.push(data);
+        if (!prod_supplier_id) {
+            showProductError('prod_supplier_id', 'Supplier is required');
+            return;
+        }
+
+        // Check that at least one product has a name
+        const productBlocks = document.querySelectorAll('.product-product-block');
+        let hasValidProduct = false;
+        let hasMissingCat = false;
+
+        productBlocks.forEach(block => {
+            const name = block.querySelector('input[name="ap_product_name[]"]')?.value?.trim();
+            if (name) {
+                hasValidProduct = true;
+                const catVal = block.querySelector('input[name="ap_product_category[]"]')?.value?.trim() || block.querySelector('.cat-search-input')?.value?.trim();
+                if (!catVal) {
+                    hasMissingCat = true;
                 }
             }
+        });
+
+        if (!hasValidProduct) {
+            showToast('error', 'Please enter at least one product name.');
+            return;
         }
-        
-        showToast('success', currentProductEditId ? 'Product updated successfully.' : 'Product(s) added successfully.');
-        
-        closeProductModal();
-        renderProductTable();
-        renderSupplierTable(); // Update the supplier product counts
+
+        if (hasMissingCat) {
+            showToast('error', 'Please select or enter a category for each product.');
+            return;
+        }
+
+        formData.append('_csrf_token', window.CSRF_TOKEN || '');
+        if (currentProductEditId) {
+            formData.append('product_id', currentProductEditId);
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]') || document.querySelector('button[form="product-form"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Saving...';
+        }
+
+        try {
+            const res = await fetch(getAppUrl('products/save-detail'), {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('success', data.message || 'Product(s) saved successfully.');
+                closeProductModal();
+                currentProductEditId = null;
+                await refreshStateFromDb();
+            } else {
+                showToast('error', data.message || 'Failed to save product(s).');
+            }
+        } catch (err) {
+            console.error('Error saving product detail:', err);
+            showToast('error', 'Network error occurred while saving product(s).');
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save mr-1.5"></i> Save Product';
+            }
+        }
     }
 
     function renderProductTable() {
         const tbody = document.getElementById('product-table-body');
+        if (!tbody) return;
         if (products.length === 0) {
             tbody.innerHTML = `
                 <tr id="product-empty-state-row">
-                    <td colspan="10" class="py-12 text-center text-amber-400">
+                    <td colspan="9" class="py-12 text-center text-amber-400">
                         <i class="fas fa-box-open text-3xl mb-3 block text-amber-300"></i>
                         <p class="font-bold text-amber-600 text-sm">No products found</p>
                         <p class="text-xs mt-1">Click "Add Products Detail" to create your first entry.</p>
@@ -1341,56 +2215,87 @@
             
             let supplierName = 'Unknown';
             const sup = suppliers.find(s => s.id == p.prod_supplier_id);
-            if(sup) supplierName = sup.supplier_name;
+            if (sup) supplierName = sup.supplier_name;
+
+            const purchasePrice = parseFloat(p.prod_purchase_price) || 0;
+            const sellingPrice = parseFloat(p.prod_selling_price) || 0;
+            const gst = parseFloat(p.prod_gst) || 0;
+            const stock = p.prod_current_stock !== undefined ? p.prod_current_stock : (parseInt(p.prod_unit) || 0);
+            const unit = p.prod_unit && isNaN(p.prod_unit) ? p.prod_unit : 'Pieces';
 
             tr.innerHTML = `
                 <td class="py-3 px-4">
                     <div class="font-bold text-slate-800">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-500 mt-0.5"><i class="fas fa-barcode text-slate-400 mr-1"></i>${p.prod_sku} / ${p.prod_barcode}</div>
+                    <div class="text-[10px] text-slate-500 mt-0.5"><i class="fas fa-barcode text-slate-400 mr-1"></i>${p.prod_sku || 'N/A'} / ${p.prod_barcode || 'N/A'}</div>
                 </td>
                 <td class="py-3 px-4">
-                    <div class="text-[10px] text-amber-700 bg-amber-50 inline-block px-2 py-0.5 mt-0.5 rounded-md border border-amber-100 font-medium">${p.prod_category}</div>
+                    <div class="text-[10px] text-amber-700 bg-amber-50 inline-block px-2 py-0.5 mt-0.5 rounded-md border border-amber-100 font-medium">${p.prod_category || 'General'}</div>
                 </td>
                 <td class="py-3 px-4 font-bold text-slate-700 text-xs">${supplierName}</td>
                 <td class="py-3 px-4 font-mono">
-                    <div class="text-slate-900 font-bold text-xs">P: ₹${parseFloat(p.prod_purchase_price).toFixed(2)}</div>
-                    <div class="text-[10px] text-emerald-600 font-bold">S: ₹${parseFloat(p.prod_selling_price).toFixed(2)}</div>
+                    <div class="text-slate-900 font-bold text-xs">P: ₹${purchasePrice.toFixed(2)}</div>
+                    <div class="text-[10px] text-emerald-600 font-bold">S: ₹${sellingPrice.toFixed(2)}</div>
                 </td>
-                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${p.prod_gst}%</td>
-                <td class="py-3 px-4 font-bold ${p.prod_current_stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-700'} text-xs">${p.prod_current_stock} ${p.prod_unit}</td>
+                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${gst}%</td>
+                <td class="py-3 px-4 font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-700'} text-xs">${stock} ${unit}</td>
                 <td class="py-3 px-4 font-bold text-fuchsia-600 text-xs">${offerDisplay}</td>
                 <td class="py-3 px-4">
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${p.prod_status === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
-                        ${p.prod_status}
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${(p.prod_status || 'Active') === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                        ${p.prod_status || 'Active'}
                     </span>
                 </td>
                 <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="viewProduct(${p.id})" title="View" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs transition-colors"><i class="fas fa-eye"></i></button>
-                    <button onclick="editProduct(${p.id})" title="Edit" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs transition-colors"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteProduct(${p.id})" title="Delete" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs transition-colors"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="viewProduct('${p.id}')" title="View Product" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs transition-colors"><i class="fas fa-eye"></i></button>
+                    <button onclick="editProduct('${p.id}')" title="Edit Product" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs transition-colors"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteProduct('${p.id}')" title="Delete Product" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs transition-colors"><i class="fas fa-trash-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    function deleteProduct(id) {
-        if (confirm('Are you sure you want to delete this product?')) {
-            products = products.filter(p => p.id !== id);
-            renderProductTable();
-            renderSupplierTable(); // Update the supplier product counts
+    async function deleteProduct(id) {
+        const confirmed = await showConfirmDialog({
+            title: 'Delete Product',
+            message: 'Are you sure you want to delete this product?<br><span class="text-rose-500 text-xs font-semibold mt-1 inline-block">This action cannot be undone.</span>',
+            confirmText: 'Yes, Delete',
+            type: 'danger'
+        });
+        if (!confirmed) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('_csrf_token', window.CSRF_TOKEN || '');
+            const res = await fetch((window.APP_URL || '') + '/products/delete/' + id, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('success', data.message || 'Product deleted successfully.');
+                await refreshStateFromDb();
+            } else {
+                showToast('error', data.message || 'Failed to delete product.');
+            }
+        } catch (err) {
+            console.error('Error deleting product:', err);
+            showToast('error', 'Network error occurred while deleting product.');
         }
     }
 
     function viewProduct(id) {
-        const p = products.find(prod => prod.id === id);
-        if (!p) return;
+        const p = products.find(prod => String(prod.id) === String(id));
+        if (!p) {
+            showToast('error', 'Product not found.');
+            return;
+        }
         
         let supplierName = 'Unknown';
-        const sup = suppliers.find(s => s.id == p.prod_supplier_id);
-        if(sup) supplierName = sup.supplier_name;
+        const sup = suppliers.find(s => String(s.id) === String(p.prod_supplier_id));
+        if(sup) supplierName = sup.supplier_name || sup.name || 'Unknown';
 
-        let finalPrice = parseFloat(p.prod_selling_price);
+        let finalPrice = parseFloat(p.prod_selling_price) || 0;
         if (p.prod_offer_available === 'Yes' && p.prod_offer_amount) {
             if (p.prod_offer_type === '%') {
                 finalPrice = finalPrice - (finalPrice * parseFloat(p.prod_offer_amount) / 100);
@@ -1409,11 +2314,11 @@
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">SKU / Barcode</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${p.prod_sku} / ${p.prod_barcode || 'N/A'}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${p.prod_sku || 'N/A'} / ${p.prod_barcode || 'N/A'}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Category / Brand</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${p.prod_category} ${p.prod_brand ? '- ' + p.prod_brand : ''}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${p.prod_category || 'General'} ${p.prod_brand ? '- ' + p.prod_brand : ''}</p>
                     </div>
                 </div>
                 
@@ -1425,7 +2330,7 @@
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Mobile Number</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${sup ? sup.mobile_number : 'N/A'}</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${sup ? (sup.mobile_number || sup.mobile || sup.phone || 'N/A') : 'N/A'}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email</p>
@@ -1433,7 +2338,7 @@
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">GST Number</p>
-                        <p class="font-mono text-slate-700 text-xs font-semibold mt-0.5">${sup && sup.gst_number ? sup.gst_number : 'N/A'}</p>
+                        <p class="font-mono text-slate-700 text-xs font-semibold mt-0.5">${sup && (sup.gst_number || sup.tax_number) ? (sup.gst_number || sup.tax_number) : 'N/A'}</p>
                     </div>
                     <div class="col-span-2 lg:col-span-4 mt-2 border-t border-slate-200/50 pt-2">
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Address</p>
@@ -1445,11 +2350,11 @@
                 <div class="grid grid-cols-3 gap-4 border-b border-slate-100 pb-4">
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Purchase Price</p>
-                        <p class="font-bold text-emerald-600 text-sm mt-0.5">₹${parseFloat(p.prod_purchase_price).toFixed(2)}</p>
+                        <p class="font-bold text-emerald-600 text-sm mt-0.5">₹${(parseFloat(p.prod_purchase_price) || 0).toFixed(2)}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Selling Price</p>
-                        <p class="font-bold text-emerald-600 text-sm mt-0.5">₹${parseFloat(p.prod_selling_price).toFixed(2)}</p>
+                        <p class="font-bold text-emerald-600 text-sm mt-0.5">₹${(parseFloat(p.prod_selling_price) || 0).toFixed(2)}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Final Price (Offer)</p>
@@ -1457,7 +2362,7 @@
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">GST</p>
-                        <p class="font-bold text-slate-800 text-sm mt-0.5">${p.prod_gst}% (${p.prod_tax_inclusive === 'Yes' ? 'Inclusive' : 'Exclusive'})</p>
+                        <p class="font-bold text-slate-800 text-sm mt-0.5">${p.prod_gst || 0}% (${p.prod_tax_inclusive === 'Yes' ? 'Inclusive' : 'Exclusive'})</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">HSN/SAC Code</p>
@@ -1469,7 +2374,7 @@
                 <div class="grid grid-cols-3 gap-4">
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Stock</p>
-                        <p class="font-bold ${p.prod_current_stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-lg mt-0.5">${p.prod_current_stock} ${p.prod_unit}</p>
+                        <p class="font-bold ${(p.prod_current_stock !== undefined ? p.prod_current_stock : 0) <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-lg mt-0.5">${p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)} ${p.prod_unit || 'Pieces'}</p>
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Min / Max Stock</p>
@@ -1483,12 +2388,19 @@
             </div>
         `;
         document.getElementById('product-view-content').innerHTML = html;
-        document.getElementById('product-view-modal').classList.remove('hidden');
+        const modal = document.getElementById('product-view-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function editProduct(id) {
-        const p = products.find(prod => prod.id === id);
-        if (!p) return;
+        const p = products.find(prod => String(prod.id) === String(id));
+        if (!p) {
+            showToast('error', 'Product not found.');
+            return;
+        }
         
         currentProductEditId = id;
         clearProductErrors();
@@ -1499,7 +2411,7 @@
         suppliers.forEach(s => {
             const opt = document.createElement('option');
             opt.value = s.id;
-            opt.textContent = s.supplier_name;
+            opt.textContent = s.supplier_name || s.name || ('Supplier #' + s.id);
             supplierSelect.appendChild(opt);
         });
 
@@ -1512,9 +2424,15 @@
         
         document.getElementById('product-products-container').innerHTML = '';
         addProductProductField(p);
+        calculateTotalProductPurchase();
+        calculateProdTotalPaid();
         
         toggleProductOffer();
-        document.getElementById('product-modal').classList.remove('hidden');
+        const modal = document.getElementById('product-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     // Dynamic Product Methods for Add Product form
@@ -1528,32 +2446,31 @@
             </button>
             <div class="md:col-span-1">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Product Name <span class="text-rose-500">*</span></label>
-                <input type="text" name="ap_product_name[]" value="${productData ? productData.prod_name : ''}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                <input type="text" name="ap_product_name[]" value="${productData ? (productData.prod_name || '') : ''}" placeholder="e.g. Brass Ganesha Idol" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
             </div>
-            <div>
+            <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Category <span class="text-rose-500">*</span></label>
-                <select name="ap_product_category[]" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
-                    <option value="">Select</option>
-                    <option value="Statues" ${productData && productData.prod_category === 'Statues' ? 'selected' : ''}>Statues</option>
-                    <option value="Accessories" ${productData && productData.prod_category === 'Accessories' ? 'selected' : ''}>Accessories</option>
-                    <option value="Metals" ${productData && productData.prod_category === 'Metals' ? 'selected' : ''}>Metals</option>
-                </select>
+                <input type="text" autocomplete="off" onfocus="showCategoryDropdown(this)" onclick="showCategoryDropdown(this)" oninput="filterCategoryDropdown(this)" onchange="const h=this.parentElement.querySelector('input[type=hidden]');if(h)h.value=this.value.trim();" placeholder="Search category or Add category" class="cat-search-input w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" value="${productData ? (productData.prod_category || '') : ''}">
+                <input type="hidden" name="ap_product_category[]" value="${productData ? (productData.prod_category || '') : ''}">
+                <div class="category-dropdown absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-xl hidden max-h-48 overflow-y-auto mt-1" style="top: 100%;"></div>
             </div>
-            <div>
+            <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Subcategory</label>
-                <input type="text" name="ap_product_subcategory[]" value="${productData ? (productData.prod_subcategory || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. Chola Style">
+                <input type="text" autocomplete="off" onfocus="showSubcategoryDropdown(this)" onclick="showSubcategoryDropdown(this)" oninput="filterSubcategoryDropdown(this)" onchange="const h=this.parentElement.querySelector('input[type=hidden]');if(h)h.value=this.value.trim();" placeholder="Search subcategory or Add subcat" class="subcat-search-input w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" value="${productData ? (productData.prod_subcategory || '') : ''}">
+                <input type="hidden" name="ap_product_subcategory[]" value="${productData ? (productData.prod_subcategory || '') : ''}">
+                <div class="subcategory-dropdown absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-xl hidden max-h-48 overflow-y-auto mt-1" style="top: 100%;"></div>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Pieces Count</label>
-                <input type="number" min="0" name="ap_unit[]" value="${productData ? (productData.prod_unit || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. 10" oninput="calculateProductPurchase(this)">
+                <input type="number" min="0" name="ap_unit[]" value="${productData ? (productData.prod_current_stock !== undefined ? productData.prod_current_stock : (productData.prod_unit || '')) : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. 10" oninput="calculateProductPurchase(this)">
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">One Piece Rate (₹)</label>
                 <input type="number" step="0.01" min="0" name="ap_piece_rate[]" value="${productData ? (productData.prod_piece_rate || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" oninput="calculateProductPurchase(this)">
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-slate-700 mb-1">Total Purchase Price (₹) <span class="text-rose-500">*</span></label>
-                <input type="number" step="0.01" min="0" name="ap_purchase_price[]" value="${productData ? productData.prod_purchase_price : ''}" required class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none" readonly>
+                <label class="block text-[10px] font-bold text-slate-700 mb-1">Total Purchase Price (₹)</label>
+                <input type="number" step="0.01" min="0" name="ap_purchase_price[]" value="${productData ? (productData.prod_purchase_price || '') : ''}" class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none" readonly>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Selling Price (₹)</label>
@@ -1565,7 +2482,7 @@
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Barcode (Auto)</label>
-                <input type="text" name="ap_barcode[]" value="${productData && productData.prod_barcode ? productData.prod_barcode : generateSupplierBarcode()}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-500 font-mono outline-none" readonly>
+                <input type="text" name="ap_barcode[]" value="${productData && (productData.prod_barcode || productData.barcode) ? (productData.prod_barcode || productData.barcode) : generateSupplierBarcode()}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-500 font-mono outline-none" readonly>
             </div>
             <input type="hidden" name="ap_product_id[]" value="${productData ? productData.id : ''}">
         `;
@@ -1655,6 +2572,173 @@
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
+
+    // --- INVOICE TABLE RENDERING & FILTERING ---
+    function renderInvoiceTable(filteredList = null) {
+        const tbody = document.getElementById('invoice-table-body');
+        if (!tbody) return;
+
+        // Update statistics cards using full list of invoices
+        const allInvoices = invoices || [];
+        const countEl = document.getElementById('inv-stat-count');
+        const totalEl = document.getElementById('inv-stat-total');
+        const paidEl = document.getElementById('inv-stat-paid');
+        const dueEl = document.getElementById('inv-stat-due');
+
+        if (countEl) countEl.textContent = allInvoices.length;
+        if (totalEl) {
+            const sumTotal = allInvoices.reduce((acc, i) => acc + (parseFloat(i.grand_total) || 0), 0);
+            totalEl.textContent = '₹' + sumTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        if (paidEl) {
+            const sumPaid = allInvoices.reduce((acc, i) => acc + (parseFloat(i.paid_amount) || 0), 0);
+            paidEl.textContent = '₹' + sumPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        if (dueEl) {
+            const sumDue = allInvoices.reduce((acc, i) => acc + (parseFloat(i.due_amount) || 0), 0);
+            dueEl.textContent = '₹' + sumDue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        const displayList = (filteredList !== null) ? filteredList : allInvoices;
+
+        if (displayList.length === 0) {
+            tbody.innerHTML = `
+                <tr id="invoice-empty-state-row">
+                    <td colspan="8" class="py-12 text-center text-slate-400">
+                        <i class="fas fa-file-invoice text-3xl mb-3 block text-rose-300"></i>
+                        <p class="font-bold text-slate-600 text-sm">No invoices found</p>
+                        <p class="text-xs mt-1">Click "Create New Invoice" to start billing.</p>
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        displayList.forEach(inv => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-rose-50/30 transition-colors';
+
+            const gTotal = parseFloat(inv.grand_total || 0);
+            const pAmount = parseFloat(inv.paid_amount || 0);
+            const dAmount = parseFloat(inv.due_amount || 0);
+
+            // Payment badge
+            let payBadgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+            let payStatus = (inv.payment_status || 'unpaid').toLowerCase();
+            if (payStatus === 'paid') {
+                payBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+            } else if (payStatus === 'partial' || payStatus === 'partially paid') {
+                payBadgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
+            } else if (payStatus === 'overdue') {
+                payBadgeClass = 'bg-red-100 text-red-800 border border-red-300';
+            }
+
+            // Invoice status badge
+            let statusBadgeClass = 'bg-slate-100 text-slate-600 border border-slate-200';
+            let invStatus = (inv.status || 'draft').toLowerCase();
+            if (invStatus === 'completed') {
+                statusBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+            } else if (invStatus === 'cancelled') {
+                statusBadgeClass = 'bg-rose-100 text-rose-800 border border-rose-300 line-through';
+            }
+
+            const isProforma = (inv.invoice_type || '') === 'proforma_invoice';
+            const typeBadge = isProforma 
+                ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Proforma</span>'
+                : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Tax Inv</span>';
+
+            tr.innerHTML = `
+                <td class="py-3 px-4">
+                    <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                        ${inv.invoice_no || ('INV-' + inv.id)}
+                    </div>
+                    <div class="mt-1 flex items-center gap-1">
+                        ${typeBadge}
+                    </div>
+                </td>
+                <td class="py-3 px-4">
+                    <div class="font-bold text-slate-800">${inv.customer_name || 'Walk-in Customer'}</div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">${inv.customer_mobile || inv.mobile || ''}</div>
+                </td>
+                <td class="py-3 px-4 font-mono text-[11px]">
+                    <div class="text-slate-700 font-semibold">${inv.invoice_date || 'N/A'}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Due: ${inv.due_date || 'N/A'}</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900">
+                    ₹${gTotal.toFixed(2)}
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-xs">
+                    <div class="text-emerald-700 font-bold">₹${pAmount.toFixed(2)}</div>
+                    <div class="text-[10px] ${dAmount > 0 ? 'text-rose-600 font-bold' : 'text-slate-400'}">Due: ₹${dAmount.toFixed(2)}</div>
+                </td>
+                <td class="py-3 px-4 text-center">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${payBadgeClass}">
+                        ${inv.payment_status || 'unpaid'}
+                    </span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusBadgeClass}">
+                        ${inv.status || 'draft'}
+                    </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <a href="${getAppUrl('billing/invoices/' + inv.id)}" title="View Invoice" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+                            <i class="fas fa-eye text-xs"></i>
+                        </a>
+                        ${inv.status !== 'cancelled' ? `
+                        <a href="${getAppUrl('billing/invoices/edit/' + inv.id)}" title="Edit Invoice" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 transition-colors">
+                            <i class="fas fa-edit text-xs"></i>
+                        </a>` : ''}
+                        <a href="${getAppUrl('billing/invoice/' + inv.id + '/pdf')}" target="_blank" title="Download PDF" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 transition-colors">
+                            <i class="fas fa-file-pdf text-xs"></i>
+                        </a>
+                        <a href="${getAppUrl('billing/invoice/' + inv.id + '/print')}" target="_blank" title="Print Invoice" class="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 text-emerald-600 transition-colors">
+                            <i class="fas fa-print text-xs"></i>
+                        </a>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterInvoicesTable() {
+        const searchInput = document.getElementById('inv-search-input');
+        const statusSelect = document.getElementById('inv-status-filter');
+        
+        const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        const status = statusSelect ? statusSelect.value.trim().toLowerCase() : '';
+
+        const filtered = (invoices || []).filter(inv => {
+            const invNo = (inv.invoice_no || '').toLowerCase();
+            const custName = (inv.customer_name || '').toLowerCase();
+            const custMob = (inv.customer_mobile || inv.mobile || '').toLowerCase();
+            const payStatus = (inv.payment_status || '').toLowerCase();
+
+            const matchesSearch = !q || invNo.includes(q) || custName.includes(q) || custMob.includes(q);
+            const matchesStatus = !status || payStatus === status;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        renderInvoiceTable(filtered);
+    }
+
+    // --- INITIALIZE TABLES ON PAGE LOAD ---
+    function initModuleState() {
+        loadState();
+        renderSupplierTable();
+        renderProductTable();
+        renderBarcodeTable();
+        renderInvoiceTable();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initModuleState);
+    } else {
+        initModuleState();
+    }
 </script>
 <style>
     .animate-fade-in {
@@ -1664,4 +2748,31 @@
         from { opacity: 0; transform: translateY(-8px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Active Tab Styles */
+    .active-tab {
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+    }
+    .active-tab .bg-gradient-to-br {
+        opacity: 1 !important;
+    }
+    .active-tab .relative.w-16 {
+        transform: translateY(-0.25rem) !important;
+    }
+    
+    #btn-supplier-section.active-tab { border-color: #a5b4fc !important; }
+    #btn-supplier-section.active-tab .relative.w-16 { background-color: #4f46e5 !important; border-color: #4f46e5 !important; color: white !important; }
+    #btn-supplier-section.active-tab h3 { color: #4338ca !important; }
+    
+    #btn-product-section.active-tab { border-color: #fcd34d !important; }
+    #btn-product-section.active-tab .relative.w-16 { background-color: #f59e0b !important; border-color: #f59e0b !important; color: white !important; }
+    #btn-product-section.active-tab h3 { color: #b45309 !important; }
+    
+    #btn-barcode-section.active-tab { border-color: #6ee7b7 !important; }
+    #btn-barcode-section.active-tab .relative.w-16 { background-color: #10b981 !important; border-color: #10b981 !important; color: white !important; }
+    #btn-barcode-section.active-tab h3 { color: #047857 !important; }
+    
+    #btn-invoice-section.active-tab { border-color: #fda4af !important; }
+    #btn-invoice-section.active-tab .relative.w-16 { background-color: #f43f5e !important; border-color: #f43f5e !important; color: white !important; }
+    #btn-invoice-section.active-tab h3 { color: #be123c !important; }
 </style>

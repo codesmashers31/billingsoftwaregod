@@ -27,23 +27,38 @@ class CategoryController extends Controller {
     public function store(Request $request): void {
         $this->requirePermission('categories.manage');
         $name = trim($request->input('name', ''));
-        $code = strtoupper(trim($request->input('code', '')));
+        
+        // Auto-generate code since it's removed from UI
+        $code = 'CAT-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 3)) . '-' . rand(1000, 9999);
+        
         $desc = trim($request->input('description', ''));
+        $status = $request->input('status', 'active');
 
-        if (empty($name) || empty($code)) {
-            Response::error('Category name and code are required.');
+        if (empty($name)) {
+            Response::error('Category name is required.');
         }
 
         $categoryModel = new Category();
-        if ($categoryModel->findBy('code', $code)) {
-            Response::error('Category code already exists.');
+        $existing = $categoryModel->findBy('name', $name);
+        if (!$existing) {
+            $matched = $categoryModel->where("LOWER(name) = LOWER(?)", [$name], 'id ASC', 1);
+            $existing = !empty($matched) ? $matched[0] : null;
+        }
+
+        if ($existing) {
+            Response::success('Category already exists.', ['id' => $existing['id']]);
+            return;
+        }
+
+        while ($categoryModel->findBy('code', $code)) {
+            $code = 'CAT-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 3)) . '-' . rand(1000, 9999);
         }
 
         $id = $categoryModel->create([
             'name' => $name,
             'code' => $code,
             'description' => $desc,
-            'status' => 'active'
+            'status' => $status
         ]);
 
         $this->logActivity('create', 'catalog', (int)$id, $code, "Created category {$name}");

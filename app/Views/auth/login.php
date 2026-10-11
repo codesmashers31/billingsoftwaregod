@@ -52,10 +52,9 @@
     <!-- Quick Demo Logins Helper -->
     <div class="mt-6 pt-5 border-t border-slate-200 text-center">
         <p class="text-[11px] font-bold text-slate-500 mb-2.5">Click a Role to Quick-Fill (Password: <code class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-mono">admin123</code>)</p>
-        <div class="grid grid-cols-3 gap-2 text-[11px]">
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
             <button onclick="document.querySelector('[name=username]').value='superadmin';document.querySelector('[name=password]').value='admin123'" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800 border border-slate-200 text-slate-700 font-semibold transition-all">superadmin</button>
             <button onclick="document.querySelector('[name=username]').value='priya';document.querySelector('[name=password]').value='admin123'" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800 border border-slate-200 text-slate-700 font-semibold transition-all">priya (Billing)</button>
-            <button onclick="document.querySelector('[name=username]').value='venkatesh';document.querySelector('[name=password]').value='admin123'" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800 border border-slate-200 text-slate-700 font-semibold transition-all">venkatesh (Acc)</button>
         </div>
     </div>
 </div>

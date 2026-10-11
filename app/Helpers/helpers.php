@@ -135,3 +135,80 @@ if (!function_exists('isActiveRoute')) {
         return str_starts_with($currentUri, $prefix);
     }
 }
+
+if (!function_exists('amountToWords')) {
+    function amountToWords(float $number): string {
+        $no = floor($number);
+        $point = round($number - $no, 2) * 100;
+        $words = [
+            0 => '', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four', 5 => 'Five',
+            6 => 'Six', 7 => 'Seven', 8 => 'Eight', 9 => 'Nine', 10 => 'Ten',
+            11 => 'Eleven', 12 => 'Twelve', 13 => 'Thirteen', 14 => 'Fourteen', 15 => 'Fifteen',
+            16 => 'Sixteen', 17 => 'Seventeen', 18 => 'Eighteen', 19 => 'Nineteen', 20 => 'Twenty',
+            30 => 'Thirty', 40 => 'Forty', 50 => 'Fifty', 60 => 'Sixty', 70 => 'Seventy',
+            80 => 'Eighty', 90 => 'Ninety'
+        ];
+        $digits = ['', 'Hundred', 'Thousand', 'Lakh', 'Crore'];
+        
+        $str = [];
+        $no_str = (string)$no;
+        $length = strlen($no_str);
+        
+        if ($no == 0) {
+            $result = 'Zero Rupees';
+        } else {
+            $num_parts = [];
+            if ($length > 2) {
+                $num_parts[] = substr($no_str, -2);
+                $no_str = substr($no_str, 0, -2);
+                if (strlen($no_str) > 0) {
+                    $num_parts[] = substr($no_str, -1);
+                    $no_str = substr($no_str, 0, -1);
+                }
+                while (strlen($no_str) > 0) {
+                    $num_parts[] = substr($no_str, -2);
+                    $no_str = substr($no_str, 0, -2);
+                }
+            } else {
+                $num_parts[] = $no_str;
+            }
+
+            $part_count = count($num_parts);
+            for ($i = $part_count - 1; $i >= 0; $i--) {
+                $val = (int)$num_parts[$i];
+                if ($val == 0) continue;
+                $part_words = '';
+                if ($i == 1) { // Hundreds place
+                    $part_words = ($words[$val] ?? '') . ' Hundred';
+                } elseif ($val < 20) {
+                    $part_words = $words[$val] ?? '';
+                } else {
+                    $tens = (int)($val / 10) * 10;
+                    $units = $val % 10;
+                    $part_words = ($words[$tens] ?? '') . ($units ? ' ' . ($words[$units] ?? '') : '');
+                }
+                if ($i > 1) {
+                    $unit_name = $digits[$i] ?? '';
+                    $str[] = trim($part_words . ' ' . $unit_name);
+                } else {
+                    $str[] = trim($part_words);
+                }
+            }
+            $result = implode(' ', array_filter($str)) . ' Rupees';
+        }
+
+        if ($point > 0) {
+            $p_val = (int)$point;
+            if ($p_val < 20) {
+                $p_word = $words[$p_val] ?? '';
+            } else {
+                $p_tens = (int)($p_val / 10) * 10;
+                $p_units = $p_val % 10;
+                $p_word = ($words[$p_tens] ?? '') . ($p_units ? ' ' . ($words[$p_units] ?? '') : '');
+            }
+            $result .= ' and ' . $p_word . ' Paise';
+        }
+
+        return $result . ' Only';
+    }
+}

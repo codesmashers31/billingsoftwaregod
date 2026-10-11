@@ -14,11 +14,16 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="<?= url('billing/invoice/' . $invoice['id'] . '/print?type=thermal') ?>" target="_blank" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-sm border border-slate-300">
-                <i class="fas fa-receipt text-amber-600"></i> Thermal 80mm
+            <?php if ($invoice['status'] !== 'cancelled' && hasPermission('billing.edit')): ?>
+            <a href="<?= url('billing/invoices/edit/' . $invoice['id']) ?>" class="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold flex items-center gap-1.5 border border-amber-200">
+                <i class="fas fa-edit"></i> Edit Invoice
+            </a>
+            <?php endif; ?>
+            <a href="<?= url('billing/invoice/' . $invoice['id'] . '/pdf') ?>" target="_blank" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 text-xs font-bold flex items-center gap-1.5 shadow-sm border border-slate-300">
+                <i class="fas fa-file-pdf"></i> Download PDF
             </a>
             <a href="<?= url('billing/invoice/' . $invoice['id'] . '/print?type=a4') ?>" target="_blank" class="gold-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-print"></i> Tax Invoice A4
+                <i class="fas fa-print"></i> Print A4
             </a>
             <a href="<?= url('billing/invoices') ?>" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">
                 Back
