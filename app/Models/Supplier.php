@@ -22,4 +22,14 @@ class Supplier extends Model {
                 WHERE p.supplier_id = ? ORDER BY p.id DESC LIMIT {$limit}";
         return $this->db->query($sql, [$supplierId]);
     }
+
+    public function getProducts(int $supplierId): array {
+        $sql = "SELECT p.*, c.name as category_name, s.name as subcategory_name 
+                FROM `products` p 
+                LEFT JOIN `categories` c ON p.category_id = c.id 
+                LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
+                WHERE p.supplier_id = ? 
+                ORDER BY p.id DESC";
+        return $this->db->query($sql, [$supplierId]);
+    }
 }

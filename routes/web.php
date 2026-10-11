@@ -74,8 +74,10 @@ Router::get('/subcategories/template', [SubCategoryController::class, 'template'
 
 // 7. Products (God Statues)
 Router::get('/products', [ProductController::class, 'index']);
+Router::get('/products/api-data', [ProductController::class, 'apiData']);
 Router::get('/products/create', [ProductController::class, 'create']);
 Router::post('/products/create', [ProductController::class, 'store']);
+Router::post('/products/save-detail', [ProductController::class, 'saveDetail']);
 Router::get('/products/edit/{id}', [ProductController::class, 'edit']);
 Router::post('/products/edit/{id}', [ProductController::class, 'update']);
 Router::get('/products/view/{id}', [ProductController::class, 'view']);
@@ -99,7 +101,10 @@ Router::get('/customers/profile/{id}', [CustomerController::class, 'profile']);
 // 10. Suppliers & Artisans
 Router::get('/suppliers', [SupplierController::class, 'index']);
 Router::post('/suppliers/create', [SupplierController::class, 'store']);
+Router::post('/suppliers/save-with-products', [SupplierController::class, 'saveWithProducts']);
+Router::get('/suppliers/{id}/products', [SupplierController::class, 'getProducts']);
 Router::post('/suppliers/edit/{id}', [SupplierController::class, 'update']);
+Router::post('/suppliers/delete/{id}', [SupplierController::class, 'delete']);
 
 // 11. Purchases
 Router::get('/purchases', [PurchaseController::class, 'index']);
@@ -115,9 +120,23 @@ Router::get('/billing/search-products', [BillingController::class, 'searchProduc
 Router::post('/billing/scan', [BillingController::class, 'scanBarcode']);
 Router::post('/billing/checkout', [BillingController::class, 'checkout']);
 Router::get('/billing/invoices', [BillingController::class, 'invoices']);
+Router::get('/billing/invoices/create', [BillingController::class, 'createInvoice']);
+Router::post('/billing/invoices/create', [BillingController::class, 'storeInvoice']);
+Router::get('/billing/invoices/edit/{id}', [BillingController::class, 'editInvoice']);
+Router::post('/billing/invoices/edit/{id}', [BillingController::class, 'updateInvoice']);
+Router::get('/billing/invoices/generate-number', [BillingController::class, 'apiGetNextInvoiceNo']);
 Router::get('/billing/invoice/{id}', [BillingController::class, 'viewInvoice']);
 Router::get('/billing/invoice/{id}/print', [BillingController::class, 'printInvoice']);
+Router::get('/billing/invoice/{id}/pdf', [BillingController::class, 'downloadPdf']);
+Router::post('/billing/invoice/{id}/payment', [BillingController::class, 'addPayment']);
 Router::post('/billing/invoice/{id}/cancel', [BillingController::class, 'cancel']);
+
+// Invoices shortcuts
+Router::get('/invoices', [BillingController::class, 'invoices']);
+Router::get('/invoices/create', [BillingController::class, 'createInvoice']);
+Router::post('/invoices/create', [BillingController::class, 'storeInvoice']);
+Router::get('/invoices/edit/{id}', [BillingController::class, 'editInvoice']);
+Router::post('/invoices/edit/{id}', [BillingController::class, 'updateInvoice']);
 
 // 13. Sales Returns
 Router::get('/sales-returns', [SalesReturnController::class, 'index']);

@@ -6,19 +6,23 @@ use App\Core\Model;
 class Product extends Model {
     protected string $table = 'products';
     protected array $fillable = [
-        'name', 'code', 'sku', 'barcode', 'category_id', 'subcategory_id', 'brand',
+        'name', 'code', 'sku', 'barcode', 'supplier_id', 'category_id', 'subcategory_id', 'brand',
         'description', 'god_name', 'material', 'color', 'height', 'width', 'length',
-        'weight', 'size', 'finish_type', 'purchase_price', 'selling_price',
+        'weight', 'size', 'finish_type', 'purchase_price', 'piece_rate', 'selling_price',
         'wholesale_price', 'discount_percent', 'gst_percent', 'hsn_code',
         'current_stock', 'min_stock', 'max_stock', 'stock_location', 'image', 'status',
         'created_by', 'updated_by'
     ];
 
     public function getWithDetails(int $id): ?array {
-        $sql = "SELECT p.*, c.name as category_name, s.name as subcategory_name 
+        $sql = "SELECT p.*, c.name as category_name, s.name as subcategory_name, 
+                       sup.name as supplier_name, sup.supplier_code, sup.mobile as supplier_mobile,
+                       sup.email as supplier_email, sup.gst_number as supplier_gst,
+                       sup.address as supplier_address, sup.city as supplier_city, sup.state as supplier_state
                 FROM `products` p 
                 LEFT JOIN `categories` c ON p.category_id = c.id 
                 LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
+                LEFT JOIN `suppliers` sup ON p.supplier_id = sup.id 
                 WHERE p.id = ? LIMIT 1";
         $res = $this->db->query($sql, [$id]);
         return !empty($res) ? $res[0] : null;
@@ -66,10 +70,11 @@ class Product extends Model {
         $total = isset($totalRes[0]['total']) ? (int)$totalRes[0]['total'] : 0;
 
         $orderBy = $filters['order_by'] ?? 'p.id DESC';
-        $dataSql = "SELECT p.*, c.name as category_name, s.name as subcategory_name 
+        $dataSql = "SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name 
                     FROM `products` p 
                     LEFT JOIN `categories` c ON p.category_id = c.id 
                     LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
+                    LEFT JOIN `suppliers` sup ON p.supplier_id = sup.id 
                     WHERE {$whereClause} 
                     ORDER BY {$orderBy} 
                     LIMIT {$perPage} OFFSET {$offset}";
@@ -138,5 +143,31 @@ class Product extends Model {
         $sql = "SELECT DISTINCT material FROM `products` WHERE material IS NOT NULL AND material != '' ORDER BY material ASC";
         $rows = $this->db->query($sql);
         return array_column($rows, 'material');
+    }
+
+    public function generateUniqueBarcode(?string $preferred = null): string {
+        $preferred = trim((string)$preferred);
+        if ($preferred !== '') {
+            $existing = $this->findBy('barcode', $preferred);
+            if (!$existing) {
+                return $preferred;
+            }
+        }
+
+        do {
+            $barcode = 'BAR-' . mt_rand(1000000000, 9999999999);
+            $existing = $this->findBy('barcode', $barcode);
+        } while ($existing);
+
+        return $barcode;
+    }
+
+    public function generateUniqueSku(): string {
+        do {
+            $sku = 'SKU-' . mt_rand(10000, 99999);
+            $existing = $this->findBy('sku', $sku);
+        } while ($existing);
+
+        return $sku;
     }
 }

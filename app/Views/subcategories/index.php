@@ -18,39 +18,49 @@
 
     <!-- Subcategories Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <?php foreach ($subcategories as $s): ?>
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-all">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 font-mono font-bold text-xs border border-amber-200">
-                            <?= $s['code'] ?>
-                        </span>
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-amber-800 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                            <?= sanitize($s['category_name']) ?>
-                        </span>
-                    </div>
-
-                    <h3 class="text-base font-bold text-slate-900 mb-1.5"><?= sanitize($s['name']) ?></h3>
-                    <p class="text-xs text-slate-500 line-clamp-2"><?= sanitize($s['description'] ?? 'Deity form and catalog classification.') ?></p>
+        <?php if (empty($subcategories)): ?>
+            <div class="col-span-full py-16 text-center bg-white border border-dashed border-slate-200 rounded-2xl">
+                <div class="w-16 h-16 mx-auto mb-4 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm">
+                    <i class="fas fa-sitemap text-2xl"></i>
                 </div>
-
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span class="text-xs text-slate-500 font-semibold flex items-center gap-1">
-                        <i class="fas fa-box text-amber-600"></i> <?= $s['product_count'] ?? 0 ?> items
-                    </span>
-                    <div class="flex items-center gap-1">
-                        <?php if (hasPermission('categories.manage')): ?>
-                        <button onclick="openEditSubcategory(<?= htmlspecialchars(json_encode($s)) ?>)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-amber-800 text-xs">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteSubcategory(<?= $s['id'] ?>)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <h3 class="text-sm font-bold text-slate-800">No subcategories found</h3>
+                <p class="text-xs text-slate-400 mt-1">Get started by clicking "Add Subcategory" above.</p>
             </div>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <?php foreach ($subcategories as $s): ?>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-all">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 font-mono font-bold text-xs border border-amber-200">
+                                <?= $s['code'] ?>
+                            </span>
+                            <span class="text-[10px] uppercase tracking-wider font-bold text-amber-800 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                <?= sanitize($s['category_name']) ?>
+                            </span>
+                        </div>
+
+                        <h3 class="text-base font-bold text-slate-900 mb-1.5"><?= sanitize($s['name']) ?></h3>
+                        <p class="text-xs text-slate-500 line-clamp-2"><?= sanitize($s['description'] ?? 'Deity form and catalog classification.') ?></p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs text-slate-500 font-semibold flex items-center gap-1">
+                            <i class="fas fa-box text-amber-600"></i> <?= $s['product_count'] ?? 0 ?> items
+                        </span>
+                        <div class="flex items-center gap-1">
+                            <?php if (hasPermission('categories.manage')): ?>
+                            <button onclick="openEditSubcategory(<?= htmlspecialchars(json_encode($s)) ?>)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-amber-800 text-xs">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteSubcategory(<?= $s['id'] ?>)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -77,12 +87,11 @@
                 <input type="text" name="name" required placeholder="e.g. Lord Ganesha (Vinayagar)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Subcategory Code</label>
-                <input type="text" name="code" required placeholder="SUB-GANESHA" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Description</label>
-                <textarea name="description" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none"></textarea>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Status</label>
+                <select name="status" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
+                    <option value="active">Available</option>
+                    <option value="inactive">Not Available</option>
+                </select>
             </div>
             <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onclick="closeModal('modal-add-subcategory')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
@@ -144,7 +153,15 @@ function openEditSubcategory(sub) {
 }
 
 async function deleteSubcategory(id) {
-    if (!confirm('Are you sure you want to delete this subcategory?')) return;
+    const confirmed = await showConfirmDialog({
+        title: 'Delete Subcategory',
+        message: 'Are you sure you want to delete this subcategory?',
+        confirmText: 'Yes, Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+    });
+    if (!confirmed) return;
+
     try {
         const formData = new FormData();
         formData.append('_csrf_token', window.CSRF_TOKEN);

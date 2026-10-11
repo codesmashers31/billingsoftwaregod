@@ -9,6 +9,7 @@ use App\Core\Auth;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Models\Supplier;
 use App\Models\Inventory;
 use App\Core\Database;
 
@@ -29,7 +30,31 @@ class ProductController extends Controller {
 
         $result = $productModel->getPaginatedList($page, 15, $filters);
         $categories = $catModel->where("status = 'active'", [], 'name ASC');
+        
+        $subModel = new SubCategory();
+        $subcategories = $subModel->where("status = 'active'", [], 'name ASC');
+
+        $suppModel = new Supplier();
+        $suppliers = $suppModel->where("status = 'active'", [], 'id DESC');
+
         $materials = $productModel->getDistinctMaterials();
+
+        $db = Database::getInstance();
+        $allProducts = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name 
+                                  FROM `products` p 
+                                  LEFT JOIN `categories` c ON p.category_id = c.id 
+                                  LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
+                                  LEFT JOIN `suppliers` sup ON p.supplier_id = sup.id 
+                                  ORDER BY p.id DESC");
+        $allSuppliers = $db->query("SELECT s.*, 
+                                   (SELECT COUNT(*) FROM `products` p WHERE p.supplier_id = s.id) as product_count 
+                                   FROM `suppliers` s 
+                                   ORDER BY s.id DESC");
+
+        $recentInvoices = $db->query("SELECT i.*, c.name as customer_name, c.mobile as customer_mobile 
+                                      FROM `invoices` i 
+                                      LEFT JOIN `customers` c ON i.customer_id = c.id 
+                                      ORDER BY i.id DESC LIMIT 15");
 
         if ($request->isAjax() && $request->input('ajax_table')) {
             Response::json($result);
@@ -38,11 +63,193 @@ class ProductController extends Controller {
         $this->render('products.index', [
             'pageTitle' => 'God Statues & Religious Catalog',
             'products' => $result['data'],
+            'allProducts' => $allProducts,
+            'allSuppliers' => $allSuppliers,
+            'recentInvoices' => $recentInvoices,
             'pagination' => $result,
             'categories' => $categories,
+            'subcategories' => $subcategories,
+            'suppliers' => $allSuppliers,
             'materials' => $materials,
             'filters' => $filters
         ]);
+    }
+
+    public function apiData(Request $request): void {
+        $db = Database::getInstance();
+        $products = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name 
+                                FROM `products` p 
+                                LEFT JOIN `categories` c ON p.category_id = c.id 
+                                LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
+                                LEFT JOIN `suppliers` sup ON p.supplier_id = sup.id 
+                                ORDER BY p.id DESC");
+        $suppliers = $db->query("SELECT s.*, 
+                                 (SELECT COUNT(*) FROM `products` p WHERE p.supplier_id = s.id) as product_count 
+                                 FROM `suppliers` s 
+                                 ORDER BY s.id DESC");
+        $recentInvoices = $db->query("SELECT i.*, c.name as customer_name, c.mobile as customer_mobile 
+                                      FROM `invoices` i 
+                                      LEFT JOIN `customers` c ON i.customer_id = c.id 
+                                      ORDER BY i.id DESC LIMIT 15");
+        $categories = (new Category())->where("status = 'active'", [], 'name ASC');
+        $subcategories = (new SubCategory())->where("status = 'active'", [], 'name ASC');
+
+        Response::json([
+            'success' => true,
+            'products' => $products,
+            'suppliers' => $suppliers,
+            'invoices' => $recentInvoices,
+            'categories' => $categories,
+            'subcategories' => $subcategories
+        ]);
+    }
+
+    public function saveDetail(Request $request): void {
+        $this->requirePermission('products.create');
+
+        $supplierId = (int)$request->input('prod_supplier_id', 0);
+        if ($supplierId <= 0) {
+            Response::error('Supplier is required. Please select an existing supplier.');
+        }
+
+        $suppModel = new Supplier();
+        $supplier = $suppModel->find($supplierId);
+        if (!$supplier) {
+            Response::error('Selected supplier not found.');
+        }
+
+        $prodNames = $request->input('ap_product_name', []);
+        if (empty($prodNames) || !is_array($prodNames)) {
+            Response::error('At least one product entry is required.');
+        }
+
+        $db = Database::getInstance();
+        $prodModel = new Product();
+        $catModel = new Category();
+        $subModel = new SubCategory();
+
+        $prodCats = $request->input('ap_product_category', []);
+        $prodSubcats = $request->input('ap_product_subcategory', []);
+        $prodUnits = $request->input('ap_unit', []);
+        $prodRates = $request->input('ap_piece_rate', []);
+        $prodPurchases = $request->input('ap_purchase_price', []);
+        $prodSellings = $request->input('ap_selling_price', []);
+        $prodGsts = $request->input('ap_gst', []);
+        $prodBarcodes = $request->input('ap_barcode', []);
+        $prodIds = $request->input('ap_product_id', []);
+
+        $prodStatus = $request->input('prod_status', 'Active');
+        $statusVal = strtolower((string)$prodStatus) === 'inactive' ? 'inactive' : 'active';
+
+        $db->beginTransaction();
+
+        try {
+            $savedProducts = [];
+
+            foreach ($prodNames as $i => $rawName) {
+                $pName = trim((string)$rawName);
+                if ($pName === '') continue;
+
+                $catRaw = trim((string)($prodCats[$i] ?? ''));
+                if ($catRaw === '') {
+                    $catRaw = 'General';
+                }
+                $cat = $catModel->findOrCreate($catRaw);
+                $catId = (int)$cat['id'];
+
+                $subRaw = trim((string)($prodSubcats[$i] ?? ''));
+                $subId = null;
+                if ($subRaw !== '') {
+                    $sub = $subModel->findOrCreate($subRaw, $catId);
+                    $subId = $sub ? (int)$sub['id'] : null;
+                }
+
+                $units = max(0, (int)($prodUnits[$i] ?? 0));
+                $pieceRate = max(0, (float)($prodRates[$i] ?? 0));
+                $purchasePrice = (float)($prodPurchases[$i] ?? 0);
+                if ($purchasePrice <= 0) {
+                    $purchasePrice = $units > 0 && $pieceRate > 0 ? ($units * $pieceRate) : $pieceRate;
+                }
+
+                $sellingPrice = (float)($prodSellings[$i] ?? 0);
+                if ($sellingPrice <= 0) {
+                    $sellingPrice = $pieceRate > 0 ? ($pieceRate * 1.6) : ($purchasePrice * 1.6);
+                }
+
+                $gst = max(0, (float)($prodGsts[$i] ?? 0));
+                $barcode = $prodModel->generateUniqueBarcode($prodBarcodes[$i] ?? null);
+                $singleEditId = (int)$request->input('product_id', 0);
+                $pId = !empty($prodIds[$i]) ? (int)$prodIds[$i] : ($i === 0 ? $singleEditId : 0);
+
+                if ($pId > 0 && ($existingProd = $prodModel->find($pId))) {
+                    $prodModel->update($pId, [
+                        'supplier_id' => $supplierId,
+                        'name' => $pName,
+                        'category_id' => $catId,
+                        'subcategory_id' => $subId,
+                        'purchase_price' => $purchasePrice,
+                        'piece_rate' => $pieceRate,
+                        'selling_price' => $sellingPrice,
+                        'gst_percent' => $gst,
+                        'current_stock' => $units,
+                        'status' => $statusVal,
+                        'updated_by' => Auth::id() ?: 1
+                    ]);
+                    $savedProdId = $pId;
+                } else {
+                    $sku = $prodModel->generateUniqueSku();
+                    $savedProdId = (int)$prodModel->create([
+                        'supplier_id' => $supplierId,
+                        'name' => $pName,
+                        'code' => $sku,
+                        'sku' => $sku,
+                        'barcode' => $barcode,
+                        'category_id' => $catId,
+                        'subcategory_id' => $subId,
+                        'brand' => 'Divine Heritage',
+                        'purchase_price' => $purchasePrice,
+                        'piece_rate' => $pieceRate,
+                        'selling_price' => $sellingPrice,
+                        'gst_percent' => $gst,
+                        'current_stock' => $units,
+                        'status' => $statusVal,
+                        'created_by' => Auth::id() ?: 1
+                    ]);
+
+                    if ($units > 0) {
+                        $invModel = new Inventory();
+                        $invModel->create([
+                            'product_id' => $savedProdId,
+                            'transaction_type' => 'stock_in',
+                            'reference_type' => 'opening_stock',
+                            'reference_no' => 'INIT-' . $sku,
+                            'previous_stock' => 0,
+                            'quantity' => $units,
+                            'new_stock' => $units,
+                            'notes' => 'Product Details entry opening stock',
+                            'user_id' => Auth::id() ?: 1
+                        ]);
+                    }
+                }
+
+                $savedProducts[] = $prodModel->getWithDetails($savedProdId);
+            }
+
+            if (empty($savedProducts)) {
+                throw new \Exception('No valid product data provided.');
+            }
+
+            $db->commit();
+            $this->logActivity('create', 'products', $savedProducts[0]['id'], $savedProducts[0]['sku'], "Added " . count($savedProducts) . " product(s) under supplier {$supplier['name']}");
+
+            Response::success('Product(s) added successfully!', [
+                'products' => $savedProducts,
+                'supplier_id' => $supplierId
+            ]);
+        } catch (\Throwable $e) {
+            $db->rollback();
+            Response::error('Failed to save products: ' . $e->getMessage());
+        }
     }
 
     public function create(Request $request): void {

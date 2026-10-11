@@ -39,17 +39,27 @@ class SubCategoryController extends Controller {
     public function store(Request $request): void {
         $this->requirePermission('categories.manage');
         $name = trim($request->input('name', ''));
-        $code = strtoupper(trim($request->input('code', '')));
         $categoryId = (int)$request->input('category_id');
+        
+        // Auto-generate code since it's removed from UI
+        $code = 'SUB-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 3)) . '-' . rand(1000, 9999);
+        
         $desc = trim($request->input('description', ''));
+        $status = $request->input('status', 'active');
 
-        if (empty($name) || empty($code) || empty($categoryId)) {
-            Response::error('Category, subcategory name, and code are required.');
+        if (empty($name) || empty($categoryId)) {
+            Response::error('Category and subcategory name are required.');
         }
 
         $subModel = new SubCategory();
-        if ($subModel->findBy('code', $code)) {
-            Response::error('Subcategory code already exists.');
+        $matched = $subModel->where("category_id = ? AND LOWER(name) = LOWER(?)", [$categoryId, $name], 'id ASC', 1);
+        if (!empty($matched)) {
+            Response::success('Subcategory already exists.', ['id' => $matched[0]['id']]);
+            return;
+        }
+
+        while ($subModel->findBy('code', $code)) {
+            $code = 'SUB-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 3)) . '-' . rand(1000, 9999);
         }
 
         $id = $subModel->create([
@@ -57,7 +67,7 @@ class SubCategoryController extends Controller {
             'name' => $name,
             'code' => $code,
             'description' => $desc,
-            'status' => 'active'
+            'status' => $status
         ]);
 
         $this->logActivity('create', 'catalog', (int)$id, $code, "Created subcategory {$name}");

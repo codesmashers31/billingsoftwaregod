@@ -60,7 +60,16 @@ class CustomerController extends Controller {
         }
 
         $custModel = new Customer();
+        $existing = $custModel->findBy('mobile', $mobile);
+        if ($existing) {
+            Response::success('Customer already exists. Reusing record.', ['customer' => $existing]);
+            return;
+        }
+
         $code = 'CUST-' . str_pad((string)($custModel->count() + 1), 4, '0', STR_PAD_LEFT);
+        while ($custModel->findBy('customer_code', $code)) {
+            $code = 'CUST-' . rand(1000, 9999);
+        }
 
         $id = $custModel->create([
             'customer_code' => $code,
@@ -68,8 +77,10 @@ class CustomerController extends Controller {
             'mobile' => $mobile,
             'email' => $request->input('email'),
             'address' => $request->input('address'),
+            'shipping_address' => $request->input('shipping_address') ?: $request->input('address'),
             'city' => $request->input('city', 'Chennai'),
             'state' => $request->input('state', 'Tamil Nadu'),
+            'state_code' => $request->input('state_code', '33'),
             'pincode' => $request->input('pincode'),
             'gst_number' => $request->input('gst_number'),
             'credit_limit' => (float)$request->input('credit_limit', 0),

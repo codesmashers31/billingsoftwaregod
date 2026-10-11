@@ -121,6 +121,7 @@ CREATE TABLE `products` (
   `code` VARCHAR(50) NOT NULL UNIQUE,
   `sku` VARCHAR(100) NOT NULL UNIQUE,
   `barcode` VARCHAR(100) NOT NULL UNIQUE,
+  `supplier_id` INT UNSIGNED NULL,
   `category_id` INT UNSIGNED NOT NULL,
   `subcategory_id` INT UNSIGNED NULL,
   `brand` VARCHAR(100) DEFAULT 'Divine Heritage',
@@ -137,6 +138,7 @@ CREATE TABLE `products` (
   `finish_type` VARCHAR(50) NULL COMMENT 'Antique, Gold Plated, Glossy, Matte, Natural, Polished',
   -- Pricing
   `purchase_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `piece_rate` DECIMAL(12,2) NULL DEFAULT 0.00,
   `selling_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `wholesale_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `discount_percent` DECIMAL(5,2) DEFAULT 0.00,

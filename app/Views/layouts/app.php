@@ -90,6 +90,6 @@
     </div>
 
     <!-- Base Scripts -->
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/app.js') ?>?v=<?= file_exists(dirname(__DIR__, 2) . '/public/assets/js/app.js') ? filemtime(dirname(__DIR__, 2) . '/public/assets/js/app.js') : time() ?>"></script>
 </body>
 </html>
