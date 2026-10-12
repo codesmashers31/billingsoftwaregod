@@ -155,6 +155,7 @@ class SupplierController extends Controller {
             $prodUnits = $request->input('sp_unit', []);
             $prodRates = $request->input('sp_piece_rate', []);
             $prodPurchases = $request->input('sp_purchase_price', []);
+            $prodMargins = $request->input('sp_margin_percentage', []);
             $prodSellings = $request->input('sp_selling_price', []);
             $prodGsts = $request->input('sp_gst', []);
             $prodBarcodes = $request->input('sp_barcode', []);
@@ -188,14 +189,44 @@ class SupplierController extends Controller {
                         $purchasePrice = $units > 0 && $pieceRate > 0 ? ($units * $pieceRate) : $pieceRate;
                     }
 
-                    $sellingPrice = (float)($prodSellings[$i] ?? 0);
-                    if ($sellingPrice <= 0) {
-                        $sellingPrice = $pieceRate > 0 ? ($pieceRate * 1.6) : ($purchasePrice * 1.6);
+                    // Dynamic Margin Percentage & Selling Price Calculation
+                    // Formula: Selling Price = One Piece Rate + (One Piece Rate × Margin Percentage / 100)
+                    $rawMargin = isset($prodMargins[$i]) ? trim((string)$prodMargins[$i]) : '';
+                    $submittedSelling = (float)($prodSellings[$i] ?? 0);
+                    $pId = !empty($prodIds[$i]) ? (int)$prodIds[$i] : 0;
+
+                    $effectiveMargin = 60.00;
+                    $sellingPrice = 0.00;
+
+                    if ($rawMargin !== '') {
+                        if (!is_numeric($rawMargin) || (float)$rawMargin < 0) {
+                            throw new \Exception("Margin percentage must be a non-negative number for product: {$pName}");
+                        }
+                        $effectiveMargin = round((float)$rawMargin, 2);
+                        $sellingPrice = round($pieceRate + ($pieceRate * ($effectiveMargin / 100.0)), 2);
+                    } else {
+                        // Empty margin input -> Default 60%
+                        if ($pId > 0 && ($existingProd = $prodModel->find($pId)) && ($existingProd['margin_percentage'] === null || $existingProd['margin_percentage'] === '')) {
+                            // Historical product without saved margin: preserve current selling price if piece rate was not changed
+                            if ($pieceRate > 0 && $pieceRate == (float)$existingProd['piece_rate'] && $submittedSelling > 0) {
+                                $sellingPrice = $submittedSelling;
+                                $effectiveMargin = null;
+                            } else {
+                                $effectiveMargin = 60.00;
+                                $sellingPrice = round($pieceRate + ($pieceRate * 0.60), 2);
+                            }
+                        } else {
+                            $effectiveMargin = 60.00;
+                            $sellingPrice = round($pieceRate + ($pieceRate * 0.60), 2);
+                        }
+                    }
+
+                    if ($sellingPrice <= 0 && $purchasePrice > 0) {
+                        $sellingPrice = round($purchasePrice + ($purchasePrice * (($effectiveMargin ?? 60.00) / 100.0)), 2);
                     }
 
                     $gst = max(0, (float)($prodGsts[$i] ?? 0));
                     $barcode = $prodModel->generateUniqueBarcode($prodBarcodes[$i] ?? null);
-                    $pId = !empty($prodIds[$i]) ? (int)$prodIds[$i] : 0;
 
                     if ($pId > 0 && ($existingProd = $prodModel->find($pId))) {
                         $prodModel->update($pId, [
@@ -205,6 +236,7 @@ class SupplierController extends Controller {
                             'subcategory_id' => $subId,
                             'purchase_price' => $purchasePrice,
                             'piece_rate' => $pieceRate,
+                            'margin_percentage' => $effectiveMargin,
                             'selling_price' => $sellingPrice,
                             'gst_percent' => $gst,
                             'current_stock' => $units,
@@ -225,6 +257,7 @@ class SupplierController extends Controller {
                             'brand' => 'Divine Heritage',
                             'purchase_price' => $purchasePrice,
                             'piece_rate' => $pieceRate,
+                            'margin_percentage' => $effectiveMargin,
                             'selling_price' => $sellingPrice,
                             'gst_percent' => $gst,
                             'current_stock' => $units,
@@ -237,11 +270,108 @@ class SupplierController extends Controller {
                 }
             }
 
+            // Calculate total purchase amount from all products of this supplier
+            $allSuppProducts = $suppModel->getProducts($supplierId);
+            $totalPurchaseAmount = 0.00;
+            foreach ($allSuppProducts as $sp) {
+                $u = (int)($sp['current_stock'] ?? 0);
+                $r = (float)($sp['piece_rate'] ?? 0);
+                $stored = (float)($sp['purchase_price'] ?? 0);
+                $totalPurchaseAmount += ($stored > 0 ? $stored : ($u * $r));
+            }
+            $totalPurchaseAmount = round($totalPurchaseAmount, 2);
+
+            // Read payment information from Section 3
+            $cashAmt = max(0, (float)$request->input('payment_amount_cash', 0));
+            $upiAmt = max(0, (float)$request->input('payment_amount_upi', 0));
+            $bankAmt = max(0, (float)$request->input('payment_amount_bank', 0));
+            $creditAmt = max(0, (float)$request->input('payment_amount_credit', 0));
+            $methodSum = round($cashAmt + $upiAmt + $bankAmt + $creditAmt, 2);
+
+            $rawPaidInput = $request->input('total_amount_paid') !== null 
+                ? $request->input('total_amount_paid') 
+                : ($request->input('total_payment_entered') !== null ? $request->input('total_payment_entered') : 0);
+            $inputPaid = (float)$rawPaidInput;
+            if ($methodSum > 0 && ($inputPaid <= 0 || abs($inputPaid - $methodSum) < 0.01)) {
+                $inputPaid = $methodSum;
+            }
+
+            // Validate
+            if ($inputPaid < 0) {
+                throw new \Exception('Total amount paid cannot be negative.');
+            }
+            if ($totalPurchaseAmount > 0 && $inputPaid > $totalPurchaseAmount) {
+                throw new \Exception("Total amount paid (₹{$inputPaid}) cannot exceed total purchase amount (₹{$totalPurchaseAmount}).");
+            }
+
+            // Derive payment status
+            if ($totalPurchaseAmount <= 0) {
+                $paymentStatus = 'Unpaid'; // Zero amount condition: do not mark as Paid
+                $paidAmount = 0.00;
+                $balanceAmount = 0.00;
+            } elseif ($inputPaid >= $totalPurchaseAmount) {
+                $paymentStatus = 'Paid';
+                $paidAmount = $totalPurchaseAmount;
+                $balanceAmount = 0.00;
+            } elseif ($inputPaid > 0) {
+                $paymentStatus = 'Partially Paid';
+                $paidAmount = round($inputPaid, 2);
+                $balanceAmount = max(0.00, round($totalPurchaseAmount - $paidAmount, 2));
+            } else {
+                $paymentStatus = 'Unpaid';
+                $paidAmount = 0.00;
+                $balanceAmount = $totalPurchaseAmount;
+            }
+
+            // Selected payment methods
+            $rawMethods = $request->input('payment_methods', []);
+            if (is_array($rawMethods)) {
+                $rawMethods = array_values(array_filter($rawMethods));
+                $methodString = !empty($rawMethods) ? implode(', ', $rawMethods) : ($paidAmount > 0 ? 'Cash' : 'Unpaid');
+            } else {
+                $methodString = trim((string)$rawMethods) ?: ($paidAmount > 0 ? 'Cash' : 'Unpaid');
+            }
+
+            $breakdownParts = [];
+            if ($cashAmt > 0) $breakdownParts[] = "Cash: ₹" . number_format($cashAmt, 2);
+            if ($upiAmt > 0) $breakdownParts[] = "UPI: ₹" . number_format($upiAmt, 2);
+            if ($bankAmt > 0) $breakdownParts[] = "Bank Transfer: ₹" . number_format($bankAmt, 2);
+            if ($creditAmt > 0) $breakdownParts[] = "Credit: ₹" . number_format($creditAmt, 2);
+            $notesDetail = !empty($breakdownParts) ? implode(', ', $breakdownParts) : '';
+            $payNotes = $notesDetail ? "Supplier registration payment ({$notesDetail})" : 'Supplier registration payment';
+            $syncNotes = $notesDetail ? "Supplier creation / product sync ({$notesDetail})" : 'Supplier creation / product sync';
+
+            // 1. Upsert into supplier_payments
+            $upsertPaySql = "INSERT INTO `supplier_payments` 
+                             (`supplier_id`, `paid_amount`, `payment_status`, `payment_method`, `payment_date`, `notes`)
+                             VALUES (?, ?, ?, ?, ?, ?)
+                             ON DUPLICATE KEY UPDATE 
+                                 `paid_amount` = VALUES(`paid_amount`),
+                                 `payment_status` = VALUES(`payment_status`),
+                                 `payment_method` = VALUES(`payment_method`),
+                                 `payment_date` = VALUES(`payment_date`),
+                                 `notes` = VALUES(`notes`),
+                                 `updated_at` = CURRENT_TIMESTAMP";
+            $db->query($upsertPaySql, [$supplierId, $paidAmount, $paymentStatus, $methodString, date('Y-m-d'), $syncNotes]);
+
+            // 2. Insert into supplier_payment_history
+            $histSql = "INSERT INTO `supplier_payment_history` 
+                        (`supplier_id`, `amount_paid`, `total_amount`, `balance_amount`, `payment_status`, `payment_method`, `payment_date`, `notes`, `created_by`)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $db->query($histSql, [$supplierId, $paidAmount, $totalPurchaseAmount, $balanceAmount, $paymentStatus, $methodString, date('Y-m-d'), $payNotes, \App\Core\Auth::id() ?: 1]);
+
+            // 3. Update suppliers table outstanding_balance
+            $suppModel->update($supplierId, ['outstanding_balance' => $balanceAmount]);
+
             $db->commit();
-            $this->logActivity($isEdit ? 'update' : 'create', 'suppliers', $supplierId, $code, ($isEdit ? 'Updated' : 'Added') . " supplier/artisan {$name} with " . count($savedProducts) . " products");
+            $this->logActivity($isEdit ? 'update' : 'create', 'suppliers', $supplierId, $code, ($isEdit ? 'Updated' : 'Added') . " supplier/artisan {$name} with " . count($savedProducts) . " products. Status: {$paymentStatus}");
 
             $savedSupplier = $suppModel->find($supplierId);
             $savedSupplier['product_count'] = count($suppModel->getProducts($supplierId));
+            $savedSupplier['total_amount'] = $totalPurchaseAmount;
+            $savedSupplier['paid_amount'] = $paidAmount;
+            $savedSupplier['balance_amount'] = $balanceAmount;
+            $savedSupplier['payment_status'] = $paymentStatus;
 
             Response::success($isEdit ? 'Supplier and associated products updated.' : 'Supplier and products saved.', [
                 'supplier' => $savedSupplier,
@@ -281,9 +411,21 @@ class SupplierController extends Controller {
         }
 
         $db = \App\Core\Database::getInstance();
-        $db->query("DELETE FROM `products` WHERE supplier_id = ?", [$id]);
-        $suppModel->delete($id);
-        $this->logActivity('delete', 'suppliers', $id, $supp['supplier_code'], "Deleted supplier {$supp['name']}");
-        Response::success('Supplier deleted successfully.');
+        $db->beginTransaction();
+        try {
+            // Remove associated products and purchases
+            $db->query("DELETE FROM `products` WHERE supplier_id = ?", [$id]);
+            $db->query("DELETE FROM `purchases` WHERE supplier_id = ?", [$id]);
+            $db->query("DELETE FROM `supplier_payment_history` WHERE supplier_id = ?", [$id]);
+            $db->query("DELETE FROM `supplier_payments` WHERE supplier_id = ?", [$id]);
+            $suppModel->delete($id);
+            $db->commit();
+
+            $this->logActivity('delete', 'suppliers', $id, $supp['supplier_code'], "Deleted supplier {$supp['name']}");
+            Response::success('Supplier deleted successfully.');
+        } catch (\Throwable $e) {
+            $db->rollback();
+            Response::error('Failed to delete supplier: ' . $e->getMessage());
+        }
     }
 }

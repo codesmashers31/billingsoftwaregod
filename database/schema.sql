@@ -139,6 +139,7 @@ CREATE TABLE `products` (
   -- Pricing
   `purchase_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `piece_rate` DECIMAL(12,2) NULL DEFAULT 0.00,
+  `margin_percentage` DECIMAL(8,2) NULL DEFAULT 60.00 COMMENT 'Default markup % on piece rate',
   `selling_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `wholesale_price` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `discount_percent` DECIMAL(5,2) DEFAULT 0.00,
@@ -514,6 +515,35 @@ CREATE TABLE `password_resets` (
   `token` VARCHAR(255) NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX `idx_pr_token` (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 28. SUPPLIER PAYMENTS & INVOICES
+CREATE TABLE IF NOT EXISTS `supplier_payments` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `supplier_id` INT UNSIGNED NOT NULL UNIQUE,
+  `paid_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `payment_status` ENUM('Paid', 'Unpaid', 'Partially Paid') NOT NULL DEFAULT 'Unpaid',
+  `payment_method` VARCHAR(50) NOT NULL DEFAULT 'Cash',
+  `payment_date` DATE NULL,
+  `notes` TEXT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`supplier_id`) REFERENCES `suppliers`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `supplier_payment_history` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `supplier_id` INT UNSIGNED NOT NULL,
+  `amount_paid` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `total_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `balance_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `payment_status` ENUM('Paid', 'Unpaid', 'Partially Paid') NOT NULL DEFAULT 'Unpaid',
+  `payment_method` VARCHAR(50) NOT NULL DEFAULT 'Cash',
+  `payment_date` DATE NOT NULL,
+  `notes` TEXT NULL,
+  `created_by` INT UNSIGNED NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`supplier_id`) REFERENCES `suppliers`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -194,9 +194,33 @@
         <div class="pt-3 border-t border-slate-200 bg-white shrink-0 space-y-2 text-xs">
             <!-- Overall Discount Input -->
             <div class="flex items-center justify-between text-slate-600 font-medium">
-                <span>Overall Discount (%):</span>
-                <input type="number" id="pos-overall-discount" value="0" min="0" max="100" step="0.5" 
-                       class="w-20 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-900 font-mono text-right focus:border-amber-500 outline-none">
+                <span>Overall Discount (₹):</span>
+                <input type="number" id="pos-overall-discount" value="0" min="0" step="any" placeholder="0.00" 
+                       class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-900 font-mono text-right focus:border-amber-500 outline-none">
+            </div>
+
+            <!-- Dynamic Bill GST Tax Input -->
+            <div class="flex items-center justify-between text-slate-600 font-medium">
+                <span class="flex items-center gap-1.5">
+                    <span>GST Tax Rate:</span>
+                    <span class="text-[9px] uppercase tracking-wider font-extrabold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Dynamic</span>
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <select id="pos-tax-preset" onchange="changeBillGstPreset(this.value)" 
+                            class="bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-800 font-semibold outline-none focus:border-amber-500 cursor-pointer">
+                        <option value="item">As per Item</option>
+                        <option value="0">0% (Nil)</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18">18%</option>
+                        <option value="20">20%</option>
+                        <option value="28">28%</option>
+                        <option value="custom">Custom %</option>
+                    </select>
+                    <input type="number" id="pos-custom-tax-rate" min="0" max="100" step="0.5" placeholder="%" 
+                           oninput="onCustomGstInput(this.value)"
+                           class="hidden w-14 bg-slate-50 border border-amber-400 rounded-lg px-1.5 py-1 text-xs text-slate-900 font-mono font-bold text-right outline-none">
+                </div>
             </div>
 
             <!-- Calculation Lines -->
@@ -210,7 +234,7 @@
                     <span id="summary-discount">-₹0.00</span>
                 </div>
                 <div class="flex justify-between text-blue-600 font-semibold">
-                    <span class="text-slate-500">GST Tax:</span>
+                    <span class="text-slate-500" id="summary-tax-label">GST Tax (12%):</span>
                     <span id="summary-tax">₹0.00</span>
                 </div>
                 <div class="flex justify-between text-slate-400 text-[11px]">
@@ -288,41 +312,50 @@
                 <h2 id="modal-pay-grandtotal" class="text-3xl font-black font-mono text-slate-900 mt-1">₹0.00</h2>
             </div>
 
-            <!-- Payment Method Radio Buttons -->
+            <!-- Select Payment Methods Checkboxes with Amount Inputs -->
             <div>
-                <label class="block font-bold text-slate-700 mb-2">Select Payment Mode</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="cash" class="hidden">
-                        <i class="fas fa-money-bill-wave text-base"></i>
-                        <span class="text-xs">Cash</span>
-                    </label>
-                    <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="upi" checked class="hidden">
-                        <i class="fas fa-qrcode text-base"></i>
-                        <span class="text-xs">UPI / QR</span>
-                    </label>
-                    <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="card" class="hidden">
-                        <i class="fas fa-credit-card text-base"></i>
-                        <span class="text-xs">Card / POS</span>
-                    </label>
-                    <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="bank_transfer" class="hidden">
-                        <i class="fas fa-university text-base"></i>
-                        <span class="text-xs">Bank Transfer</span>
-                    </label>
-                    <label class="p-3 bg-slate-50 border border-slate-200 hover:border-amber-500 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1.5 text-slate-700 has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900 font-semibold transition-all">
-                        <input type="radio" name="payment_method_radio" value="credit" class="hidden">
-                        <i class="fas fa-book text-base"></i>
-                        <span class="text-xs">Ledger Credit</span>
-                    </label>
+                <label class="block font-bold text-slate-700 mb-2">Select Payment Methods</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <!-- Cash -->
+                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
+                        <label class="cursor-pointer flex items-center gap-2 select-none w-full">
+                            <input type="checkbox" name="payment_methods[]" value="cash" id="pos_chk_cash" checked onchange="togglePosPaymentAmount(this, 'pos_payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                            <span class="text-xs font-bold text-slate-700">Cash</span>
+                        </label>
+                        <input type="number" step="0.01" min="0" name="pos_payment_amount_cash" id="pos_payment_amount_cash" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
+                    </div>
+
+                    <!-- UPI -->
+                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
+                        <label class="cursor-pointer flex items-center gap-2 select-none w-full">
+                            <input type="checkbox" name="payment_methods[]" value="upi" id="pos_chk_upi" onchange="togglePosPaymentAmount(this, 'pos_payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                            <span class="text-xs font-bold text-slate-700">UPI</span>
+                        </label>
+                        <input type="number" step="0.01" min="0" name="pos_payment_amount_upi" id="pos_payment_amount_upi" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
+                    </div>
+
+                    <!-- Bank Transfer -->
+                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
+                        <label class="cursor-pointer flex items-center gap-2 select-none w-full">
+                            <input type="checkbox" name="payment_methods[]" value="bank_transfer" id="pos_chk_bank" onchange="togglePosPaymentAmount(this, 'pos_payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                            <span class="text-xs font-bold text-slate-700">Bank Transfer</span>
+                        </label>
+                        <input type="number" step="0.01" min="0" name="pos_payment_amount_bank" id="pos_payment_amount_bank" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
+                    </div>
+
+                    <!-- Credit -->
+                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
+                        <label class="cursor-pointer flex items-center gap-2 select-none w-full">
+                            <input type="checkbox" name="payment_methods[]" value="credit" id="pos_chk_credit" onchange="togglePosPaymentAmount(this, 'pos_payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                            <span class="text-xs font-bold text-slate-700">Credit</span>
+                        </label>
+                        <input type="number" step="0.01" min="0" name="pos_payment_amount_credit" id="pos_payment_amount_credit" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
+                    </div>
                 </div>
             </div>
 
-            <!-- Cash Drawer / Bank Account Destination -->
             <!-- Dynamic UPI QR Code Container -->
-            <div id="dynamic-upi-container" class="hidden mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-center flex-col items-center justify-center">
+            <div id="dynamic-upi-container" class="hidden mt-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-center flex-col items-center justify-center">
                 <p class="text-xs font-bold text-slate-700 mb-2">Scan QR to Pay: <span id="upi-exact-amount" class="text-amber-700 font-extrabold text-sm"></span></p>
                 <div class="bg-white p-2 rounded-lg shadow-sm mb-2 inline-block">
                     <img id="dynamic-upi-qr" src="" alt="UPI QR Code" class="w-40 h-40 object-contain mx-auto">
@@ -330,18 +363,18 @@
                 <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider"><i class="fab fa-google-pay text-xs mr-1 text-slate-600"></i> <i class="fas fa-rupee-sign text-xs mr-1 text-slate-600"></i> UPI Payments</p>
             </div>
             
-            <div class="grid grid-cols-2 gap-3">
+            <input type="hidden" id="payment-account-select" value="<?= !empty($accounts[0]['id']) ? $accounts[0]['id'] : 1 ?>">
+            
+            <!-- Total Amount Paid & Balance to Pay (matching Image 2) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Deposit Account</label>
-                    <select id="payment-account-select" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:border-amber-500 outline-none">
-                        <?php foreach ($accounts as $acc): ?>
-                            <option value="<?= $acc['id'] ?>"><?= sanitize($acc['name']) ?> (<?= ucfirst($acc['type']) ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label class="block font-bold text-slate-700 mb-1">Total Amount Paid (₹)</label>
+                    <input type="number" step="0.01" min="0" id="modal-pay-amount" oninput="calculatePosBalance()" class="w-full bg-emerald-50/40 border border-emerald-400 text-emerald-900 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all font-mono">
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Paid Amount (₹)</label>
-                    <input type="number" step="0.01" id="modal-pay-amount" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono font-bold focus:border-amber-500 outline-none">
+                    <label class="block font-bold text-slate-700 mb-1">Balance to Pay (₹)</label>
+                    <input type="number" step="0.01" id="modal-balance-amount" readonly class="w-full bg-rose-50 border border-rose-200 text-rose-700 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed font-mono" value="0.00">
+                    <p class="text-[10px] text-slate-400 mt-1">Formula: Balance = Total Amount - Total Amount Paid</p>
                 </div>
             </div>
 
@@ -381,6 +414,11 @@
 <!-- Modal: Transaction Completed & Print Prompt -->
 <div id="pos-complete-modal" class="pos-modal hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 rounded-2xl p-8 w-full max-w-md shadow-2xl relative text-center">
+        <!-- Close (X) Button Top-Right -->
+        <button type="button" onclick="closeModal('pos-complete-modal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors" title="Close [Esc]">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+
         <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-4 border border-emerald-200">
             <i class="fas fa-check"></i>
         </div>
@@ -398,11 +436,11 @@
             </button>
         </div>
 
-        <div class="mt-4 flex gap-2">
-            <button onclick="closeModal('pos-complete-modal')" class="flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm">
+        <div class="mt-5 flex items-center gap-2">
+            <button onclick="closeModal('pos-complete-modal')" class="flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-colors">
                 New Bill [F2]
             </button>
-            <button id="btn-view-invoice" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">
+            <button id="btn-view-invoice" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors">
                 View Bill
             </button>
         </div>

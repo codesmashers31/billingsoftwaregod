@@ -107,17 +107,17 @@
             <!-- Product Table -->
             <div class="overflow-x-auto rounded-xl border border-amber-200">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-amber-100/50 text-amber-700 uppercase text-[10px] font-bold border-b border-amber-200">
+                    <thead class="bg-amber-100/60 text-amber-800 uppercase text-[10px] font-extrabold border-b border-amber-200 tracking-wider">
                         <tr>
-                            <th class="py-3 px-4">Product & SKU</th>
-                            <th class="py-3 px-4">Category</th>
-                            <th class="py-3 px-4">Supplier</th>
-                            <th class="py-3 px-4">Prices (Purchase/Sell)</th>
-                            <th class="py-3 px-4">GST</th>
-                            <th class="py-3 px-4">Stock</th>
-                            <th class="py-3 px-4">Offer</th>
-                            <th class="py-3 px-4">Status</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[200px]">Product & SKU</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Category</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[140px]">Supplier</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[160px]">Prices (Purchase / Sell)</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[70px]">GST</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[100px]">Stock</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[80px]">Offer</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[90px]">Status</th>
+                            <th class="py-3.5 px-4 text-right whitespace-nowrap min-w-[120px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="product-table-body" class="divide-y divide-amber-100 bg-white">
@@ -169,7 +169,7 @@
             </div>
         </div>
 
-        <!-- Invoice Section -->
+        <!-- Supplier Invoice Section (Supplier Purchase and Payment Management) -->
         <div id="invoice-section" class="hidden animate-fade-in bg-white border border-rose-200/80 rounded-2xl p-6 shadow-sm">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6 pb-5 border-b border-rose-100">
                 <div>
@@ -179,32 +179,29 @@
                         </span>
                         <h4 class="text-xl font-extrabold text-slate-900">Invoice Management</h4>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1 font-medium">Create and track dynamic customer tax invoices, payments, and stock movements.</p>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">Manage supplier purchase amounts, track payments, and update settlement status.</p>
                 </div>
                 <div class="flex items-center gap-2.5 flex-wrap justify-center">
                     <a href="<?= url('billing/invoices') ?>" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
                         <i class="fas fa-list-ul"></i> All Invoices
                     </a>
-                    <a href="<?= url('billing/invoices/create') ?>" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                        <i class="fas fa-plus"></i> Create New Invoice
-                    </a>
                 </div>
             </div>
 
-            <!-- Quick Invoice Search & Stats Bar -->
+            <!-- Quick Supplier Invoice Stats Bar -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
                 <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3 flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Total Invoices</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Total Suppliers</p>
                         <p id="inv-stat-count" class="text-lg font-black text-rose-950 mt-0.5">0</p>
                     </div>
                     <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-sm font-bold">
-                        <i class="fas fa-receipt"></i>
+                        <i class="fas fa-truck"></i>
                     </div>
                 </div>
                 <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3 flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Total Billed</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Total Purchase Amount</p>
                         <p id="inv-stat-total" class="text-lg font-black text-indigo-950 mt-0.5">₹0.00</p>
                     </div>
                     <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-sm font-bold">
@@ -213,7 +210,7 @@
                 </div>
                 <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total Collected</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Total Paid</p>
                         <p id="inv-stat-paid" class="text-lg font-black text-emerald-950 mt-0.5">₹0.00</p>
                     </div>
                     <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold">
@@ -222,7 +219,7 @@
                 </div>
                 <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-3 flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-amber-600">Total Outstanding</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-amber-600">Total Balance Due</p>
                         <p id="inv-stat-due" class="text-lg font-black text-amber-950 mt-0.5">₹0.00</p>
                     </div>
                     <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold">
@@ -235,44 +232,209 @@
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
                 <div class="relative w-full sm:w-72">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="inv-search-input" oninput="filterInvoicesTable()" placeholder="Search invoice #, customer..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-rose-400 focus:bg-white transition-all">
+                    <input type="text" id="inv-search-input" oninput="filterInvoicesTable()" placeholder="Search Supplier ID, Name..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none focus:border-rose-400 focus:bg-white transition-all">
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <select id="inv-status-filter" onchange="filterInvoicesTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-rose-400">
                         <option value="">All Payment Statuses</option>
-                        <option value="paid">Paid</option>
-                        <option value="partial">Partially Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                        <option value="overdue">Overdue</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Partially Paid">Partially Paid</option>
+                        <option value="Unpaid">Unpaid</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Invoices Table -->
+            <!-- Invoices Table: STRICTLY 5 COLUMNS -->
             <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="w-full text-left text-xs text-slate-600">
                     <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
                         <tr>
-                            <th class="py-3 px-4">Invoice #</th>
-                            <th class="py-3 px-4">Customer</th>
-                            <th class="py-3 px-4">Date / Due</th>
-                            <th class="py-3 px-4 text-right">Grand Total</th>
-                            <th class="py-3 px-4 text-right">Paid / Balance</th>
-                            <th class="py-3 px-4 text-center">Payment</th>
-                            <th class="py-3 px-4 text-center">Status</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
+                            <th class="py-3 px-4 font-bold text-slate-700">Supplier ID</th>
+                            <th class="py-3 px-4 font-bold text-slate-700">Supplier Name</th>
+                            <th class="py-3 px-4 font-bold text-slate-700">Amount</th>
+                            <th class="py-3 px-4 font-bold text-slate-700">Payment Status</th>
+                            <th class="py-3 px-4 font-bold text-slate-700 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="invoice-table-body" class="divide-y divide-slate-100 bg-white">
                         <tr id="invoice-empty-state-row">
-                            <td colspan="8" class="py-12 text-center text-slate-400">
-                                <i class="fas fa-file-invoice text-3xl mb-3 block text-rose-300"></i>
-                                <p class="font-bold text-slate-600 text-sm">No invoices found</p>
-                                <p class="text-xs mt-1">Click "Create New Invoice" to start billing.</p>
+                            <td colspan="5" class="py-12 text-center text-slate-400">
+                                <i class="fas fa-truck-loading text-3xl mb-3 block text-rose-300"></i>
+                                <p class="font-bold text-slate-600 text-sm">No supplier invoices found</p>
+                                <p class="text-xs mt-1">Add suppliers and products to manage supplier purchase invoices.</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Modal: View Supplier Purchase Details (Tab Context) -->
+        <div id="prod-modal-view-details" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
+            <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fas fa-truck-loading text-amber-600"></i> Supplier Purchase & Payment Summary
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5" id="pv_sub_heading">Supplier Overview</p>
+                    </div>
+                    <button type="button" onclick="closeSupplierInvoiceViewModal()" class="text-slate-400 hover:text-slate-700 p-1">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                            <span class="text-[10px] font-bold uppercase text-slate-400 block">Supplier ID</span>
+                            <span id="pv_supplier_id" class="font-mono font-bold text-slate-900 text-sm"></span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:col-span-2">
+                            <span class="text-[10px] font-bold uppercase text-slate-400 block">Supplier Name</span>
+                            <span id="pv_supplier_name" class="font-bold text-slate-900 text-sm"></span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                            <span class="text-[10px] font-bold uppercase text-slate-400 block">Payment Status</span>
+                            <span id="pv_payment_status" class="inline-block mt-0.5"></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3">
+                            <span class="text-[10px] font-bold uppercase text-blue-700 block">Total Purchase Amount</span>
+                            <span id="pv_total_amount" class="font-mono font-black text-blue-900 text-base">₹0.00</span>
+                        </div>
+                        <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3">
+                            <span class="text-[10px] font-bold uppercase text-emerald-700 block">Paid Amount</span>
+                            <span id="pv_paid_amount" class="font-mono font-black text-emerald-900 text-base">₹0.00</span>
+                        </div>
+                        <div class="bg-rose-50/50 border border-rose-200 rounded-xl p-3">
+                            <span class="text-[10px] font-bold uppercase text-rose-700 block">Balance Amount</span>
+                            <span id="pv_balance_amount" class="font-mono font-black text-rose-900 text-base">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span>Associated Products Purchased</span>
+                            <span id="pv_product_count_badge" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">0 products</span>
+                        </h4>
+                        <div class="border border-slate-200 rounded-xl overflow-hidden">
+                            <table class="w-full text-left text-xs text-slate-600">
+                                <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">#</th>
+                                        <th class="py-2.5 px-3">Product Name</th>
+                                        <th class="py-2.5 px-3 text-center">Pieces Count (Qty)</th>
+                                        <th class="py-2.5 px-3 text-right">One Piece Rate</th>
+                                        <th class="py-2.5 px-3 text-right">Total Purchase Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pv_products_tbody" class="divide-y divide-slate-100 font-mono">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex justify-end">
+                        <button type="button" onclick="closeSupplierInvoiceViewModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Edit / Update Supplier Payment (Tab Context) -->
+        <div id="prod-modal-edit-payment" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
+            <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl p-6 relative">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fas fa-money-check-alt text-amber-600"></i> Update Supplier Payment
+                    </h3>
+                    <button type="button" onclick="closeSupplierInvoiceEditModal()" class="text-slate-400 hover:text-slate-700">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+
+                <form id="prod-edit-payment-form" onsubmit="submitSupplierInvoicePayment(event)" class="space-y-4">
+                    <input type="hidden" id="pe_supplier_id">
+                    <input type="hidden" id="pe_total_purchase_amount" value="0">
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1.5">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Supplier:</span>
+                            <span id="pe_supp_name" class="font-bold text-slate-900"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Supplier ID:</span>
+                            <span id="pe_supp_id_text" class="font-mono font-bold text-slate-700"></span>
+                        </div>
+                        <div class="flex justify-between border-t border-slate-200 pt-1.5">
+                            <span class="text-slate-600 font-semibold">Total Purchase Amount:</span>
+                            <span id="pe_total_amount_display" class="font-mono font-black text-slate-900">₹0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Previously Paid:</span>
+                            <span id="pe_previously_paid_display" class="font-mono font-bold text-emerald-700">₹0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600 font-semibold">Remaining Balance:</span>
+                            <span id="pe_balance_amount_display" class="font-mono font-black text-rose-600">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Additional Payment Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Additional Payment (₹)</label>
+                        <input type="number" step="0.01" min="0" id="pe_additional_amount" oninput="onSupplierAdditionalAmountInput()" placeholder="0.00" 
+                               class="w-full bg-emerald-50/50 border border-emerald-300 rounded-xl px-3 py-2 text-sm text-emerald-900 font-mono font-bold outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <p class="text-[11px] text-slate-400 mt-1">Enter payment received now (auto-increments total paid)</p>
+                    </div>
+
+                    <!-- Total Paid Amount Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Total Paid Amount (₹) <span class="text-rose-500">*</span></label>
+                        <input type="number" step="0.01" min="0" id="pe_paid_amount" oninput="onSupplierPaidAmountInput()" required 
+                               class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 font-mono font-bold outline-none focus:border-amber-500">
+                        <p class="text-[11px] text-slate-400 mt-1">Formula: Balance Amount = Total Amount - Paid Amount</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Payment Status <span class="text-rose-500">*</span></label>
+                        <select id="pe_payment_status" onchange="onSupplierPaymentStatusChange()" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-amber-500">
+                            <option value="Unpaid">Unpaid</option>
+                            <option value="Partially Paid">Partially Paid</option>
+                            <option value="Paid">Paid</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Payment Method</label>
+                            <select id="pe_payment_method" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:border-amber-500">
+                                <option value="Cash">Cash</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="UPI">UPI / QR</option>
+                                <option value="Card">Card</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Payment Date</label>
+                            <input type="date" id="pe_payment_date" value="<?= date('Y-m-d') ?>" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Notes / Transaction Ref (Optional)</label>
+                        <input type="text" id="pe_notes" placeholder="e.g. UTR # / Cheque No / Cash voucher" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:border-amber-500">
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                        <button type="button" onclick="closeSupplierInvoiceEditModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">Cancel</button>
+                        <button type="submit" id="btn-save-supp-payment" class="gold-btn px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all">Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -418,63 +580,70 @@
 
             <!-- 3. Payment Information -->
             <div class="bg-emerald-50/30 p-5 rounded-xl border border-emerald-100">
-                <h4 class="text-sm font-bold text-slate-800 border-b border-emerald-200 pb-2 mb-4"><i class="fas fa-credit-card text-emerald-500 mr-2"></i>3. Payment Information</h4>
+                <div class="flex items-center justify-between border-b border-emerald-200 pb-2 mb-4">
+                    <h4 class="text-sm font-bold text-slate-800"><i class="fas fa-credit-card text-emerald-500 mr-2"></i>3. Payment Information</h4>
+                    <span id="supplier_status_badge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200">Status: Unpaid</span>
+                </div>
+                
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Total Amount Purchased (₹)</label>
-                    <input type="number" step="0.01" min="0" name="total_amount_purchased" id="total_amount_purchased" class="w-full md:w-1/3 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl px-3 py-2 text-sm outline-none" readonly>
+                    <input type="number" step="0.01" min="0" name="total_amount_purchased" id="total_amount_purchased" class="w-full md:w-1/3 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed" readonly value="0.00">
                     <span class="text-[10px] text-rose-500 hidden mt-1" id="err-total_amount_purchased">Cannot be negative</span>
                 </div>
 
                 <label class="block text-xs font-bold text-slate-700 mb-3">Select Payment Methods</label>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    
                     <!-- Cash -->
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" value="Cash" name="payment_methods[]" onchange="togglePaymentAmount(this, 'payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                        <label class="flex items-center gap-2 cursor-pointer w-full">
+                            <input type="checkbox" value="Cash" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Cash</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_cash" id="payment_amount_cash" oninput="calculateTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_cash" id="payment_amount_cash" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
 
                     <!-- UPI -->
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" value="UPI" name="payment_methods[]" onchange="togglePaymentAmount(this, 'payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                        <label class="flex items-center gap-2 cursor-pointer w-full">
+                            <input type="checkbox" value="UPI" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">UPI</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_upi" id="payment_amount_upi" oninput="calculateTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_upi" id="payment_amount_upi" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
 
                     <!-- Bank Transfer -->
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" value="Bank Transfer" name="payment_methods[]" onchange="togglePaymentAmount(this, 'payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                        <label class="flex items-center gap-2 cursor-pointer w-full">
+                            <input type="checkbox" value="Bank Transfer" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Bank Transfer</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_bank" id="payment_amount_bank" oninput="calculateTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_bank" id="payment_amount_bank" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
 
                     <!-- Credit -->
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" value="Credit" name="payment_methods[]" onchange="togglePaymentAmount(this, 'payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                        <label class="flex items-center gap-2 cursor-pointer w-full">
+                            <input type="checkbox" value="Credit" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Credit</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_credit" id="payment_amount_credit" oninput="calculateTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_credit" id="payment_amount_credit" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
                 </div>
 
                 <div class="mt-4 pt-4 border-t border-emerald-200 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Total Amount Paid (₹)</label>
-                        <input type="number" step="0.01" min="0" id="total_payment_entered" class="w-full bg-emerald-100 border border-emerald-300 text-emerald-900 font-bold rounded-xl px-3 py-2 text-sm outline-none" readonly>
+                        <input type="number" step="0.01" min="0" name="total_amount_paid" id="total_payment_entered" oninput="onTotalPaidInput()" placeholder="0.00" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-900 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 transition-all">
+                        <span class="text-[11px] text-rose-500 hidden mt-1" id="err-total_paid"></span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Balance to Pay (₹)</label>
-                        <input type="number" step="0.01" name="balance_amount" id="balance_amount" class="w-full bg-rose-50 border border-rose-200 text-rose-800 font-bold rounded-xl px-3 py-2 text-sm outline-none" readonly>
+                        <input type="number" step="0.01" name="balance_amount" id="balance_amount" class="w-full bg-rose-50 border border-rose-200 text-rose-800 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed" readonly value="0.00">
+                        <span class="text-[10px] text-slate-400 mt-1 block">Formula: Balance = Total Amount Purchased - Total Amount Paid</span>
                     </div>
                 </div>
+
+                <input type="hidden" name="payment_status" id="supplier_payment_status" value="Unpaid">
             </div>
 
             <!-- 4. Additional Information -->
@@ -1268,12 +1437,16 @@
             state: s.state || 'Tamil Nadu',
             gst_number: s.gst_number || s.tax_number || '',
             barcode: s.supplier_code || s.barcode || ('SUP-' + String(s.id).padStart(4, '0')),
-            payment_methods: s.payment_methods || 'Cash',
+            payment_methods: s.payment_methods || s.payment_method || 'Cash',
             payment_amount_cash: s.payment_amount_cash || '',
             payment_amount_upi: s.payment_amount_upi || '',
             payment_amount_bank: s.payment_amount_bank || '',
             payment_amount_credit: s.payment_amount_credit || '',
-            total_amount_purchased: s.total_amount_purchased || '0.00',
+            total_amount_purchased: s.total_amount_purchased || s.total_amount || s.amount || '0.00',
+            paid_amount: s.paid_amount !== undefined ? s.paid_amount : (s.total_amount_paid !== undefined ? s.total_amount_paid : (s.total_paid || '0.00')),
+            total_amount_paid: s.paid_amount !== undefined ? s.paid_amount : (s.total_amount_paid !== undefined ? s.total_amount_paid : (s.total_paid || '0.00')),
+            balance_amount: s.balance_amount !== undefined ? s.balance_amount : '0.00',
+            payment_status: s.payment_status || s.saved_payment_status || 'Unpaid',
             status: (s.status && s.status.toLowerCase() === 'inactive') ? 'Inactive' : 'Active'
         };
     }
@@ -1291,6 +1464,7 @@
             prod_subcategory_id: p.subcategory_id || null,
             prod_unit: p.unit || 'Pieces',
             prod_piece_rate: parseFloat(p.piece_rate || p.prod_piece_rate || 0),
+            prod_margin_percentage: (p.margin_percentage !== undefined && p.margin_percentage !== null) ? p.margin_percentage : (p.prod_margin_percentage !== undefined ? p.prod_margin_percentage : null),
             prod_purchase_price: parseFloat(p.purchase_price || p.prod_purchase_price || 0),
             prod_selling_price: parseFloat(p.selling_price || p.prod_selling_price || 0),
             prod_gst: parseFloat(p.gst_percent !== undefined ? p.gst_percent : (p.gst_rate !== undefined ? p.gst_rate : (p.prod_gst || 0))),
@@ -1391,10 +1565,21 @@
             const el = document.getElementById(id);
             if (el) { el.classList.add('hidden'); el.value = ''; }
         });
+        const totalPurchased = document.getElementById('total_amount_purchased');
+        if (totalPurchased) totalPurchased.value = '0.00';
         const totalPaid = document.getElementById('total_payment_entered');
         if (totalPaid) totalPaid.value = '';
         const balance = document.getElementById('balance_amount');
-        if (balance) balance.value = '';
+        if (balance) balance.value = '0.00';
+        const badge = document.getElementById('supplier_status_badge');
+        if (badge) {
+            badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200';
+            badge.textContent = 'Status: Unpaid';
+        }
+        const statusHidden = document.getElementById('supplier_payment_status');
+        if (statusHidden) statusHidden.value = 'Unpaid';
+        const errPaid = document.getElementById('err-total_paid');
+        if (errPaid) { errPaid.textContent = ''; errPaid.classList.add('hidden'); }
 
         document.getElementById('supplier-modal-title').innerHTML = '<i class="fas fa-truck-loading text-indigo-600"></i> Add Supplier';
         const modal = document.getElementById('supplier-modal');
@@ -1435,6 +1620,16 @@
         const container = document.getElementById('supplier-products-container');
         const div = document.createElement('div');
         div.className = 'supplier-product-block relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-amber-200 rounded-lg bg-white shadow-sm';
+        
+        let marginVal = '';
+        if (productData) {
+            if (productData.margin_percentage !== undefined && productData.margin_percentage !== null && productData.margin_percentage !== '') {
+                marginVal = productData.margin_percentage;
+            } else if (productData.prod_margin_percentage !== undefined && productData.prod_margin_percentage !== null && productData.prod_margin_percentage !== '') {
+                marginVal = productData.prod_margin_percentage;
+            }
+        }
+
         div.innerHTML = `
             <button type="button" onclick="removeSupplierProductField(this)" class="absolute -top-2 -right-2 bg-rose-100 text-rose-600 rounded-full w-6 h-6 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors shadow-sm">
                 <i class="fas fa-times text-xs"></i>
@@ -1461,13 +1656,17 @@
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">One Piece Rate (₹)</label>
-                <input type="number" step="0.01" min="0" name="sp_piece_rate[]" value="${productData ? (productData.prod_piece_rate || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" oninput="calculateSupplierPurchase(this)">
+                <input type="number" step="0.01" min="0" name="sp_piece_rate[]" value="${productData ? (productData.prod_piece_rate || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" placeholder="e.g. 100" oninput="calculateSupplierPurchase(this)">
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Total Purchase Price (₹)</label>
-                <input type="number" step="0.01" min="0" name="sp_purchase_price[]" value="${productData ? (productData.prod_purchase_price || '') : ''}" class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none" readonly>
+                <input type="number" step="0.01" min="0" name="sp_purchase_price[]" value="${productData ? (productData.prod_purchase_price || '') : ''}" class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none cursor-not-allowed" readonly>
             </div>
-
+            <div>
+                <label class="block text-[10px] font-bold text-slate-700 mb-1">Margin Percentage (%)</label>
+                <input type="number" step="0.01" min="0" name="sp_margin_percentage[]" value="${marginVal}" placeholder="Enter Margin % (Default: 60%)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" oninput="calculateSupplierSellingPrice(this)">
+                <span class="text-[10px] text-rose-500 hidden mt-0.5 err-margin-msg"></span>
+            </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Selling Price (₹)</label>
                 <input type="number" step="0.01" min="0" name="sp_selling_price[]" value="${productData ? (productData.prod_selling_price || '') : ''}" class="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
@@ -1476,7 +1675,6 @@
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">GST (%)</label>
                 <input type="number" step="0.1" min="0" max="100" name="sp_gst[]" value="${productData ? (productData.prod_gst || '') : ''}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
             </div>
-
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Barcode (Auto)</label>
                 <input type="text" name="sp_barcode[]" value="${productData && (productData.barcode || productData.prod_barcode) ? (productData.barcode || productData.prod_barcode) : generateSupplierBarcode()}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-500 font-mono outline-none" readonly>
@@ -1490,29 +1688,76 @@
         return 'BAR-' + Math.floor(1000000000 + Math.random() * 9000000000);
     }
 
-    function calculateSupplierPurchase(element) {
+    function calculateSupplierSellingPrice(element) {
         const parentBlock = element.closest('.supplier-product-block');
-        const unitInput = parentBlock.querySelector('input[name="sp_unit[]"]');
+        if (!parentBlock) return;
         const pieceRateInput = parentBlock.querySelector('input[name="sp_piece_rate[]"]');
-        const purchaseInput = parentBlock.querySelector('input[name="sp_purchase_price[]"]');
+        const marginInput = parentBlock.querySelector('input[name="sp_margin_percentage[]"]');
         const sellingInput = parentBlock.querySelector('input[name="sp_selling_price[]"]');
+        const errSpan = parentBlock.querySelector('.err-margin-msg');
 
-        const units = parseFloat(unitInput.value) || 0;
-        const pieceRate = parseFloat(pieceRateInput.value) || 0;
-        
-        if (units > 0 && pieceRate >= 0) {
-            const purchasePrice = units * pieceRate;
-            purchaseInput.value = purchasePrice.toFixed(2);
-            
-            // Auto-calculate selling price with default 60% margin based on one piece rate
-            const sellingPrice = pieceRate + (pieceRate * 0.60);
+        const pieceRate = parseFloat(pieceRateInput ? pieceRateInput.value : 0) || 0;
+        const rawMargin = marginInput ? marginInput.value.trim() : '';
+
+        let effectiveMargin = 60.0; // Default when empty
+
+        if (rawMargin === '') {
+            // Empty value means default 60%
+            effectiveMargin = 60.0;
+            if (errSpan) {
+                errSpan.textContent = '';
+                errSpan.classList.add('hidden');
+            }
+            if (marginInput) marginInput.classList.remove('border-rose-500');
+        } else {
+            const parsedMargin = parseFloat(rawMargin);
+            if (isNaN(parsedMargin) || !isFinite(parsedMargin) || parsedMargin < 0) {
+                if (errSpan) {
+                    errSpan.textContent = 'Margin % must be 0 or greater';
+                    errSpan.classList.remove('hidden');
+                }
+                if (marginInput) marginInput.classList.add('border-rose-500');
+                return;
+            } else {
+                if (errSpan) {
+                    errSpan.textContent = '';
+                    errSpan.classList.add('hidden');
+                }
+                if (marginInput) marginInput.classList.remove('border-rose-500');
+                effectiveMargin = parsedMargin;
+            }
+        }
+
+        // Selling Price = One Piece Rate + (One Piece Rate × Margin Percentage / 100)
+        if (pieceRate >= 0 && pieceRateInput && pieceRateInput.value !== '') {
+            const sellingPrice = pieceRate + (pieceRate * (effectiveMargin / 100.0));
             if (sellingInput) {
                 sellingInput.value = sellingPrice.toFixed(2);
             }
         } else {
-            purchaseInput.value = '';
             if (sellingInput) sellingInput.value = '';
         }
+    }
+
+    function calculateSupplierPurchase(element) {
+        const parentBlock = element.closest('.supplier-product-block');
+        if (!parentBlock) return;
+        const unitInput = parentBlock.querySelector('input[name="sp_unit[]"]');
+        const pieceRateInput = parentBlock.querySelector('input[name="sp_piece_rate[]"]');
+        const purchaseInput = parentBlock.querySelector('input[name="sp_purchase_price[]"]');
+
+        const units = parseFloat(unitInput ? unitInput.value : 0) || 0;
+        const pieceRate = parseFloat(pieceRateInput ? pieceRateInput.value : 0) || 0;
+        
+        if (units > 0 && pieceRate >= 0) {
+            const purchasePrice = units * pieceRate;
+            if (purchaseInput) purchaseInput.value = purchasePrice.toFixed(2);
+        } else {
+            if (purchaseInput) purchaseInput.value = '';
+        }
+        
+        // Auto-calculate selling price using dynamic margin percentage
+        calculateSupplierSellingPrice(element);
         
         calculateTotalSupplierPurchase();
     }
@@ -1525,11 +1770,11 @@
         });
         const totalAmountInput = document.getElementById('total_amount_purchased');
         if (totalAmountInput) {
-            totalAmountInput.value = total > 0 ? total.toFixed(2) : '';
+            totalAmountInput.value = total > 0 ? total.toFixed(2) : '0.00';
         }
         
-        // Sync balance when total purchase changes
-        calculateTotalPaid();
+        // Sync balance and status when total purchase changes
+        calculateSupplierPaymentStatus();
     }
 
     function removeSupplierProductField(btn) {
@@ -1537,46 +1782,184 @@
         calculateTotalSupplierPurchase();
     }
 
-    function togglePaymentAmount(checkbox, inputId) {
+    function toggleSupplierPaymentAmount(checkbox, inputId) {
         const input = document.getElementById(inputId);
+        if (!input) return;
+
         if (checkbox.checked) {
             input.classList.remove('hidden');
+            // If empty, auto-fill remaining balance
+            if (input.value === '' || parseFloat(input.value) === 0) {
+                const totalPurchased = parseFloat(document.getElementById('total_amount_purchased').value) || 0;
+                const otherPaid = getSupplierOtherMethodsPaid(inputId);
+                const remaining = Math.max(0, totalPurchased - otherPaid);
+                if (remaining > 0) {
+                    input.value = remaining.toFixed(2);
+                }
+            }
+            input.focus();
         } else {
             input.classList.add('hidden');
             input.value = '';
         }
-        calculateTotalPaid();
+        calculateSupplierTotalPaid();
     }
 
-    function calculateTotalPaid() {
-        const cash = parseFloat(document.getElementById('payment_amount_cash').value) || 0;
-        const upi = parseFloat(document.getElementById('payment_amount_upi').value) || 0;
-        const bank = parseFloat(document.getElementById('payment_amount_bank').value) || 0;
-        const credit = parseFloat(document.getElementById('payment_amount_credit').value) || 0;
-        
+    function getSupplierOtherMethodsPaid(excludeInputId) {
+        let sum = 0;
+        const methodIds = ['payment_amount_cash', 'payment_amount_upi', 'payment_amount_bank', 'payment_amount_credit'];
+        methodIds.forEach(id => {
+            if (id !== excludeInputId) {
+                const el = document.getElementById(id);
+                if (el && !el.classList.contains('hidden')) {
+                    sum += (parseFloat(el.value) || 0);
+                }
+            }
+        });
+        return sum;
+    }
+
+    function calculateSupplierTotalPaid() {
+        const cashInput = document.getElementById('payment_amount_cash');
+        const upiInput = document.getElementById('payment_amount_upi');
+        const bankInput = document.getElementById('payment_amount_bank');
+        const creditInput = document.getElementById('payment_amount_credit');
+
+        const cash = (cashInput && !cashInput.classList.contains('hidden')) ? (parseFloat(cashInput.value) || 0) : 0;
+        const upi = (upiInput && !upiInput.classList.contains('hidden')) ? (parseFloat(upiInput.value) || 0) : 0;
+        const bank = (bankInput && !bankInput.classList.contains('hidden')) ? (parseFloat(bankInput.value) || 0) : 0;
+        const credit = (creditInput && !creditInput.classList.contains('hidden')) ? (parseFloat(creditInput.value) || 0) : 0;
+
         const totalPaid = cash + upi + bank + credit;
-        const totalPaidInput = document.getElementById('total_payment_entered');
-        
-        if (totalPaidInput) {
-            totalPaidInput.value = totalPaid > 0 ? totalPaid.toFixed(2) : '';
+        const paidInput = document.getElementById('total_payment_entered');
+        const checkedCount = document.querySelectorAll('#supplier-form input[name="payment_methods[]"]:checked').length;
+
+        if (paidInput) {
+            if (checkedCount > 0 || totalPaid > 0) {
+                paidInput.value = totalPaid > 0 ? totalPaid.toFixed(2) : '0.00';
+            } else {
+                paidInput.value = '';
+            }
         }
 
-        // Calculate Balance
-        const totalAmountPurchasedInput = document.getElementById('total_amount_purchased');
-        const balanceInput = document.getElementById('balance_amount');
-        if (totalAmountPurchasedInput && balanceInput) {
-            const totalPurchased = parseFloat(totalAmountPurchasedInput.value) || 0;
-            let balance = totalPurchased - totalPaid;
-            // Prevent negative balance display, or allow it to show overpayment
-            balanceInput.value = balance !== 0 ? balance.toFixed(2) : '0.00';
-            
-            if (balance < 0) {
-                balanceInput.classList.replace('text-rose-800', 'text-emerald-800');
-                balanceInput.classList.replace('bg-rose-50', 'bg-emerald-50');
+        const errSpan = document.getElementById('err-total_paid');
+        const totalPurchased = parseFloat(document.getElementById('total_amount_purchased').value) || 0;
+        if (errSpan) {
+            if (totalPurchased > 0 && totalPaid > totalPurchased) {
+                errSpan.textContent = `Paid amount (₹${totalPaid.toFixed(2)}) cannot exceed total purchase amount (₹${totalPurchased.toFixed(2)})`;
+                errSpan.classList.remove('hidden');
             } else {
-                balanceInput.classList.replace('text-emerald-800', 'text-rose-800');
-                balanceInput.classList.replace('bg-emerald-50', 'bg-rose-50');
+                errSpan.textContent = '';
+                errSpan.classList.add('hidden');
             }
+        }
+
+        calculateSupplierPaymentStatus();
+    }
+
+    function onPaymentMethodToggle() {
+        calculateSupplierTotalPaid();
+    }
+
+    function onTotalPaidInput() {
+        const totalInput = document.getElementById('total_amount_purchased');
+        const paidInput = document.getElementById('total_payment_entered');
+        const errSpan = document.getElementById('err-total_paid');
+        const total = parseFloat(totalInput ? totalInput.value : 0) || 0;
+        let paid = parseFloat(paidInput ? paidInput.value : 0);
+
+        if (isNaN(paid)) paid = 0;
+
+        // If exactly one payment method is checked, sync this paid value into that method's input
+        const checkedCheckboxes = Array.from(document.querySelectorAll('#supplier-form input[name="payment_methods[]"]:checked'));
+        if (checkedCheckboxes.length === 1) {
+            const methodMap = {
+                'Cash': 'payment_amount_cash',
+                'UPI': 'payment_amount_upi',
+                'Bank Transfer': 'payment_amount_bank',
+                'Credit': 'payment_amount_credit'
+            };
+            const activeInputId = methodMap[checkedCheckboxes[0].value];
+            const activeInput = document.getElementById(activeInputId);
+            if (activeInput) {
+                activeInput.value = paid > 0 ? paid.toFixed(2) : '';
+            }
+        }
+
+        if (paid < 0) {
+            if (errSpan) {
+                errSpan.textContent = 'Paid amount cannot be negative';
+                errSpan.classList.remove('hidden');
+            }
+        } else if (total > 0 && paid > total) {
+            if (errSpan) {
+                errSpan.textContent = `Paid amount (₹${paid.toFixed(2)}) cannot exceed total purchase amount (₹${total.toFixed(2)})`;
+                errSpan.classList.remove('hidden');
+            }
+        } else {
+            if (errSpan) {
+                errSpan.textContent = '';
+                errSpan.classList.add('hidden');
+            }
+        }
+
+        calculateSupplierPaymentStatus();
+    }
+
+    function calculateSupplierPaymentStatus() {
+        const totalInput = document.getElementById('total_amount_purchased');
+        const paidInput = document.getElementById('total_payment_entered');
+        const balanceInput = document.getElementById('balance_amount');
+        const statusInput = document.getElementById('supplier_payment_status');
+        const badge = document.getElementById('supplier_status_badge');
+
+        const total = parseFloat(totalInput ? totalInput.value : 0) || 0;
+        let paidRaw = parseFloat(paidInput ? paidInput.value : 0);
+        if (isNaN(paidRaw) || paidRaw < 0) paidRaw = 0;
+
+        // Valid clamped paid for balance computation
+        const validPaid = (total > 0 && paidRaw > total) ? total : paidRaw;
+        const balance = Math.max(0, total - validPaid);
+
+        if (balanceInput) {
+            balanceInput.value = balance.toFixed(2);
+        }
+
+        // Automatic Status calculation
+        let status = 'Unpaid';
+        if (total <= 0) {
+            // Zero Amount Condition: do not mark as Paid
+            status = 'Unpaid';
+            if (badge) {
+                badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200';
+                badge.textContent = 'Status: Unpaid (Draft)';
+            }
+        } else if (paidRaw >= total) {
+            // Condition 1: Paid
+            status = 'Paid';
+            if (balanceInput) balanceInput.value = '0.00';
+            if (badge) {
+                badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+                badge.textContent = 'Status: Paid';
+            }
+        } else if (paidRaw > 0) {
+            // Condition 2: Partially Paid
+            status = 'Partially Paid';
+            if (badge) {
+                badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300';
+                badge.textContent = 'Status: Partially Paid';
+            }
+        } else {
+            // Condition 3: Unpaid
+            status = 'Unpaid';
+            if (badge) {
+                badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-800 border border-rose-300';
+                badge.textContent = 'Status: Unpaid';
+            }
+        }
+
+        if (statusInput) {
+            statusInput.value = status;
         }
     }
 
@@ -1660,6 +2043,52 @@
         }
 
         if (!isValid) return;
+
+        // Validate Margin Percentages
+        let marginValid = true;
+        form.querySelectorAll('.supplier-product-block').forEach(block => {
+            const marginInput = block.querySelector('input[name="sp_margin_percentage[]"]');
+            const errSpan = block.querySelector('.err-margin-msg');
+            if (marginInput) {
+                const val = marginInput.value.trim();
+                if (val !== '') {
+                    const parsed = parseFloat(val);
+                    if (isNaN(parsed) || !isFinite(parsed) || parsed < 0) {
+                        marginValid = false;
+                        if (errSpan) {
+                            errSpan.textContent = 'Margin % must be 0 or greater';
+                            errSpan.classList.remove('hidden');
+                        }
+                        marginInput.classList.add('border-rose-500');
+                    }
+                }
+            }
+        });
+        if (!marginValid) {
+            showToast('error', 'Please correct the invalid margin percentage(s).');
+            return;
+        }
+
+        const totalPurchased = parseFloat(formData.get('total_amount_purchased') || 0) || 0;
+        const totalPaid = parseFloat(formData.get('total_amount_paid') || 0) || 0;
+        if (totalPaid < 0) {
+            const errSpan = document.getElementById('err-total_paid');
+            if (errSpan) {
+                errSpan.textContent = 'Paid amount cannot be negative';
+                errSpan.classList.remove('hidden');
+            }
+            showToast('error', 'Paid amount cannot be negative');
+            return;
+        }
+        if (totalPurchased > 0 && totalPaid > totalPurchased) {
+            const errSpan = document.getElementById('err-total_paid');
+            if (errSpan) {
+                errSpan.textContent = `Paid amount (₹${totalPaid.toFixed(2)}) cannot exceed total purchase amount (₹${totalPurchased.toFixed(2)})`;
+                errSpan.classList.remove('hidden');
+            }
+            showToast('error', `Paid amount cannot exceed total purchase amount (₹${totalPurchased.toFixed(2)})`);
+            return;
+        }
 
         // Payment methods
         const paymentMethods = formData.getAll('payment_methods[]').join(', ') || 'Cash';
@@ -1796,10 +2225,12 @@
                         ${suppStatus}
                     </span>
                 </td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="viewSupplier('${s.id}')" title="View Supplier" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs transition-colors"><i class="fas fa-eye"></i></button>
-                    <button onclick="editSupplier('${s.id}')" title="Edit Supplier" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs transition-colors"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteSupplier('${s.id}')" title="Delete Supplier" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs transition-colors"><i class="fas fa-trash-alt"></i></button>
+                <td class="py-3 px-4 text-right whitespace-nowrap">
+                    <div class="inline-flex items-center justify-end gap-1.5">
+                        <button onclick="viewSupplier('${s.id}')" title="View Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-eye"></i></button>
+                        <button onclick="editSupplier('${s.id}')" title="Edit Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteSupplier('${s.id}')" title="Delete Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1818,7 +2249,7 @@
         try {
             const formData = new FormData();
             formData.append('_csrf_token', window.CSRF_TOKEN || '');
-            const res = await fetch((window.APP_URL || '') + '/suppliers/delete/' + id, {
+            const res = await fetch(getAppUrl('suppliers/delete/' + id), {
                 method: 'POST',
                 body: formData,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -1854,19 +2285,26 @@
         const supplierProducts = products.filter(p => String(p.prod_supplier_id) === String(id));
         
         let productsHtml = '';
-        if(supplierProducts.length > 0) {
-            productsHtml = supplierProducts.map(p => `
-                <div class="flex items-center justify-between border-b border-slate-100 last:border-0 py-2">
+        if (supplierProducts.length > 0) {
+            productsHtml = supplierProducts.map(p => {
+                const u = parseFloat(p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)) || 0;
+                const r = parseFloat(p.prod_piece_rate || 0) || 0;
+                const sp = parseFloat(p.prod_selling_price || 0) || 0;
+                const margin = (p.prod_margin_percentage !== undefined && p.prod_margin_percentage !== null && p.prod_margin_percentage !== '') ? p.prod_margin_percentage : (p.margin_percentage !== undefined && p.margin_percentage !== null ? p.margin_percentage : '');
+                const stored = parseFloat(p.prod_purchase_price || 0) || 0;
+                const itemTotal = stored > 0 ? stored : (u * r);
+                return `
+                <div class="flex items-center justify-between border-b border-slate-100 last:border-0 py-2.5">
                     <div>
                         <p class="font-bold text-slate-800 text-sm">${p.prod_name}</p>
                         <p class="text-[10px] text-slate-500">${p.prod_category || 'General'} ${p.prod_subcategory ? ' - ' + p.prod_subcategory : ''} | ${p.prod_barcode || p.prod_sku || 'N/A'}</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-bold text-emerald-600 text-sm">₹${(parseFloat(p.prod_purchase_price) || 0).toFixed(2)}</p>
-                        <p class="text-[10px] text-slate-500">${p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)} units</p>
+                        <p class="font-bold text-emerald-600 text-sm">₹${itemTotal.toFixed(2)}</p>
+                        <p class="text-[10px] text-slate-500">${u} units @ ₹${r.toFixed(2)}${sp > 0 ? ' | SP: ₹' + sp.toFixed(2) + (margin !== '' ? ' (' + margin + '%)' : '') : ''}</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         } else {
             productsHtml = '<p class="text-sm text-slate-500 italic py-2">No products linked.</p>';
         }
@@ -1880,6 +2318,31 @@
         const suppAddress = s.address || 'N/A';
         const suppCity = s.city || '';
         const suppState = s.state || '';
+
+        // Calculate purchase and payment values
+        let calculatedTotalPurchase = 0;
+        supplierProducts.forEach(p => {
+            const u = parseFloat(p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)) || 0;
+            const r = parseFloat(p.prod_piece_rate || 0) || 0;
+            const stored = parseFloat(p.prod_purchase_price || 0) || 0;
+            calculatedTotalPurchase += (stored > 0 ? stored : (u * r));
+        });
+        const totalPurchaseVal = calculatedTotalPurchase > 0 ? calculatedTotalPurchase : (parseFloat(s.total_amount_purchased || 0) || 0);
+        const paidVal = parseFloat(s.paid_amount || s.total_amount_paid || 0) || 0;
+        const balanceVal = Math.max(0, totalPurchaseVal - paidVal);
+
+        let statusVal = 'Unpaid';
+        let statusBadgeClass = 'bg-rose-100 text-rose-800 border-rose-300';
+        if (totalPurchaseVal <= 0) {
+            statusVal = 'Unpaid';
+            statusBadgeClass = 'bg-slate-100 text-slate-600 border-slate-200';
+        } else if (paidVal >= totalPurchaseVal) {
+            statusVal = 'Paid';
+            statusBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        } else if (paidVal > 0) {
+            statusVal = 'Partially Paid';
+            statusBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+        }
 
         const html = `
             <div class="space-y-6">
@@ -1920,9 +2383,33 @@
                     </div>
                 </div>
 
+                <!-- Purchase & Payment Summary -->
+                <div class="bg-indigo-50/40 p-3.5 rounded-xl border border-indigo-100">
+                    <div class="flex items-center justify-between mb-3 border-b border-indigo-100 pb-2">
+                        <h5 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Payment Summary</h5>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full font-bold border ${statusBadgeClass}">
+                            Status: ${statusVal}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-white p-2.5 rounded-lg border border-indigo-100">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Total Purchased</p>
+                            <p class="text-sm font-black text-slate-800 mt-0.5">₹${totalPurchaseVal.toFixed(2)}</p>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-lg border border-emerald-100">
+                            <p class="text-[10px] text-emerald-600 font-bold uppercase">Amount Paid</p>
+                            <p class="text-sm font-black text-emerald-700 mt-0.5">₹${paidVal.toFixed(2)}</p>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-lg border border-rose-100">
+                            <p class="text-[10px] text-rose-500 font-bold uppercase">Balance to Pay</p>
+                            <p class="text-sm font-black text-rose-700 mt-0.5">₹${balanceVal.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Products Supplied List -->
                 <div>
-                    <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 border-b border-slate-200 pb-2">Products Supplied</h5>
+                    <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 border-b border-slate-200 pb-2">Products Supplied (${supplierProducts.length})</h5>
                     <div class="bg-white rounded-xl border border-slate-200 p-3 max-h-[200px] overflow-y-auto">
                         ${productsHtml}
                     </div>
@@ -1958,37 +2445,40 @@
 
         // Ensure name and mobile are populated even with alternative keys
         if (form.elements['supplier_name'] && !form.elements['supplier_name'].value) {
-            form.elements['supplier_name'].value = s.name || '';
+            form.elements['supplier_name'].value = s.supplier_name || s.name || '';
         }
         if (form.elements['mobile_number'] && !form.elements['mobile_number'].value) {
-            form.elements['mobile_number'].value = s.mobile || s.phone || '';
+            form.elements['mobile_number'].value = s.mobile_number || s.mobile || s.phone || '';
         }
 
-        // Restore payment method checkboxes and amount fields
-        const paymentMethods = (s.payment_methods || '').toLowerCase();
-        const methodsMap = [
-            { name: 'cash', valName: 'Cash', inputId: 'payment_amount_cash', amount: s.payment_amount_cash },
-            { name: 'upi', valName: 'UPI', inputId: 'payment_amount_upi', amount: s.payment_amount_upi },
-            { name: 'bank transfer', valName: 'Bank Transfer', inputId: 'payment_amount_bank', amount: s.payment_amount_bank },
-            { name: 'credit', valName: 'Credit', inputId: 'payment_amount_credit', amount: s.payment_amount_credit }
-        ];
+        // Restore payment method checkboxes and amount inputs
+        const methodInputMap = {
+            'Cash': 'payment_amount_cash',
+            'UPI': 'payment_amount_upi',
+            'Bank Transfer': 'payment_amount_bank',
+            'Credit': 'payment_amount_credit'
+        };
 
-        methodsMap.forEach(item => {
-            const chk = form.querySelector(`input[name="payment_methods[]"][value="${item.valName}"]`);
-            const amtInput = document.getElementById(item.inputId);
-            const isChecked = paymentMethods.includes(item.name) || (item.amount && parseFloat(item.amount) > 0);
+        const paymentMethods = (s.payment_methods || s.payment_method || '').toLowerCase();
+        const pVal = parseFloat(s.paid_amount !== undefined ? s.paid_amount : (s.total_amount_paid !== undefined ? s.total_amount_paid : (s.total_paid || 0))) || 0;
+        
+        let checkedMethodInputs = [];
+        ['Cash', 'UPI', 'Bank Transfer', 'Credit'].forEach(methodName => {
+            const chk = form.querySelector(`input[name="payment_methods[]"][value="${methodName}"]`);
+            const amtInput = document.getElementById(methodInputMap[methodName]);
+            const isChecked = paymentMethods.includes(methodName.toLowerCase());
             if (chk) chk.checked = isChecked;
             if (amtInput) {
                 if (isChecked) {
                     amtInput.classList.remove('hidden');
-                    amtInput.value = item.amount || '';
+                    checkedMethodInputs.push(amtInput);
                 } else {
                     amtInput.classList.add('hidden');
                     amtInput.value = '';
                 }
             }
         });
-        
+
         // Load associated products
         document.getElementById('supplier-products-container').innerHTML = '';
         const supplierProducts = products.filter(p => String(p.prod_supplier_id) === String(id));
@@ -1999,8 +2489,23 @@
             addSupplierProductField();
         }
         
+        // Recalculate purchase amounts
         calculateTotalSupplierPurchase();
-        calculateTotalPaid();
+
+        // Populate paid amount into method input if single method checked
+        if (checkedMethodInputs.length === 1 && pVal > 0) {
+            checkedMethodInputs[0].value = pVal.toFixed(2);
+        }
+
+        // Populate paid amount from supplier record
+        const paidInput = document.getElementById('total_payment_entered');
+        if (paidInput) {
+            paidInput.value = pVal > 0 ? pVal.toFixed(2) : '';
+        }
+
+        // Recalculate payment status and balance
+        calculateSupplierPaymentStatus();
+
         const modal = document.getElementById('supplier-modal');
         if (modal) {
             modal.classList.remove('hidden');
@@ -2224,30 +2729,32 @@
             const unit = p.prod_unit && isNaN(p.prod_unit) ? p.prod_unit : 'Pieces';
 
             tr.innerHTML = `
-                <td class="py-3 px-4">
-                    <div class="font-bold text-slate-800">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-500 mt-0.5"><i class="fas fa-barcode text-slate-400 mr-1"></i>${p.prod_sku || 'N/A'} / ${p.prod_barcode || 'N/A'}</div>
+                <td class="py-3.5 px-4 min-w-[200px]">
+                    <div class="font-extrabold text-slate-800 text-sm leading-snug">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5"><i class="fas fa-barcode text-slate-400"></i> ${p.prod_sku || 'N/A'} <span class="text-slate-300">/</span> ${p.prod_barcode || 'N/A'}</div>
                 </td>
-                <td class="py-3 px-4">
-                    <div class="text-[10px] text-amber-700 bg-amber-50 inline-block px-2 py-0.5 mt-0.5 rounded-md border border-amber-100 font-medium">${p.prod_category || 'General'}</div>
+                <td class="py-3.5 px-4 whitespace-nowrap">
+                    <span class="text-[10px] text-amber-800 bg-amber-50 inline-block px-2.5 py-1 rounded-md border border-amber-200/80 font-bold">${p.prod_category || 'General'}</span>
                 </td>
-                <td class="py-3 px-4 font-bold text-slate-700 text-xs">${supplierName}</td>
-                <td class="py-3 px-4 font-mono">
-                    <div class="text-slate-900 font-bold text-xs">P: ₹${purchasePrice.toFixed(2)}</div>
-                    <div class="text-[10px] text-emerald-600 font-bold">S: ₹${sellingPrice.toFixed(2)}</div>
+                <td class="py-3.5 px-4 font-semibold text-slate-700 text-xs whitespace-nowrap">${supplierName}</td>
+                <td class="py-3.5 px-4 font-mono whitespace-nowrap">
+                    <div class="text-slate-900 font-bold text-xs flex items-center gap-1"><span class="text-[10px] font-semibold text-slate-400">P:</span> ₹${purchasePrice.toFixed(2)}</div>
+                    <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5"><span class="text-[10px] font-semibold text-emerald-500">S:</span> ₹${sellingPrice.toFixed(2)}</div>
                 </td>
-                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${gst}%</td>
-                <td class="py-3 px-4 font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-700'} text-xs">${stock} ${unit}</td>
-                <td class="py-3 px-4 font-bold text-fuchsia-600 text-xs">${offerDisplay}</td>
-                <td class="py-3 px-4">
+                <td class="py-3.5 px-4 text-center font-mono text-[11px] text-slate-600 font-bold whitespace-nowrap">${gst}%</td>
+                <td class="py-3.5 px-4 text-center font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs whitespace-nowrap">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></td>
+                <td class="py-3.5 px-4 text-center font-bold text-fuchsia-600 text-xs whitespace-nowrap">${offerDisplay}</td>
+                <td class="py-3.5 px-4 text-center whitespace-nowrap">
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${(p.prod_status || 'Active') === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
                         ${p.prod_status || 'Active'}
                     </span>
                 </td>
-                <td class="py-3 px-4 text-right space-x-1">
-                    <button onclick="viewProduct('${p.id}')" title="View Product" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs transition-colors"><i class="fas fa-eye"></i></button>
-                    <button onclick="editProduct('${p.id}')" title="Edit Product" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs transition-colors"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteProduct('${p.id}')" title="Delete Product" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs transition-colors"><i class="fas fa-trash-alt"></i></button>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                    <div class="inline-flex items-center justify-end gap-1.5">
+                        <button onclick="viewProduct('${p.id}')" title="View Product" class="w-7 h-7 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs flex items-center justify-center transition-colors border border-amber-200 shadow-xs"><i class="fas fa-eye"></i></button>
+                        <button onclick="editProduct('${p.id}')" title="Edit Product" class="w-7 h-7 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs flex items-center justify-center transition-colors border border-indigo-200 shadow-xs"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" title="Delete Product" class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs flex items-center justify-center transition-colors border border-rose-200 shadow-xs"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -2440,6 +2947,16 @@
         const container = document.getElementById('product-products-container');
         const div = document.createElement('div');
         div.className = 'product-product-block relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-amber-200 rounded-lg bg-white shadow-sm';
+        
+        let marginVal = '';
+        if (productData) {
+            if (productData.margin_percentage !== undefined && productData.margin_percentage !== null && productData.margin_percentage !== '') {
+                marginVal = productData.margin_percentage;
+            } else if (productData.prod_margin_percentage !== undefined && productData.prod_margin_percentage !== null && productData.prod_margin_percentage !== '') {
+                marginVal = productData.prod_margin_percentage;
+            }
+        }
+
         div.innerHTML = `
             <button type="button" onclick="removeProductProductField(this)" class="absolute -top-2 -right-2 bg-rose-100 text-rose-600 rounded-full w-6 h-6 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors shadow-sm">
                 <i class="fas fa-times text-xs"></i>
@@ -2470,7 +2987,12 @@
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Total Purchase Price (₹)</label>
-                <input type="number" step="0.01" min="0" name="ap_purchase_price[]" value="${productData ? (productData.prod_purchase_price || '') : ''}" class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none" readonly>
+                <input type="number" step="0.01" min="0" name="ap_purchase_price[]" value="${productData ? (productData.prod_purchase_price || '') : ''}" class="w-full bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-lg px-2 py-1.5 text-xs outline-none cursor-not-allowed" readonly>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-700 mb-1">Margin Percentage (%)</label>
+                <input type="number" step="0.01" min="0" name="ap_margin_percentage[]" value="${marginVal}" placeholder="Enter Margin % (Default: 60%)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" oninput="calculateProductSellingPrice(this)">
+                <span class="text-[10px] text-rose-500 hidden mt-0.5 err-margin-msg"></span>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Selling Price (₹)</label>
@@ -2495,12 +3017,60 @@
         calculateTotalProductPurchase();
     }
 
+    function calculateProductSellingPrice(element) {
+        const parentBlock = element.closest('.product-product-block');
+        if (!parentBlock) return;
+        const pieceRateInput = parentBlock.querySelector('input[name="ap_piece_rate[]"]');
+        const marginInput = parentBlock.querySelector('input[name="ap_margin_percentage[]"]');
+        const sellingInput = parentBlock.querySelector('input[name="ap_selling_price[]"]');
+        const errSpan = parentBlock.querySelector('.err-margin-msg');
+
+        const pieceRate = parseFloat(pieceRateInput ? pieceRateInput.value : 0) || 0;
+        const rawMargin = marginInput ? marginInput.value.trim() : '';
+
+        let effectiveMargin = 60.0;
+
+        if (rawMargin === '') {
+            effectiveMargin = 60.0;
+            if (errSpan) {
+                errSpan.textContent = '';
+                errSpan.classList.add('hidden');
+            }
+            if (marginInput) marginInput.classList.remove('border-rose-500');
+        } else {
+            const parsedMargin = parseFloat(rawMargin);
+            if (isNaN(parsedMargin) || !isFinite(parsedMargin) || parsedMargin < 0) {
+                if (errSpan) {
+                    errSpan.textContent = 'Margin % must be 0 or greater';
+                    errSpan.classList.remove('hidden');
+                }
+                if (marginInput) marginInput.classList.add('border-rose-500');
+                return;
+            } else {
+                if (errSpan) {
+                    errSpan.textContent = '';
+                    errSpan.classList.add('hidden');
+                }
+                if (marginInput) marginInput.classList.remove('border-rose-500');
+                effectiveMargin = parsedMargin;
+            }
+        }
+
+        if (pieceRate >= 0 && pieceRateInput && pieceRateInput.value !== '') {
+            const sellingPrice = pieceRate + (pieceRate * (effectiveMargin / 100.0));
+            if (sellingInput) {
+                sellingInput.value = sellingPrice.toFixed(2);
+            }
+        } else {
+            if (sellingInput) sellingInput.value = '';
+        }
+    }
+
     function calculateProductPurchase(element) {
         const parentBlock = element.closest('.product-product-block');
         const unitInput = parentBlock.querySelector('input[name="ap_unit[]"]');
         const pieceRateInput = parentBlock.querySelector('input[name="ap_piece_rate[]"]');
         const purchaseInput = parentBlock.querySelector('input[name="ap_purchase_price[]"]');
-        const sellingInput = parentBlock.querySelector('input[name="ap_selling_price[]"]');
 
         const units = parseFloat(unitInput.value) || 0;
         const pieceRate = parseFloat(pieceRateInput.value) || 0;
@@ -2508,16 +3078,12 @@
         if (units > 0 && pieceRate >= 0) {
             const purchasePrice = units * pieceRate;
             purchaseInput.value = purchasePrice.toFixed(2);
-            
-            // Auto-calculate selling price with default 60% margin based on one piece rate
-            const sellingPrice = pieceRate + (pieceRate * 0.60);
-            if (sellingInput) {
-                sellingInput.value = sellingPrice.toFixed(2);
-            }
         } else {
             purchaseInput.value = '';
-            if (sellingInput) sellingInput.value = '';
         }
+        
+        // Auto-calculate selling price using dynamic margin percentage
+        calculateProductSellingPrice(element);
         
         calculateTotalProductPurchase();
     }
@@ -2573,12 +3139,11 @@
         }, 3000);
     }
 
-    // --- INVOICE TABLE RENDERING & FILTERING ---
+    // --- SUPPLIER INVOICE TABLE RENDERING & FILTERING ---
     function renderInvoiceTable(filteredList = null) {
         const tbody = document.getElementById('invoice-table-body');
         if (!tbody) return;
 
-        // Update statistics cards using full list of invoices
         const allInvoices = invoices || [];
         const countEl = document.getElementById('inv-stat-count');
         const totalEl = document.getElementById('inv-stat-total');
@@ -2587,7 +3152,7 @@
 
         if (countEl) countEl.textContent = allInvoices.length;
         if (totalEl) {
-            const sumTotal = allInvoices.reduce((acc, i) => acc + (parseFloat(i.grand_total) || 0), 0);
+            const sumTotal = allInvoices.reduce((acc, i) => acc + (parseFloat(i.amount || i.total_amount) || 0), 0);
             totalEl.textContent = '₹' + sumTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
         if (paidEl) {
@@ -2595,7 +3160,7 @@
             paidEl.textContent = '₹' + sumPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
         if (dueEl) {
-            const sumDue = allInvoices.reduce((acc, i) => acc + (parseFloat(i.due_amount) || 0), 0);
+            const sumDue = allInvoices.reduce((acc, i) => acc + (parseFloat(i.balance_amount) || 0), 0);
             dueEl.textContent = '₹' + sumDue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
@@ -2604,10 +3169,10 @@
         if (displayList.length === 0) {
             tbody.innerHTML = `
                 <tr id="invoice-empty-state-row">
-                    <td colspan="8" class="py-12 text-center text-slate-400">
-                        <i class="fas fa-file-invoice text-3xl mb-3 block text-rose-300"></i>
-                        <p class="font-bold text-slate-600 text-sm">No invoices found</p>
-                        <p class="text-xs mt-1">Click "Create New Invoice" to start billing.</p>
+                    <td colspan="5" class="py-12 text-center text-slate-400">
+                        <i class="fas fa-truck-loading text-3xl mb-3 block text-rose-300"></i>
+                        <p class="font-bold text-slate-600 text-sm">No supplier invoices found</p>
+                        <p class="text-xs mt-1">Add suppliers and products to manage supplier purchase invoices.</p>
                     </td>
                 </tr>`;
             return;
@@ -2616,87 +3181,44 @@
         tbody.innerHTML = '';
         displayList.forEach(inv => {
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-rose-50/30 transition-colors';
+            tr.className = 'hover:bg-slate-50 transition-colors';
 
-            const gTotal = parseFloat(inv.grand_total || 0);
-            const pAmount = parseFloat(inv.paid_amount || 0);
-            const dAmount = parseFloat(inv.due_amount || 0);
+            const suppId = inv.supplier_id || inv.supplier_code || ('SUP-' + inv.id);
+            const suppName = inv.supplier_name || inv.name || '';
+            const amountVal = parseFloat(inv.amount || inv.total_amount || 0);
+            const status = inv.payment_status || 'Unpaid';
 
-            // Payment badge
-            let payBadgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
-            let payStatus = (inv.payment_status || 'unpaid').toLowerCase();
-            if (payStatus === 'paid') {
-                payBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-            } else if (payStatus === 'partial' || payStatus === 'partially paid') {
-                payBadgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
-            } else if (payStatus === 'overdue') {
-                payBadgeClass = 'bg-red-100 text-red-800 border border-red-300';
+            let badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+            if (status.toLowerCase() === 'paid') {
+                badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            } else if (status.toLowerCase() === 'partially paid' || status.toLowerCase() === 'partial') {
+                badgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
             }
 
-            // Invoice status badge
-            let statusBadgeClass = 'bg-slate-100 text-slate-600 border border-slate-200';
-            let invStatus = (inv.status || 'draft').toLowerCase();
-            if (invStatus === 'completed') {
-                statusBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-            } else if (invStatus === 'cancelled') {
-                statusBadgeClass = 'bg-rose-100 text-rose-800 border border-rose-300 line-through';
-            }
-
-            const isProforma = (inv.invoice_type || '') === 'proforma_invoice';
-            const typeBadge = isProforma 
-                ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Proforma</span>'
-                : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Tax Inv</span>';
-
+            // Expected Table Format: Supplier ID | Supplier Name | Amount | Payment Status | Actions
             tr.innerHTML = `
-                <td class="py-3 px-4">
-                    <div class="font-bold text-slate-900 flex items-center gap-1.5">
-                        ${inv.invoice_no || ('INV-' + inv.id)}
-                    </div>
-                    <div class="mt-1 flex items-center gap-1">
-                        ${typeBadge}
-                    </div>
+                <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+                    ${suppId}
                 </td>
-                <td class="py-3 px-4">
-                    <div class="font-bold text-slate-800">${inv.customer_name || 'Walk-in Customer'}</div>
-                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">${inv.customer_mobile || inv.mobile || ''}</div>
+                <td class="py-3.5 px-4">
+                    <span class="font-bold text-slate-900 text-sm">${suppName}</span>
+                    ${inv.company_name ? `<span class="text-[11px] text-slate-400 block">${inv.company_name}</span>` : ''}
                 </td>
-                <td class="py-3 px-4 font-mono text-[11px]">
-                    <div class="text-slate-700 font-semibold">${inv.invoice_date || 'N/A'}</div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">Due: ${inv.due_date || 'N/A'}</div>
+                <td class="py-3.5 px-4 font-mono font-black text-slate-900 text-sm">
+                    ₹${amountVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
-                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900">
-                    ₹${gTotal.toFixed(2)}
-                </td>
-                <td class="py-3 px-4 text-right font-mono text-xs">
-                    <div class="text-emerald-700 font-bold">₹${pAmount.toFixed(2)}</div>
-                    <div class="text-[10px] ${dAmount > 0 ? 'text-rose-600 font-bold' : 'text-slate-400'}">Due: ₹${dAmount.toFixed(2)}</div>
-                </td>
-                <td class="py-3 px-4 text-center">
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${payBadgeClass}">
-                        ${inv.payment_status || 'unpaid'}
+                <td class="py-3.5 px-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badgeClass}">
+                        ${status}
                     </span>
                 </td>
-                <td class="py-3 px-4 text-center">
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusBadgeClass}">
-                        ${inv.status || 'draft'}
-                    </span>
-                </td>
-                <td class="py-3 px-4 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                        <a href="${getAppUrl('billing/invoices/' + inv.id)}" title="View Invoice" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
-                            <i class="fas fa-eye text-xs"></i>
-                        </a>
-                        ${inv.status !== 'cancelled' ? `
-                        <a href="${getAppUrl('billing/invoices/edit/' + inv.id)}" title="Edit Invoice" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 transition-colors">
-                            <i class="fas fa-edit text-xs"></i>
-                        </a>` : ''}
-                        <a href="${getAppUrl('billing/invoice/' + inv.id + '/pdf')}" target="_blank" title="Download PDF" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 transition-colors">
-                            <i class="fas fa-file-pdf text-xs"></i>
-                        </a>
-                        <a href="${getAppUrl('billing/invoice/' + inv.id + '/print')}" target="_blank" title="Print Invoice" class="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 text-emerald-600 transition-colors">
-                            <i class="fas fa-print text-xs"></i>
-                        </a>
-                    </div>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap space-x-1">
+                    <button type="button" onclick="openSupplierInvoiceViewModal(${inv.id})" title="View" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors">
+                        <i class="fas fa-eye text-xs"></i> View
+                    </button>
+                    <button type="button" onclick='openSupplierInvoiceEditModal(${JSON.stringify(inv).replace(/'/g, "&#39;")})' title="Edit / Update Payment" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold inline-flex items-center gap-1.5 border border-amber-200 transition-colors">
+                        <i class="fas fa-edit text-xs"></i> Edit
+                    </button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -2711,18 +3233,266 @@
         const status = statusSelect ? statusSelect.value.trim().toLowerCase() : '';
 
         const filtered = (invoices || []).filter(inv => {
-            const invNo = (inv.invoice_no || '').toLowerCase();
-            const custName = (inv.customer_name || '').toLowerCase();
-            const custMob = (inv.customer_mobile || inv.mobile || '').toLowerCase();
-            const payStatus = (inv.payment_status || '').toLowerCase();
+            const sid = (inv.supplier_id || inv.supplier_code || '').toLowerCase();
+            const sname = (inv.supplier_name || inv.name || '').toLowerCase();
+            const scomp = (inv.company_name || '').toLowerCase();
+            const payStatus = (inv.payment_status || 'unpaid').toLowerCase();
 
-            const matchesSearch = !q || invNo.includes(q) || custName.includes(q) || custMob.includes(q);
-            const matchesStatus = !status || payStatus === status;
+            const matchesSearch = !q || sid.includes(q) || sname.includes(q) || scomp.includes(q);
+            const matchesStatus = !status || payStatus === status.toLowerCase();
 
             return matchesSearch && matchesStatus;
         });
 
         renderInvoiceTable(filtered);
+    }
+
+    // --- TAB CONTEXT SUPPLIER INVOICE MODALS ---
+    async function openSupplierInvoiceViewModal(supplierId) {
+        try {
+            const res = await fetch(getAppUrl('billing/invoices/supplier/' + supplierId), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const json = await res.json();
+            if (!json.success || !json.data) {
+                showToast('error', 'Failed to load supplier details.');
+                return;
+            }
+
+            const data = json.data;
+            document.getElementById('pv_supplier_id').textContent = data.supplier_id || ('SUP-' + data.id);
+            document.getElementById('pv_supplier_name').textContent = data.supplier_name;
+            document.getElementById('pv_sub_heading').textContent = (data.company_name ? data.company_name + ' • ' : '') + (data.mobile || '');
+            
+            const formatInrVal = val => '₹' + (parseFloat(val) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('pv_total_amount').textContent = formatInrVal(data.total_amount);
+            document.getElementById('pv_paid_amount').textContent = formatInrVal(data.paid_amount);
+            document.getElementById('pv_balance_amount').textContent = formatInrVal(data.balance_amount);
+
+            let badgeHtml = '';
+            if (data.payment_status === 'Paid') {
+                badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-emerald-50 text-emerald-700 border-emerald-200">Paid</span>';
+            } else if (data.payment_status === 'Partially Paid') {
+                badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-amber-50 text-amber-800 border-amber-200">Partially Paid</span>';
+            } else {
+                badgeHtml = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-rose-50 text-rose-700 border-rose-200">Unpaid</span>';
+            }
+            document.getElementById('pv_payment_status').innerHTML = badgeHtml;
+
+            const tbody = document.getElementById('pv_products_tbody');
+            tbody.innerHTML = '';
+            const prods = data.products || [];
+            document.getElementById('pv_product_count_badge').textContent = prods.length + ' products';
+
+            if (prods.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400 font-sans">No products linked to this supplier yet.</td></tr>';
+            } else {
+                prods.forEach((p, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3 text-slate-400 font-sans">${idx + 1}</td>
+                        <td class="py-2.5 px-3 font-sans">
+                            <div class="font-bold text-slate-900">${p.product_name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${p.code || p.sku || ''} • ${p.category_name || ''}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-bold text-slate-800">${p.pieces_count}</td>
+                        <td class="py-2.5 px-3 text-right text-slate-700">${formatInrVal(p.piece_rate)}</td>
+                        <td class="py-2.5 px-3 text-right font-black text-slate-900">${formatInrVal(p.total_purchase_price)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('prod-modal-view-details').classList.remove('hidden');
+        } catch(err) {
+            console.error(err);
+            showToast('error', 'Error loading supplier details.');
+        }
+    }
+
+    function closeSupplierInvoiceViewModal() {
+        document.getElementById('prod-modal-view-details').classList.add('hidden');
+    }
+
+    let peCurrentPrevPaid = 0.00;
+
+    function openSupplierInvoiceEditModal(inv) {
+        document.getElementById('pe_supplier_id').value = inv.id;
+        document.getElementById('pe_supp_name').textContent = inv.supplier_name;
+        document.getElementById('pe_supp_id_text').textContent = inv.supplier_id || ('SUP-' + inv.id);
+
+        const totalAmt = parseFloat(inv.amount || inv.total_amount || 0);
+        const paidAmt = parseFloat(inv.paid_amount || 0);
+        peCurrentPrevPaid = paidAmt;
+        const balAmt = Math.max(0, totalAmt - paidAmt);
+
+        const formatInrVal = val => '₹' + (parseFloat(val) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('pe_total_purchase_amount').value = totalAmt;
+        document.getElementById('pe_total_amount_display').textContent = formatInrVal(totalAmt);
+        document.getElementById('pe_previously_paid_display').textContent = formatInrVal(paidAmt);
+        document.getElementById('pe_balance_amount_display').textContent = formatInrVal(balAmt);
+
+        document.getElementById('pe_additional_amount').value = '';
+        document.getElementById('pe_payment_status').value = inv.payment_status || 'Unpaid';
+        document.getElementById('pe_paid_amount').value = paidAmt.toFixed(2);
+        document.getElementById('pe_paid_amount').max = totalAmt > 0 ? totalAmt : '';
+        document.getElementById('pe_payment_method').value = inv.payment_method || 'Cash';
+        document.getElementById('pe_payment_date').value = inv.payment_date || new Date().toISOString().split('T')[0];
+        document.getElementById('pe_notes').value = inv.notes || '';
+
+        onSupplierPaymentStatusChange();
+        document.getElementById('prod-modal-edit-payment').classList.remove('hidden');
+    }
+
+    function closeSupplierInvoiceEditModal() {
+        document.getElementById('prod-modal-edit-payment').classList.add('hidden');
+    }
+
+    function onSupplierPaymentStatusChange() {
+        const status = document.getElementById('pe_payment_status').value;
+        const total = parseFloat(document.getElementById('pe_total_purchase_amount').value) || 0;
+        const paidInput = document.getElementById('pe_paid_amount');
+        const balDisplay = document.getElementById('pe_balance_amount_display');
+        const addInput = document.getElementById('pe_additional_amount');
+        const formatInrVal = val => '₹' + (parseFloat(val) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        if (status === 'Paid') {
+            paidInput.value = total.toFixed(2);
+            if (addInput) addInput.value = Math.max(0, total - peCurrentPrevPaid).toFixed(2);
+            balDisplay.textContent = formatInrVal(0);
+        } else if (status === 'Unpaid') {
+            paidInput.value = '0.00';
+            if (addInput) addInput.value = '0.00';
+            balDisplay.textContent = formatInrVal(total);
+        } else if (status === 'Partially Paid') {
+            let curr = parseFloat(paidInput.value) || 0;
+            if (curr <= 0 && total > 0) {
+                curr = total / 2;
+                paidInput.value = curr.toFixed(2);
+            }
+            if (addInput) addInput.value = Math.max(0, curr - peCurrentPrevPaid).toFixed(2);
+            const bal = Math.max(0, total - curr);
+            balDisplay.textContent = formatInrVal(bal);
+        }
+    }
+
+    function onSupplierAdditionalAmountInput() {
+        const total = parseFloat(document.getElementById('pe_total_purchase_amount').value) || 0;
+        const addInput = document.getElementById('pe_additional_amount');
+        const paidInput = document.getElementById('pe_paid_amount');
+        const formatInrVal = val => '₹' + (parseFloat(val) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        let additional = parseFloat(addInput ? addInput.value : 0);
+        if (isNaN(additional) || additional < 0) additional = 0;
+
+        let newTotalPaid = peCurrentPrevPaid + additional;
+        if (total > 0 && newTotalPaid > total) {
+            newTotalPaid = total;
+            additional = Math.max(0, total - peCurrentPrevPaid);
+            if (addInput) addInput.value = additional.toFixed(2);
+        }
+
+        if (paidInput) {
+            paidInput.value = newTotalPaid.toFixed(2);
+        }
+
+        const bal = Math.max(0, total - newTotalPaid);
+        document.getElementById('pe_balance_amount_display').textContent = formatInrVal(bal);
+
+        const statusSelect = document.getElementById('pe_payment_status');
+        if (total <= 0) {
+            statusSelect.value = 'Unpaid';
+        } else if (newTotalPaid >= total) {
+            statusSelect.value = 'Paid';
+        } else if (newTotalPaid <= 0) {
+            statusSelect.value = 'Unpaid';
+        } else {
+            statusSelect.value = 'Partially Paid';
+        }
+    }
+
+    function onSupplierPaidAmountInput() {
+        const total = parseFloat(document.getElementById('pe_total_purchase_amount').value) || 0;
+        const paidInput = document.getElementById('pe_paid_amount');
+        const addInput = document.getElementById('pe_additional_amount');
+        let paid = parseFloat(paidInput.value) || 0;
+        const formatInrVal = val => '₹' + (parseFloat(val) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        if (total > 0 && paid > total) {
+            paid = total;
+            paidInput.value = total.toFixed(2);
+        }
+        if (paid < 0) {
+            paid = 0;
+            paidInput.value = '0.00';
+        }
+
+        if (addInput) {
+            addInput.value = Math.max(0, paid - peCurrentPrevPaid).toFixed(2);
+        }
+
+        const bal = Math.max(0, total - paid);
+        document.getElementById('pe_balance_amount_display').textContent = formatInrVal(bal);
+
+        const statusSelect = document.getElementById('pe_payment_status');
+        if (total <= 0) {
+            statusSelect.value = 'Unpaid';
+        } else if (paid >= total) {
+            statusSelect.value = 'Paid';
+        } else if (paid <= 0) {
+            statusSelect.value = 'Unpaid';
+        } else {
+            statusSelect.value = 'Partially Paid';
+        }
+    }
+
+    async function submitSupplierInvoicePayment(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-save-supp-payment');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+
+        const supplierId = document.getElementById('pe_supplier_id').value;
+        const paidAmount = document.getElementById('pe_paid_amount').value;
+        const additionalAmount = document.getElementById('pe_additional_amount') ? document.getElementById('pe_additional_amount').value : 0;
+        const status = document.getElementById('pe_payment_status').value;
+        const method = document.getElementById('pe_payment_method').value;
+        const date = document.getElementById('pe_payment_date').value;
+        const notes = document.getElementById('pe_notes').value;
+
+        const formData = new FormData();
+        formData.append('_csrf_token', window.CSRF_TOKEN);
+        formData.append('supplier_id', supplierId);
+        formData.append('paid_amount', paidAmount);
+        if (parseFloat(additionalAmount) > 0) {
+            formData.append('additional_amount', additionalAmount);
+        }
+        formData.append('payment_status', status);
+        formData.append('payment_method', method);
+        formData.append('payment_date', date);
+        formData.append('notes', notes);
+
+        try {
+            const res = await fetch(getAppUrl('billing/invoices/update-payment'), {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeSupplierInvoiceEditModal();
+                showToast('success', data.message || 'Payment updated successfully.');
+                await refreshStateFromDb();
+            } else {
+                showToast('error', data.message || 'Failed to update payment.');
+            }
+        } catch(err) {
+            console.error(err);
+            showToast('error', 'Network error while updating payment.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        }
     }
 
     // --- INITIALIZE TABLES ON PAGE LOAD ---

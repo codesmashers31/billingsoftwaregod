@@ -47,14 +47,16 @@ class ProductController extends Controller {
                                   LEFT JOIN `suppliers` sup ON p.supplier_id = sup.id 
                                   ORDER BY p.id DESC");
         $allSuppliers = $db->query("SELECT s.*, 
-                                   (SELECT COUNT(*) FROM `products` p WHERE p.supplier_id = s.id) as product_count 
+                                   (SELECT COUNT(*) FROM `products` p WHERE p.supplier_id = s.id) as product_count,
+                                   sp.paid_amount,
+                                   sp.payment_status as saved_payment_status,
+                                   sp.payment_method
                                    FROM `suppliers` s 
+                                   LEFT JOIN `supplier_payments` sp ON s.id = sp.supplier_id
                                    ORDER BY s.id DESC");
 
-        $recentInvoices = $db->query("SELECT i.*, c.name as customer_name, c.mobile as customer_mobile 
-                                      FROM `invoices` i 
-                                      LEFT JOIN `customers` c ON i.customer_id = c.id 
-                                      ORDER BY i.id DESC LIMIT 15");
+        $suppModel = new Supplier();
+        $recentInvoices = $suppModel->getSupplierInvoiceList();
 
         if ($request->isAjax() && $request->input('ajax_table')) {
             Response::json($result);
@@ -84,13 +86,16 @@ class ProductController extends Controller {
                                 LEFT JOIN `suppliers` sup ON p.supplier_id = sup.id 
                                 ORDER BY p.id DESC");
         $suppliers = $db->query("SELECT s.*, 
-                                 (SELECT COUNT(*) FROM `products` p WHERE p.supplier_id = s.id) as product_count 
+                                 (SELECT COUNT(*) FROM `products` p WHERE p.supplier_id = s.id) as product_count,
+                                 sp.paid_amount,
+                                 sp.payment_status as saved_payment_status,
+                                 sp.payment_method
                                  FROM `suppliers` s 
+                                 LEFT JOIN `supplier_payments` sp ON s.id = sp.supplier_id
                                  ORDER BY s.id DESC");
-        $recentInvoices = $db->query("SELECT i.*, c.name as customer_name, c.mobile as customer_mobile 
-                                      FROM `invoices` i 
-                                      LEFT JOIN `customers` c ON i.customer_id = c.id 
-                                      ORDER BY i.id DESC LIMIT 15");
+        $suppModel = new Supplier();
+        $supplierInvoices = $suppModel->getSupplierInvoiceList();
+
         $categories = (new Category())->where("status = 'active'", [], 'name ASC');
         $subcategories = (new SubCategory())->where("status = 'active'", [], 'name ASC');
 
@@ -98,7 +103,8 @@ class ProductController extends Controller {
             'success' => true,
             'products' => $products,
             'suppliers' => $suppliers,
-            'invoices' => $recentInvoices,
+            'invoices' => $supplierInvoices,
+            'supplier_invoices' => $supplierInvoices,
             'categories' => $categories,
             'subcategories' => $subcategories
         ]);
@@ -133,6 +139,7 @@ class ProductController extends Controller {
         $prodUnits = $request->input('ap_unit', []);
         $prodRates = $request->input('ap_piece_rate', []);
         $prodPurchases = $request->input('ap_purchase_price', []);
+        $prodMargins = $request->input('ap_margin_percentage', []);
         $prodSellings = $request->input('ap_selling_price', []);
         $prodGsts = $request->input('ap_gst', []);
         $prodBarcodes = $request->input('ap_barcode', []);
@@ -171,9 +178,25 @@ class ProductController extends Controller {
                     $purchasePrice = $units > 0 && $pieceRate > 0 ? ($units * $pieceRate) : $pieceRate;
                 }
 
+                // Selling price calculation based on dynamic margin percentage
+                $rawMargin = isset($prodMargins[$i]) ? trim((string)$prodMargins[$i]) : '';
+                $effectiveMargin = 60.0;
+                $hasMarginInput = false;
+
+                if ($rawMargin !== '') {
+                    $hasMarginInput = true;
+                    $parsedMargin = (float)$rawMargin;
+                    if ($parsedMargin < 0) {
+                        $parsedMargin = 60.0;
+                    }
+                    $effectiveMargin = $parsedMargin;
+                }
+
                 $sellingPrice = (float)($prodSellings[$i] ?? 0);
-                if ($sellingPrice <= 0) {
-                    $sellingPrice = $pieceRate > 0 ? ($pieceRate * 1.6) : ($purchasePrice * 1.6);
+                if ($pieceRate > 0) {
+                    $sellingPrice = round($pieceRate + ($pieceRate * ($effectiveMargin / 100.0)), 2);
+                } else if ($sellingPrice <= 0 && $purchasePrice > 0) {
+                    $sellingPrice = round($purchasePrice + ($purchasePrice * ($effectiveMargin / 100.0)), 2);
                 }
 
                 $gst = max(0, (float)($prodGsts[$i] ?? 0));
@@ -182,6 +205,16 @@ class ProductController extends Controller {
                 $pId = !empty($prodIds[$i]) ? (int)$prodIds[$i] : ($i === 0 ? $singleEditId : 0);
 
                 if ($pId > 0 && ($existingProd = $prodModel->find($pId))) {
+                    $marginToSave = $effectiveMargin;
+                    if (!$hasMarginInput) {
+                        if (isset($existingProd['margin_percentage']) && $existingProd['margin_percentage'] !== null) {
+                            $marginToSave = (float)$existingProd['margin_percentage'];
+                        }
+                        if ($pieceRate <= 0 && isset($existingProd['selling_price'])) {
+                            $sellingPrice = (float)$existingProd['selling_price'];
+                        }
+                    }
+
                     $prodModel->update($pId, [
                         'supplier_id' => $supplierId,
                         'name' => $pName,
@@ -189,6 +222,7 @@ class ProductController extends Controller {
                         'subcategory_id' => $subId,
                         'purchase_price' => $purchasePrice,
                         'piece_rate' => $pieceRate,
+                        'margin_percentage' => $marginToSave,
                         'selling_price' => $sellingPrice,
                         'gst_percent' => $gst,
                         'current_stock' => $units,
@@ -209,6 +243,7 @@ class ProductController extends Controller {
                         'brand' => 'Divine Heritage',
                         'purchase_price' => $purchasePrice,
                         'piece_rate' => $pieceRate,
+                        'margin_percentage' => $effectiveMargin,
                         'selling_price' => $sellingPrice,
                         'gst_percent' => $gst,
                         'current_stock' => $units,
@@ -238,6 +273,77 @@ class ProductController extends Controller {
             if (empty($savedProducts)) {
                 throw new \Exception('No valid product data provided.');
             }
+
+            // Recalculate total purchase amount from all products of this supplier
+            $allSuppProducts = $suppModel->getProducts($supplierId);
+            $totalPurchaseAmount = 0.00;
+            foreach ($allSuppProducts as $sp) {
+                $u = (int)($sp['current_stock'] ?? 0);
+                $r = (float)($sp['piece_rate'] ?? 0);
+                $stored = (float)($sp['purchase_price'] ?? 0);
+                $totalPurchaseAmount += ($stored > 0 ? $stored : ($u * $r));
+            }
+            $totalPurchaseAmount = round($totalPurchaseAmount, 2);
+
+            // Fetch existing payment record
+            $curPayRows = $db->query("SELECT * FROM `supplier_payments` WHERE supplier_id = ? LIMIT 1", [$supplierId]);
+            $previouslyPaid = !empty($curPayRows) ? (float)$curPayRows[0]['paid_amount'] : 0.00;
+            $prevMethod = !empty($curPayRows) ? $curPayRows[0]['payment_method'] : 'Cash';
+
+            // Check if user entered an additional payment in Add Products Detail
+            $prodCashAmt = max(0, (float)$request->input('prod_payment_amount_cash', 0));
+            $prodUpiAmt = max(0, (float)$request->input('prod_payment_amount_upi', 0));
+            $prodBankAmt = max(0, (float)$request->input('prod_payment_amount_bank', 0));
+            $prodCreditAmt = max(0, (float)$request->input('prod_payment_amount_credit', 0));
+            $prodMethodSum = round($prodCashAmt + $prodUpiAmt + $prodBankAmt + $prodCreditAmt, 2);
+
+            $rawAddPaid = $request->input('prod_total_amount_paid') !== null
+                ? $request->input('prod_total_amount_paid')
+                : ($request->input('prod_total_payment_entered') !== null ? $request->input('prod_total_payment_entered') : 0);
+            $additionalPaid = max(0.00, (float)$rawAddPaid);
+            if ($prodMethodSum > 0 && ($additionalPaid <= 0 || abs($additionalPaid - $prodMethodSum) < 0.01)) {
+                $additionalPaid = $prodMethodSum;
+            }
+
+            $newPaid = round($previouslyPaid + $additionalPaid, 2);
+            if ($totalPurchaseAmount > 0 && $newPaid > $totalPurchaseAmount) {
+                $newPaid = $totalPurchaseAmount;
+            }
+
+            if ($totalPurchaseAmount <= 0) {
+                $newStatus = 'Unpaid';
+                $newBalance = 0.00;
+                $newPaid = 0.00;
+            } elseif ($newPaid >= $totalPurchaseAmount) {
+                $newStatus = 'Paid';
+                $newBalance = 0.00;
+            } elseif ($newPaid > 0) {
+                $newStatus = 'Partially Paid';
+                $newBalance = max(0.00, round($totalPurchaseAmount - $newPaid, 2));
+            } else {
+                $newStatus = 'Unpaid';
+                $newBalance = $totalPurchaseAmount;
+            }
+
+            // Update supplier_payments table
+            $db->query("INSERT INTO `supplier_payments` 
+                        (`supplier_id`, `paid_amount`, `payment_status`, `payment_method`, `payment_date`, `notes`)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                            `paid_amount` = VALUES(`paid_amount`),
+                            `payment_status` = VALUES(`payment_status`),
+                            `updated_at` = CURRENT_TIMESTAMP",
+                       [$supplierId, $newPaid, $newStatus, $prevMethod, date('Y-m-d'), 'Product addition payment sync']);
+
+            if ($additionalPaid > 0) {
+                $db->query("INSERT INTO `supplier_payment_history` 
+                            (`supplier_id`, `amount_paid`, `total_amount`, `balance_amount`, `payment_status`, `payment_method`, `payment_date`, `notes`, `created_by`)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                           [$supplierId, $additionalPaid, $totalPurchaseAmount, $newBalance, $newStatus, $prevMethod, date('Y-m-d'), 'Additional payment on product addition', Auth::id() ?: 1]);
+            }
+
+            // Update suppliers table outstanding_balance
+            $suppModel->update($supplierId, ['outstanding_balance' => $newBalance]);
 
             $db->commit();
             $this->logActivity('create', 'products', $savedProducts[0]['id'], $savedProducts[0]['sku'], "Added " . count($savedProducts) . " product(s) under supplier {$supplier['name']}");

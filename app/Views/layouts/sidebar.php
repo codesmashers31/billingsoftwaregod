@@ -71,7 +71,7 @@ $currentUri = (new \App\Core\Request())->uri();
             <div class="pt-3 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Sales & Billing</div>
             <a href="<?= url('billing/invoices') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/billing/invoices', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
                 <i class="fas fa-file-invoice-dollar text-sm w-4 <?= isActiveRoute('/billing/invoices', $currentUri) ? 'text-white' : 'text-slate-400' ?>"></i>
-                <span>Invoices & History</span>
+                <span>Invoice Management</span>
             </a>
             <?php if (hasPermission('billing.returns')): ?>
             <a href="<?= url('sales-returns') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/sales-returns', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
