@@ -199,8 +199,81 @@ async function scanBarcodeDirect(code) {
 /**
  * Cart Operations
  */
+let activeBillGstMode = 'item'; // 'item', '0', '5', '12', '18', '20', '28', 'custom'
+let activeCustomBillGst = null;
+
+function changeBillGstPreset(val) {
+    activeBillGstMode = val;
+    const customInput = document.getElementById('pos-custom-tax-rate');
+    if (val === 'custom') {
+        if (customInput) {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+            if (activeCustomBillGst !== null) {
+                customInput.value = activeCustomBillGst;
+            }
+        }
+    } else {
+        if (customInput) customInput.classList.add('hidden');
+        if (val !== 'item') {
+            const numVal = parseFloat(val) || 0;
+            posCart.forEach(item => {
+                item.gst_percent = numVal;
+            });
+        }
+    }
+    renderCart();
+}
+
+function onCustomGstInput(val) {
+    const rate = Math.max(0, Math.min(100, parseFloat(val) || 0));
+    activeCustomBillGst = rate;
+    posCart.forEach(item => {
+        item.gst_percent = rate;
+    });
+    renderCart();
+}
+
+function updateItemGst(index, val) {
+    if (!posCart[index]) return;
+    const rate = Math.max(0, Math.min(100, parseFloat(val) || 0));
+    posCart[index].gst_percent = rate;
+    
+    // Check if all items now match a preset or are heterogeneous
+    const distinctRates = Array.from(new Set(posCart.map(i => parseFloat(i.gst_percent) || 0)));
+    const presetSelect = document.getElementById('pos-tax-preset');
+    if (presetSelect) {
+        if (distinctRates.length === 1) {
+            const single = String(distinctRates[0]);
+            if (['0', '5', '12', '18', '20', '28'].includes(single)) {
+                presetSelect.value = single;
+                activeBillGstMode = single;
+            } else {
+                presetSelect.value = 'custom';
+                activeBillGstMode = 'custom';
+                activeCustomBillGst = distinctRates[0];
+                const custInp = document.getElementById('pos-custom-tax-rate');
+                if (custInp) { custInp.classList.remove('hidden'); custInp.value = distinctRates[0]; }
+            }
+        } else {
+            presetSelect.value = 'item';
+            activeBillGstMode = 'item';
+            const custInp = document.getElementById('pos-custom-tax-rate');
+            if (custInp) custInp.classList.add('hidden');
+        }
+    }
+    renderCart();
+}
+
 function addToCartById(id, name, unitPrice, discountPercent, gstPercent, maxStock) {
     const existingIndex = posCart.findIndex(item => item.product_id === id);
+
+    let initialGst = parseFloat(gstPercent) || 12;
+    if (activeBillGstMode === 'custom' && activeCustomBillGst !== null) {
+        initialGst = activeCustomBillGst;
+    } else if (activeBillGstMode !== 'item') {
+        initialGst = parseFloat(activeBillGstMode) || 0;
+    }
 
     if (existingIndex > -1) {
         if (posCart[existingIndex].quantity + 1 > maxStock) {
@@ -219,7 +292,7 @@ function addToCartById(id, name, unitPrice, discountPercent, gstPercent, maxStoc
             unit_price: parseFloat(unitPrice),
             quantity: 1,
             discount_percent: parseFloat(discountPercent) || 0,
-            gst_percent: parseFloat(gstPercent) || 12,
+            gst_percent: initialGst,
             max_stock: maxStock
         });
     }
@@ -275,11 +348,13 @@ function renderCart() {
     if (posCart.length === 0) {
         cartContainer.innerHTML = `
             <div class="h-full flex flex-col items-center justify-center text-slate-400 py-12">
-                <i class="fas fa-shopping-cart text-4xl text-slate-600 mb-3"></i>
-                <p class="font-medium text-slate-300">Cart is empty</p>
-                <p class="text-xs text-slate-500 mt-1">Scan barcode or click items to add</p>
+                <i class="fas fa-shopping-cart text-4xl text-slate-300 mb-3"></i>
+                <p class="font-medium text-slate-600">Cart is empty</p>
+                <p class="text-xs text-slate-400 mt-1">Scan barcode or click items to add</p>
             </div>
         `;
+        const taxLabelEl = document.getElementById('summary-tax-label');
+        if (taxLabelEl) taxLabelEl.textContent = 'GST Tax:';
         updateTotalsUI(0, 0, 0, 0, 0, 0);
         return;
     }
@@ -301,31 +376,39 @@ function renderCart() {
         taxTotal += taxAmt;
 
         html += `
-            <div class="bg-slate-800/90 border border-slate-700/70 rounded-xl p-3 mb-2 flex items-center justify-between">
+            <div class="bg-white border border-slate-200 hover:border-amber-300 shadow-xs rounded-xl p-3 mb-2 flex items-center justify-between transition-all">
                 <div class="flex-1 pr-3">
-                    <h5 class="text-sm font-semibold text-slate-100 line-clamp-1">${item.name}</h5>
-                    <div class="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
-                        <span>₹${item.unit_price.toFixed(2)}</span>
-                        <span>• GST ${item.gst_percent}%</span>
+                    <h5 class="text-xs font-bold text-slate-900 line-clamp-1">${item.name}</h5>
+                    <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+                        <span class="font-mono text-slate-700">₹${item.unit_price.toFixed(2)}</span>
+                        <div class="inline-flex items-center gap-1 bg-amber-50/80 border border-amber-200 rounded px-1.5 py-0.5" title="Dynamic GST Tax Rate">
+                            <span class="text-[10px] font-bold text-amber-800">GST:</span>
+                            <input type="number" min="0" max="100" step="0.5" value="${item.gst_percent}" 
+                                   onchange="updateItemGst(${idx}, this.value)" 
+                                   title="Edit GST percentage for this item"
+                                   class="w-10 bg-white border border-amber-300 rounded px-1 py-0 text-center font-mono font-bold text-[10px] text-slate-800 outline-none focus:border-amber-500">
+                            <span class="text-[10px] text-amber-800 font-bold">%</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 p-0.5">
-                        <button onclick="updateItemQty(${idx}, -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+                    <div class="flex items-center bg-slate-100 rounded-lg border border-slate-200 p-0.5">
+                        <button onclick="updateItemQty(${idx}, -1)" class="w-6 h-6 rounded bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs font-bold shadow-xs">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <span class="w-8 text-center text-xs font-bold text-amber-400">${item.quantity}</span>
-                        <button onclick="updateItemQty(${idx}, 1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+                        <span class="w-7 text-center text-xs font-bold text-slate-900 font-mono">${item.quantity}</span>
+                        <button onclick="updateItemQty(${idx}, 1)" class="w-6 h-6 rounded bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs font-bold shadow-xs">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
 
                     <div class="text-right min-w-[70px]">
-                        <span class="text-sm font-bold text-amber-400 block">₹${lineTotal.toFixed(2)}</span>
+                        <span class="text-xs font-black text-slate-900 font-mono block">₹${lineTotal.toFixed(2)}</span>
+                        <span class="text-[9px] text-slate-400 font-mono">tax: ₹${taxAmt.toFixed(2)}</span>
                     </div>
 
-                    <button onclick="removeFromCart(${idx})" class="text-slate-500 hover:text-rose-400 p-1">
+                    <button onclick="removeFromCart(${idx})" class="text-slate-400 hover:text-rose-600 p-1 transition-colors" title="Remove item">
                         <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                 </div>
@@ -335,13 +418,31 @@ function renderCart() {
 
     cartContainer.innerHTML = html;
 
-    // Overall discount calculation
-    const overallDiscInput = document.getElementById('pos-overall-discount');
-    const overallDiscPercent = overallDiscInput ? (parseFloat(overallDiscInput.value) || 0) : 0;
-    const overallDiscAmt = ((subtotal - itemDiscountTotal) * overallDiscPercent) / 100;
+    // Distinct tax rate label calculation
+    const distinctRates = Array.from(new Set(posCart.map(i => parseFloat(i.gst_percent) || 0)));
+    let taxLabel = 'GST Tax';
+    if (distinctRates.length === 1) {
+        taxLabel += ` (${distinctRates[0]}%):`;
+    } else if (distinctRates.length > 1) {
+        taxLabel += ` (${distinctRates.join('%, ')}%):`;
+    } else {
+        taxLabel += ':';
+    }
+    const taxLabelEl = document.getElementById('summary-tax-label');
+    if (taxLabelEl) taxLabelEl.textContent = taxLabel;
 
-    const totalBeforeRound = (subtotal - itemDiscountTotal - overallDiscAmt) + taxTotal;
-    const grandTotal = Math.round(totalBeforeRound);
+    // Overall discount calculation in Rupees (₹)
+    const overallDiscInput = document.getElementById('pos-overall-discount');
+    let overallDiscAmt = overallDiscInput ? (parseFloat(overallDiscInput.value) || 0) : 0;
+    if (isNaN(overallDiscAmt) || overallDiscAmt < 0) overallDiscAmt = 0;
+
+    const netSubtotal = Math.max(0, subtotal - itemDiscountTotal);
+    if (overallDiscAmt > netSubtotal) {
+        overallDiscAmt = netSubtotal;
+    }
+
+    const totalBeforeRound = (netSubtotal - overallDiscAmt) + taxTotal;
+    const grandTotal = Math.max(0, Math.round(totalBeforeRound));
     const roundOff = (grandTotal - totalBeforeRound);
 
     updateTotalsUI(subtotal, itemDiscountTotal + overallDiscAmt, taxTotal, roundOff, grandTotal);
@@ -503,6 +604,149 @@ function deleteHeldBill(index) {
     openHeldBillsModal();
 }
 
+function calculatePosBalance() {
+    const elGrand = document.getElementById('summary-grandtotal');
+    const grandVal = parseFloat(elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : 0) || 0;
+    const paidInput = document.getElementById('modal-pay-amount');
+    const balanceInput = document.getElementById('modal-balance-amount');
+
+    let paidVal = parseFloat(paidInput?.value || 0);
+    if (isNaN(paidVal) || paidVal < 0) paidVal = 0;
+
+    // If exactly one payment method is checked, sync this paid value into that method's input
+    const checkedBoxes = Array.from(document.querySelectorAll('input[name="payment_methods[]"]:checked')).map(cb => cb.value);
+    if (checkedBoxes.length === 1) {
+        const methodMap = {
+            'cash': 'pos_payment_amount_cash',
+            'upi': 'pos_payment_amount_upi',
+            'bank_transfer': 'pos_payment_amount_bank',
+            'credit': 'pos_payment_amount_credit'
+        };
+        const activeInputId = methodMap[checkedBoxes[0]];
+        const activeInput = document.getElementById(activeInputId);
+        if (activeInput && document.activeElement !== activeInput) {
+            if (checkedBoxes[0] === 'credit') {
+                activeInput.value = grandVal > 0 ? grandVal.toFixed(2) : '0.00';
+            } else {
+                activeInput.value = paidVal > 0 ? paidVal.toFixed(2) : '';
+            }
+        }
+    }
+
+    const balance = Math.max(0, grandVal - paidVal);
+
+    if (balanceInput) {
+        balanceInput.value = balance.toFixed(2);
+    }
+
+    // If credit checkbox is checked and there are other methods checked, sync remaining balance to credit input
+    const creditChk = document.getElementById('pos_chk_credit');
+    const creditInp = document.getElementById('pos_payment_amount_credit');
+    if (creditChk && creditChk.checked && creditInp && document.activeElement !== creditInp) {
+        if (checkedBoxes.length > 1) {
+            creditInp.value = balance > 0 ? balance.toFixed(2) : '0.00';
+        }
+    }
+}
+window.calculatePosBalance = calculatePosBalance;
+
+function togglePosPaymentAmount(checkbox, inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const elGrand = document.getElementById('summary-grandtotal');
+    const grandVal = parseFloat(elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : 0) || 0;
+
+    if (checkbox.checked) {
+        input.classList.remove('hidden');
+        // Auto-fill remaining balance if input is empty
+        if (input.value === '' || parseFloat(input.value) === 0) {
+            const otherPaid = getPosOtherMethodsPaid(inputId);
+            const remaining = Math.max(0, grandVal - otherPaid);
+            if (checkbox.value === 'credit' && document.querySelectorAll('input[name="payment_methods[]"]:checked').length === 1) {
+                input.value = remaining > 0 ? remaining.toFixed(2) : '0.00';
+            } else if (remaining > 0) {
+                input.value = remaining.toFixed(2);
+            }
+        }
+        input.focus();
+    } else {
+        input.classList.add('hidden');
+        input.value = '';
+    }
+
+    calculatePosTotalPaidFromMethods();
+}
+window.togglePosPaymentAmount = togglePosPaymentAmount;
+
+function getPosOtherMethodsPaid(excludeInputId) {
+    let sum = 0;
+    const methodIds = ['pos_payment_amount_cash', 'pos_payment_amount_upi', 'pos_payment_amount_bank'];
+    methodIds.forEach(id => {
+        if (id !== excludeInputId) {
+            const el = document.getElementById(id);
+            if (el && !el.classList.contains('hidden')) {
+                sum += (parseFloat(el.value) || 0);
+            }
+        }
+    });
+    return sum;
+}
+
+function calculatePosTotalPaidFromMethods() {
+    const cashInput = document.getElementById('pos_payment_amount_cash');
+    const upiInput = document.getElementById('pos_payment_amount_upi');
+    const bankInput = document.getElementById('pos_payment_amount_bank');
+    const creditInput = document.getElementById('pos_payment_amount_credit');
+
+    const cash = (cashInput && !cashInput.classList.contains('hidden')) ? (parseFloat(cashInput.value) || 0) : 0;
+    const upi = (upiInput && !upiInput.classList.contains('hidden')) ? (parseFloat(upiInput.value) || 0) : 0;
+    const bank = (bankInput && !bankInput.classList.contains('hidden')) ? (parseFloat(bankInput.value) || 0) : 0;
+    const credit = (creditInput && !creditInput.classList.contains('hidden')) ? (parseFloat(creditInput.value) || 0) : 0;
+
+    // Total actual immediate payment
+    const totalPaid = cash + upi + bank;
+    const paidInput = document.getElementById('modal-pay-amount');
+    const checkedCount = document.querySelectorAll('input[name="payment_methods[]"]:checked').length;
+
+    if (paidInput) {
+        if (checkedCount > 0 || (cash + upi + bank + credit) > 0) {
+            paidInput.value = totalPaid > 0 ? totalPaid.toFixed(2) : '0.00';
+        } else {
+            paidInput.value = '';
+        }
+    }
+
+    // Toggle and update UPI QR if UPI is active
+    const upiContainer = document.getElementById('dynamic-upi-container');
+    const showQrBtn = document.getElementById('btn-show-qr');
+    const upiChecked = document.getElementById('pos_chk_upi')?.checked;
+
+    if (upiChecked) {
+        const elGrand = document.getElementById('summary-grandtotal');
+        const grandVal = parseFloat(elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : 0) || 0;
+        const upiVal = upi > 0 ? upi : grandVal;
+        generateUpiQrCode(upiVal);
+        if (showQrBtn) {
+            showQrBtn.classList.remove('hidden');
+            showQrBtn.classList.add('flex');
+        }
+    } else {
+        if (upiContainer) {
+            upiContainer.classList.add('hidden');
+            upiContainer.classList.remove('flex');
+        }
+        if (showQrBtn) {
+            showQrBtn.classList.add('hidden');
+            showQrBtn.classList.remove('flex');
+        }
+    }
+
+    calculatePosBalance();
+}
+window.calculatePosTotalPaidFromMethods = calculatePosTotalPaidFromMethods;
+window.onPosPaymentMethodChange = calculatePosTotalPaidFromMethods;
+
 /**
  * Payment Modal & Checkout Completion
  */
@@ -510,82 +754,76 @@ function openPaymentModal() {
     if (posCart.length === 0) return;
 
     const elGrand = document.getElementById('summary-grandtotal');
-    const grandVal = elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : '0';
+    const grandVal = parseFloat(elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : '0') || 0;
 
     const payModalGrand = document.getElementById('modal-pay-grandtotal');
     const payModalAmount = document.getElementById('modal-pay-amount');
 
-    if (payModalGrand) payModalGrand.textContent = '₹' + parseFloat(grandVal).toLocaleString('en-IN', {minimumFractionDigits: 2});
-    if (payModalAmount) payModalAmount.value = grandVal;
+    if (payModalGrand) payModalGrand.textContent = '₹' + grandVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    if (payModalAmount) payModalAmount.value = grandVal.toFixed(2);
     
-    // Setup UPI QR dynamically
-    generateUpiQrCode(grandVal);
-    
-    // Listen to payment method changes
-    const radios = document.querySelectorAll('input[name="payment_method_radio"]');
-    radios.forEach(r => {
-        if (!r.dataset.hasListener) {
-            r.addEventListener('change', (e) => {
-                const upiContainer = document.getElementById('dynamic-upi-container');
-                const showQrBtn = document.getElementById('btn-show-qr');
-                const doneQrBtn = document.getElementById('btn-done-qr');
-                const confirmBtn = document.getElementById('btn-confirm-checkout');
-                
-                if(upiContainer && showQrBtn && doneQrBtn && confirmBtn) {
-                    if (e.target.value === 'upi') {
-                        // UPI Selected: Show "Show QR" button, Hide "Complete Transaction", Hide QR container
-                        showQrBtn.classList.remove('hidden');
-                        showQrBtn.classList.add('flex');
-                        confirmBtn.classList.add('hidden');
-                        confirmBtn.classList.remove('flex');
-                        doneQrBtn.classList.add('hidden');
-                        doneQrBtn.classList.remove('flex');
-                        upiContainer.classList.add('hidden');
-                        upiContainer.classList.remove('flex');
-                    } else {
-                        // Other methods: Show "Complete Transaction", Hide UPI stuff
-                        showQrBtn.classList.add('hidden');
-                        showQrBtn.classList.remove('flex');
-                        doneQrBtn.classList.add('hidden');
-                        doneQrBtn.classList.remove('flex');
-                        confirmBtn.classList.remove('hidden');
-                        confirmBtn.classList.add('flex');
-                        upiContainer.classList.add('hidden');
-                        upiContainer.classList.remove('flex');
-                    }
-                }
-            });
-            r.dataset.hasListener = 'true';
+    // Reset payment methods checkboxes: Cash checked by default with full amount prefilled
+    const methodConfigs = [
+        { chk: 'pos_chk_cash', input: 'pos_payment_amount_cash', defaultChecked: true },
+        { chk: 'pos_chk_upi', input: 'pos_payment_amount_upi', defaultChecked: false },
+        { chk: 'pos_chk_bank', input: 'pos_payment_amount_bank', defaultChecked: false },
+        { chk: 'pos_chk_credit', input: 'pos_payment_amount_credit', defaultChecked: false }
+    ];
+
+    methodConfigs.forEach(m => {
+        const chkEl = document.getElementById(m.chk);
+        const inpEl = document.getElementById(m.input);
+        if (chkEl) chkEl.checked = m.defaultChecked;
+        if (inpEl) {
+            if (m.defaultChecked) {
+                inpEl.classList.remove('hidden');
+                inpEl.value = grandVal > 0 ? grandVal.toFixed(2) : '0.00';
+            } else {
+                inpEl.classList.add('hidden');
+                inpEl.value = '';
+            }
         }
     });
-    
-    // Show QR Button logic
+
+    const upiContainer = document.getElementById('dynamic-upi-container');
+    if (upiContainer) {
+        upiContainer.classList.add('hidden');
+        upiContainer.classList.remove('flex');
+    }
     const showQrBtn = document.getElementById('btn-show-qr');
+    if (showQrBtn) {
+        showQrBtn.classList.add('hidden');
+        showQrBtn.classList.remove('flex');
+    }
+    const doneQrBtn = document.getElementById('btn-done-qr');
+    if (doneQrBtn) {
+        doneQrBtn.classList.add('hidden');
+        doneQrBtn.classList.remove('flex');
+    }
+    const confirmBtn = document.getElementById('btn-confirm-checkout');
+    if (confirmBtn) {
+        confirmBtn.classList.remove('hidden');
+        confirmBtn.classList.add('flex');
+    }
+
+    // Show QR Button logic
     if (showQrBtn && !showQrBtn.dataset.hasListener) {
         showQrBtn.addEventListener('click', () => {
-            const upiContainer = document.getElementById('dynamic-upi-container');
-            const doneQrBtn = document.getElementById('btn-done-qr');
-            if (upiContainer && doneQrBtn) {
-                // Show QR Container
-                upiContainer.classList.remove('hidden');
-                upiContainer.classList.add('flex');
-                // Hide "Show QR" button, Show "Done" button
+            const upiBox = document.getElementById('dynamic-upi-container');
+            const doneBtn = document.getElementById('btn-done-qr');
+            if (upiBox && doneBtn) {
+                upiBox.classList.remove('hidden');
+                upiBox.classList.add('flex');
                 showQrBtn.classList.add('hidden');
                 showQrBtn.classList.remove('flex');
-                doneQrBtn.classList.remove('hidden');
-                doneQrBtn.classList.add('flex');
+                doneBtn.classList.remove('hidden');
+                doneBtn.classList.add('flex');
             }
         });
         showQrBtn.dataset.hasListener = 'true';
     }
 
-    // Reset to upi and hide UPI container
-    const defaultRadio = document.querySelector('input[name="payment_method_radio"][value="upi"]');
-    if (defaultRadio) {
-        defaultRadio.checked = true;
-        defaultRadio.dispatchEvent(new Event('change'));
-    }
-
+    calculatePosBalance();
     openModal('pos-payment-modal');
 }
 
@@ -608,18 +846,41 @@ async function processCheckout() {
         payBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing Invoice...';
     }
 
-    const method = document.querySelector('input[name="payment_method_radio"]:checked')?.value || 'cash';
+    const checkedBoxes = Array.from(document.querySelectorAll('input[name="payment_methods[]"]:checked')).map(cb => cb.value);
+    const selectedMethods = checkedBoxes.length > 0 ? checkedBoxes : ['cash'];
+    const method = selectedMethods.length > 1 ? 'split' : selectedMethods[0];
+
     const accountId = document.getElementById('payment-account-select')?.value || 1;
     const paidAmt = document.getElementById('modal-pay-amount')?.value || 0;
     const notes = document.getElementById('modal-pay-notes')?.value || '';
-    const overallDisc = document.getElementById('pos-overall-discount')?.value || 0;
+    const overallDiscAmt = parseFloat(document.getElementById('pos-overall-discount')?.value || 0) || 0;
+    const netSubtotal = Math.max(0, posCart.reduce((s, i) => s + (i.quantity * i.unit_price) - ((i.quantity * i.unit_price * (i.discount_percent || 0)) / 100), 0));
+    const overallDiscPercent = netSubtotal > 0 ? Number(((overallDiscAmt / netSubtotal) * 100).toFixed(2)) : 0;
+
+    const paymentAmounts = {
+        cash: (!document.getElementById('pos_payment_amount_cash')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_cash')?.value || 0) || 0) : 0,
+        upi: (!document.getElementById('pos_payment_amount_upi')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_upi')?.value || 0) || 0) : 0,
+        bank_transfer: (!document.getElementById('pos_payment_amount_bank')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_bank')?.value || 0) || 0) : 0,
+        credit: (!document.getElementById('pos_payment_amount_credit')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_credit')?.value || 0) || 0) : 0
+    };
+
+    let billGstPercent = null;
+    if (activeBillGstMode === 'custom' && activeCustomBillGst !== null) {
+        billGstPercent = activeCustomBillGst;
+    } else if (activeBillGstMode !== 'item') {
+        billGstPercent = parseFloat(activeBillGstMode);
+    }
 
     const payload = {
         _csrf_token: window.CSRF_TOKEN,
         customer_id: selectedCustomer.id,
         payment_method: method,
+        payment_methods: selectedMethods,
+        payment_amounts: paymentAmounts,
         account_id: accountId,
-        overall_discount_percent: overallDisc,
+        overall_discount_amount: overallDiscAmt,
+        overall_discount_percent: overallDiscPercent,
+        bill_gst_percent: billGstPercent,
         paid_amount: paidAmt,
         notes: notes,
         items: posCart

@@ -14,6 +14,7 @@ use App\Models\Customer;
 use App\Models\Inventory;
 use App\Models\Account;
 use App\Models\Payment;
+use App\Models\Supplier;
 
 class BillingController extends Controller {
     public function pos(Request $request): void {
@@ -62,29 +63,76 @@ class BillingController extends Controller {
 
     public function invoices(Request $request): void {
         $this->requirePermission('billing.view');
-        $invModel = new Invoice();
+        $suppModel = new Supplier();
 
-        $page = (int)$request->input('page', 1);
+        $search = trim((string)$request->input('search', ''));
+        $paymentStatus = trim((string)$request->input('payment_status', ''));
+
         $filters = [
-            'search' => (string)$request->input('search', ''),
-            'status' => (string)$request->input('status', ''),
-            'payment_status' => (string)$request->input('payment_status', ''),
-            'date_from' => (string)$request->input('date_from', ''),
-            'date_to' => (string)$request->input('date_to', ''),
+            'search' => $search,
+            'payment_status' => $paymentStatus,
         ];
 
-        $result = $invModel->getPaginatedList($page, 15, $filters);
+        $invoices = $suppModel->getSupplierInvoiceList($search ?: null, $paymentStatus ?: null);
 
-        if ($request->isAjax() && $request->input('ajax_table')) {
-            Response::json($result);
+        if ($request->isAjax() && ($request->input('ajax_table') || $request->input('json'))) {
+            Response::json([
+                'success' => true,
+                'data' => $invoices
+            ]);
         }
 
         $this->render('billing.invoices', [
-            'pageTitle' => 'Sales Invoices & Billing History',
-            'invoices' => $result['data'],
-            'pagination' => $result,
+            'pageTitle' => 'Supplier Purchase & Payment Management',
+            'invoices' => $invoices,
             'filters' => $filters
         ]);
+    }
+
+    public function supplierDetail(Request $request, array $params): void {
+        $this->requirePermission('billing.view');
+        $id = (int)($params['id'] ?? $request->input('supplier_id', 0));
+        $suppModel = new Supplier();
+        $detail = $suppModel->getSupplierInvoiceWithDetails($id);
+        if (!$detail) {
+            Response::error('Supplier not found.');
+        }
+        Response::json(['success' => true, 'data' => $detail]);
+    }
+
+    public function updateSupplierPayment(Request $request): void {
+        $this->requirePermission('billing.view');
+        $supplierId = (int)$request->input('supplier_id', 0);
+        if ($supplierId <= 0) {
+            Response::error('Valid Supplier ID is required.');
+        }
+
+        $paidAmount = (float)$request->input('paid_amount', 0);
+        $additionalAmount = (float)$request->input('additional_amount', 0);
+        $status = (string)$request->input('payment_status', 'Unpaid');
+        $method = (string)$request->input('payment_method', 'Cash');
+        $date = (string)$request->input('payment_date', date('Y-m-d'));
+        $notes = trim((string)$request->input('notes', ''));
+
+        try {
+            $suppModel = new Supplier();
+            $result = $suppModel->updateSupplierPayment(
+                $supplierId,
+                $paidAmount,
+                $status,
+                $method,
+                $date,
+                $notes,
+                Auth::id() ?: 1,
+                $additionalAmount
+            );
+
+            $this->logActivity('update', 'suppliers', $supplierId, $result['supplier_id'], "Updated payment for {$result['supplier_name']}: Status {$result['payment_status']}, Paid ₹{$result['paid_amount']}");
+
+            Response::success('Supplier payment updated successfully!', $result);
+        } catch (\Throwable $e) {
+            Response::error($e->getMessage());
+        }
     }
 
     public function checkout(Request $request): void {
@@ -127,6 +175,11 @@ class BillingController extends Controller {
             $taxTotal = 0.00;
             $validatedItems = [];
 
+            // Check for dynamic bill-level GST tax percentage if specified by billing person
+            $billGstInput = $request->input('bill_gst_percent', null);
+            $hasBillGst = ($billGstInput !== null && $billGstInput !== '' && is_numeric($billGstInput));
+            $billGstPercent = $hasBillGst ? max(0, min(100, (float)$billGstInput)) : null;
+
             foreach ($cartItems as $item) {
                 $productId = (int)($item['product_id'] ?? 0);
                 $qty = (int)($item['quantity'] ?? 1);
@@ -147,8 +200,19 @@ class BillingController extends Controller {
                 $gross = $qty * $unitPrice;
                 $discAmt = ($gross * $itemDiscountPercent) / 100;
                 $netItem = $gross - $discAmt;
-                $taxPercent = (float)($prod['gst_percent'] ?? 12);
-                $taxAmt = ($netItem * $taxPercent) / 100;
+
+                // Priority: Bill-level dynamic GST > Item-level dynamic GST > Product default GST > Fallback 12%
+                if ($hasBillGst) {
+                    $taxPercent = $billGstPercent;
+                } elseif (isset($item['gst_percent']) && $item['gst_percent'] !== '' && is_numeric($item['gst_percent'])) {
+                    $taxPercent = max(0, min(100, (float)$item['gst_percent']));
+                } elseif (isset($item['tax_percent']) && $item['tax_percent'] !== '' && is_numeric($item['tax_percent'])) {
+                    $taxPercent = max(0, min(100, (float)$item['tax_percent']));
+                } else {
+                    $taxPercent = (float)($prod['gst_percent'] ?? 12);
+                }
+
+                $taxAmt = round(($netItem * $taxPercent) / 100, 2);
                 $itemTotal = $netItem + $taxAmt;
 
                 $subtotal += $gross;
@@ -176,8 +240,18 @@ class BillingController extends Controller {
                 throw new \Exception('Cart items validation failed.');
             }
 
-            // Overall discount calculation
-            $overallDiscountAmount = (($subtotal - $itemDiscountTotal) * $overallDiscountPercent) / 100;
+            // Overall discount calculation (supporting amount in Rupees or percentage)
+            $overallDiscountAmountInput = $request->input('overall_discount_amount', null);
+            $netSubtotalForDisc = max(0, $subtotal - $itemDiscountTotal);
+
+            if ($overallDiscountAmountInput !== null && $overallDiscountAmountInput !== '') {
+                $overallDiscountAmount = min($netSubtotalForDisc, max(0, (float)$overallDiscountAmountInput));
+                $overallDiscountPercent = $netSubtotalForDisc > 0 ? round(($overallDiscountAmount / $netSubtotalForDisc) * 100, 2) : 0.00;
+            } else {
+                $overallDiscountPercent = max(0, (float)$request->input('overall_discount_percent', 0));
+                $overallDiscountAmount = round(($netSubtotalForDisc * $overallDiscountPercent) / 100, 2);
+            }
+
             $rawTotal = ($subtotal - $itemDiscountTotal - $overallDiscountAmount) + $taxTotal;
 
             // Round-off
@@ -197,14 +271,61 @@ class BillingController extends Controller {
             }
 
             // Payment calculation
-            $paidAmount = min($grandTotal, max(0, $paidAmountInput));
-            if ($paymentMethod === 'credit') {
-                $paidAmount = 0.00;
-            } elseif ($paidAmount == 0 && $paymentMethod !== 'credit') {
-                $paidAmount = $grandTotal; // Default full payment if not credit
+            $rawMethods = $request->input('payment_methods', null);
+            if ($rawMethods === null) {
+                $rawMethods = $request->input('payment_method', 'cash');
             }
-            $dueAmount = max(0, $grandTotal - $paidAmount);
-            $paymentStatus = $dueAmount == 0 ? 'paid' : ($paidAmount > 0 ? 'partial' : 'unpaid');
+            if (is_array($rawMethods)) {
+                $methodsList = array_values(array_filter(array_map('strtolower', array_map('trim', $rawMethods))));
+            } else {
+                $methodsList = array_values(array_filter(array_map('strtolower', array_map('trim', explode(',', (string)$rawMethods)))));
+            }
+            if (empty($methodsList)) {
+                $methodsList = ['cash'];
+            }
+
+            if (count($methodsList) > 1) {
+                $primaryMethod = 'split';
+            } else {
+                $primaryMethod = reset($methodsList);
+                if (!in_array($primaryMethod, ['cash', 'card', 'upi', 'bank_transfer', 'credit'])) {
+                    $primaryMethod = 'cash';
+                }
+            }
+
+            $rawMethodAmounts = $request->input('payment_amounts', []);
+            $cashAmt = is_array($rawMethodAmounts) && isset($rawMethodAmounts['cash']) ? max(0, (float)$rawMethodAmounts['cash']) : 0.0;
+            $upiAmt = is_array($rawMethodAmounts) && isset($rawMethodAmounts['upi']) ? max(0, (float)$rawMethodAmounts['upi']) : 0.0;
+            $bankAmt = is_array($rawMethodAmounts) && isset($rawMethodAmounts['bank_transfer']) ? max(0, (float)$rawMethodAmounts['bank_transfer']) : 0.0;
+            $creditAmt = is_array($rawMethodAmounts) && isset($rawMethodAmounts['credit']) ? max(0, (float)$rawMethodAmounts['credit']) : 0.0;
+            $immediatePaid = round($cashAmt + $upiAmt + $bankAmt, 2);
+
+            $hasPaidParam = ($request->input('paid_amount') !== null && $request->input('paid_amount') !== '');
+            if (!empty($rawMethodAmounts) && ($immediatePaid > 0 || $creditAmt > 0)) {
+                $paidAmount = min($grandTotal, $immediatePaid);
+            } elseif ($primaryMethod === 'credit' && !$hasPaidParam) {
+                $paidAmount = 0.00;
+            } elseif ($hasPaidParam) {
+                $paidAmount = min($grandTotal, max(0, (float)$request->input('paid_amount')));
+            } else {
+                $paidAmount = $grandTotal;
+            }
+
+            $dueAmount = max(0, round($grandTotal - $paidAmount, 2));
+            $paymentStatus = $dueAmount <= 0.001 ? 'paid' : ($paidAmount > 0 ? 'partial' : 'unpaid');
+
+            // Format split payment breakdown note
+            $breakdownParts = [];
+            if ($cashAmt > 0) $breakdownParts[] = "Cash: ₹" . number_format($cashAmt, 2);
+            if ($upiAmt > 0) $breakdownParts[] = "UPI: ₹" . number_format($upiAmt, 2);
+            if ($bankAmt > 0) $breakdownParts[] = "Bank: ₹" . number_format($bankAmt, 2);
+            if ($creditAmt > 0) $breakdownParts[] = "Credit: ₹" . number_format($creditAmt, 2);
+            $breakdownDetail = !empty($breakdownParts) ? implode(', ', $breakdownParts) : (count($methodsList) > 1 ? implode(', ', array_map('ucfirst', $methodsList)) : "");
+            
+            $invoiceNotes = $notes;
+            if (!empty($breakdownDetail)) {
+                $invoiceNotes = $notes ? "{$notes} | Payment: [{$breakdownDetail}]" : "Payment: [{$breakdownDetail}]";
+            }
 
             // 1. Create Invoice Header
             $invoiceId = $invModel->create([
@@ -225,10 +346,10 @@ class BillingController extends Controller {
                 'grand_total' => $grandTotal,
                 'paid_amount' => $paidAmount,
                 'due_amount' => $dueAmount,
-                'payment_method' => $paymentMethod,
+                'payment_method' => $primaryMethod,
                 'status' => 'completed',
                 'payment_status' => $paymentStatus,
-                'notes' => $notes
+                'notes' => $invoiceNotes
             ]);
 
             // 2. Insert Invoice Items & Decrement Inventory
@@ -255,6 +376,14 @@ class BillingController extends Controller {
             // 3. Financial Bookkeeping & Payments
             if ($paidAmount > 0) {
                 $paymentNo = $payModel->generatePaymentNo();
+
+                $breakdownParts = [];
+                if ($cashAmt > 0) $breakdownParts[] = "Cash: ₹" . number_format($cashAmt, 2);
+                if ($upiAmt > 0) $breakdownParts[] = "UPI: ₹" . number_format($upiAmt, 2);
+                if ($bankAmt > 0) $breakdownParts[] = "Bank: ₹" . number_format($bankAmt, 2);
+                if ($creditAmt > 0) $breakdownParts[] = "Credit: ₹" . number_format($creditAmt, 2);
+                $breakdownNotes = !empty($breakdownParts) ? " (" . implode(', ', $breakdownParts) . ")" : (count($methodsList) > 1 ? " (" . implode(', ', array_map('ucfirst', $methodsList)) . ")" : "");
+
                 $payModel->create([
                     'payment_no' => $paymentNo,
                     'payment_type' => 'customer_payment',
@@ -262,10 +391,10 @@ class BillingController extends Controller {
                     'customer_id' => $customerId,
                     'invoice_id' => (int)$invoiceId,
                     'amount' => $paidAmount,
-                    'payment_method' => in_array($paymentMethod, ['cash', 'card', 'upi', 'bank_transfer']) ? $paymentMethod : 'cash',
+                    'payment_method' => in_array($primaryMethod, ['cash', 'card', 'upi', 'bank_transfer']) ? $primaryMethod : (in_array('upi', $methodsList) ? 'upi' : 'cash'),
                     'transaction_reference' => "Bill {$invoiceNo}",
                     'payment_date' => $today,
-                    'notes' => "POS Sales receipt for {$invoiceNo}",
+                    'notes' => "POS Sales receipt for {$invoiceNo}{$breakdownNotes}",
                     'user_id' => Auth::id() ?: 1
                 ]);
 
@@ -309,21 +438,39 @@ class BillingController extends Controller {
     public function viewInvoice(Request $request, array $params): void {
         $this->requirePermission('billing.view');
         $id = (int)($params['id'] ?? 0);
-        $invModel = new Invoice();
+        $suppModel = new Supplier();
 
-        $invoice = $invModel->getWithDetails($id);
-        if (!$invoice) {
-            Session::flash('error', 'Invoice not found.');
-            Response::redirect('/billing/invoices');
+        $supplierInvoice = $suppModel->getSupplierInvoiceWithDetails($id);
+        if ($supplierInvoice) {
+            $this->render('billing.invoice-view', [
+                'pageTitle' => "Supplier Invoice: {$supplierInvoice['supplier_id']}",
+                'supplier' => $supplierInvoice,
+                'products' => $supplierInvoice['products']
+            ]);
+            return;
         }
 
-        $items = $invModel->getItems($id);
+        $invModel = new Invoice();
+        $invoice = $invModel->getWithDetails($id);
+        if ($invoice) {
+            $items = $invModel->getItems($id);
+            $payModel = new Payment();
+            $accModel = new Account();
+            $payments = $payModel->where('invoice_id = ?', [$id], 'payment_date DESC, id DESC');
+            $accounts = $accModel->where("status = 'active' AND type IN ('cash', 'bank')", [], 'type ASC, name ASC');
 
-        $this->render('billing.invoice-view', [
-            'pageTitle' => "Invoice: {$invoice['invoice_no']}",
-            'invoice' => $invoice,
-            'items' => $items
-        ]);
+            $this->render('billing.invoice-view', [
+                'pageTitle' => "Invoice: {$invoice['invoice_no']}",
+                'invoice' => $invoice,
+                'items' => $items,
+                'payments' => $payments,
+                'accounts' => $accounts
+            ]);
+            return;
+        }
+
+        Session::flash('error', 'Invoice record not found.');
+        Response::redirect('/billing/invoices');
     }
 
     public function printInvoice(Request $request, array $params): void {

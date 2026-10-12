@@ -2,16 +2,14 @@
     <div class="text-center pb-2 border-b border-dashed border-black flex flex-col items-center">
         <img src="<?= asset('images/logo.png') ?>" alt="Logo" class="w-10 h-10 object-contain mix-blend-multiply mb-1 grayscale">
         <h2 class="text-base font-bold uppercase tracking-wider"><?= sanitize(getSetting('company_name', 'Divya Murti Heritage')) ?></h2>
-        <p class="text-[10px]"><?= sanitize(getSetting('company_address', '108 Sannidhi Square, Mylapore, Chennai - 600004')) ?></p>
-        <p class="text-[10px]">Ph: <?= getSetting('company_phone', '+91 44 2464 1008') ?></p>
-        <p class="text-[10px]">GSTIN: <?= getSetting('company_gstin', '33AABCG1234H1Z0') ?></p>
+        <p class="text-[10px]"><?= sanitize(getSetting('company_address', 'No.41/13, Narayanappan Naiken Main St, NN Garden, Washermanpet, Chennai, Tamil Nadu 600021')) ?></p>
+        <p class="text-[10px]">Ph: <?= getSetting('company_phone', '9840796300') ?></p>
     </div>
 
     <div class="py-2 border-b border-dashed border-black text-[10px] space-y-0.5">
         <div class="flex justify-between"><span>Bill No:</span><strong><?= $invoice['invoice_no'] ?></strong></div>
         <div class="flex justify-between"><span>Date/Time:</span><span><?= $invoice['invoice_date'] ?> <?= $invoice['invoice_time'] ?></span></div>
-        <div class="flex justify-between"><span>Customer:</span><span><?= sanitize($invoice['customer_name']) ?></span></div>
-        <div class="flex justify-between"><span>Cashier:</span><span><?= sanitize($invoice['cashier_name']) ?></span></div>
+        <div class="flex justify-between"><span>Customer:</span><span><?= sanitize($invoice['customer_name'] ?? 'Walk-in Retail Customer') ?></span></div>
     </div>
 
     <!-- Items -->
@@ -38,12 +36,38 @@
         </tbody>
     </table>
 
+    <?php
+        // Dynamic GST percentage calculation from bill items
+        $taxRates = [];
+        if (!empty($items)) {
+            foreach ($items as $it) {
+                if (isset($it['tax_percent'])) {
+                    $taxRates[] = (float)$it['tax_percent'];
+                }
+            }
+            $taxRates = array_values(array_unique($taxRates));
+        }
+
+        if (!empty($taxRates)) {
+            if (count($taxRates) === 1) {
+                $gstRateText = ' (' . $taxRates[0] . '%)';
+            } else {
+                $gstRateText = ' (' . implode('%, ', $taxRates) . '%)';
+            }
+        } elseif ((float)$invoice['tax_amount'] > 0) {
+            $taxableSubtotal = max(0, (float)$invoice['subtotal'] - (float)($invoice['item_discount_total'] + $invoice['overall_discount_amount']));
+            $calcRate = $taxableSubtotal > 0 ? round(((float)$invoice['tax_amount'] / $taxableSubtotal) * 100, 1) : 0;
+            $gstRateText = ' (' . $calcRate . '%)';
+        } else {
+            $gstRateText = ' (0%)';
+        }
+    ?>
     <div class="py-2 border-t-2 border-black space-y-1 text-[10px]">
         <div class="flex justify-between"><span>Subtotal:</span><span>₹<?= number_format((float)$invoice['subtotal'], 2) ?></span></div>
         <?php if ($invoice['item_discount_total'] + $invoice['overall_discount_amount'] > 0): ?>
             <div class="flex justify-between"><span>Discount:</span><span>-₹<?= number_format((float)($invoice['item_discount_total'] + $invoice['overall_discount_amount']), 2) ?></span></div>
         <?php endif; ?>
-        <div class="flex justify-between"><span>GST Tax (12%):</span><span>₹<?= number_format((float)$invoice['tax_amount'], 2) ?></span></div>
+        <div class="flex justify-between"><span>GST Tax<?= $gstRateText ?>:</span><span>₹<?= number_format((float)$invoice['tax_amount'], 2) ?></span></div>
         <div class="flex justify-between"><span>Round-off:</span><span><?= $invoice['round_off'] >= 0 ? '+' : '' ?>₹<?= number_format((float)$invoice['round_off'], 2) ?></span></div>
         <div class="flex justify-between text-xs font-bold pt-1 border-t border-dashed border-black">
             <span>NET TOTAL:</span>
@@ -57,4 +81,12 @@
         <p class="mt-1 text-slate-600">Sacred Idols consecrated per Shilpa Shastra</p>
     </div>
 </div>
+
+<script>
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            window.print();
+        }, 300);
+    });
+</script>
 

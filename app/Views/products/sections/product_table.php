@@ -13,17 +13,17 @@
             <!-- Product Table -->
             <div class="overflow-x-auto rounded-xl border border-amber-200">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-amber-100/50 text-amber-700 uppercase text-[10px] font-bold border-b border-amber-200">
+                    <thead class="bg-amber-100/60 text-amber-800 uppercase text-[10px] font-extrabold border-b border-amber-200 tracking-wider">
                         <tr>
-                            <th class="py-3 px-4">Product & SKU</th>
-                            <th class="py-3 px-4">Category</th>
-                            <th class="py-3 px-4">Supplier</th>
-                            <th class="py-3 px-4">Prices (Purchase/Sell)</th>
-                            <th class="py-3 px-4">GST</th>
-                            <th class="py-3 px-4">Stock</th>
-                            <th class="py-3 px-4">Offer</th>
-                            <th class="py-3 px-4">Status</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[200px]">Product & SKU</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Category</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[140px]">Supplier</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[160px]">Prices (Purchase / Sell)</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[70px]">GST</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[100px]">Stock</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[80px]">Offer</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[90px]">Status</th>
+                            <th class="py-3.5 px-4 text-right whitespace-nowrap min-w-[120px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="product-table-body" class="divide-y divide-amber-100 bg-white">

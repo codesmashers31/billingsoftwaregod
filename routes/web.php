@@ -124,7 +124,8 @@ Router::get('/billing/invoices/create', [BillingController::class, 'createInvoic
 Router::post('/billing/invoices/create', [BillingController::class, 'storeInvoice']);
 Router::get('/billing/invoices/edit/{id}', [BillingController::class, 'editInvoice']);
 Router::post('/billing/invoices/edit/{id}', [BillingController::class, 'updateInvoice']);
-Router::get('/billing/invoices/generate-number', [BillingController::class, 'apiGetNextInvoiceNo']);
+Router::post('/billing/invoices/update-payment', [BillingController::class, 'updateSupplierPayment']);
+Router::get('/billing/invoices/supplier/{id}', [BillingController::class, 'supplierDetail']);
 Router::get('/billing/invoice/{id}', [BillingController::class, 'viewInvoice']);
 Router::get('/billing/invoice/{id}/print', [BillingController::class, 'printInvoice']);
 Router::get('/billing/invoice/{id}/pdf', [BillingController::class, 'downloadPdf']);
@@ -133,6 +134,9 @@ Router::post('/billing/invoice/{id}/cancel', [BillingController::class, 'cancel'
 
 // Invoices shortcuts
 Router::get('/invoices', [BillingController::class, 'invoices']);
+Router::get('/invoices/supplier/{id}', [BillingController::class, 'supplierDetail']);
+Router::post('/invoices/update-payment', [BillingController::class, 'updateSupplierPayment']);
+Router::get('/invoices/view/{id}', [BillingController::class, 'viewInvoice']);
 Router::get('/invoices/create', [BillingController::class, 'createInvoice']);
 Router::post('/invoices/create', [BillingController::class, 'storeInvoice']);
 Router::get('/invoices/edit/{id}', [BillingController::class, 'editInvoice']);

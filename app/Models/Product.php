@@ -8,7 +8,7 @@ class Product extends Model {
     protected array $fillable = [
         'name', 'code', 'sku', 'barcode', 'supplier_id', 'category_id', 'subcategory_id', 'brand',
         'description', 'god_name', 'material', 'color', 'height', 'width', 'length',
-        'weight', 'size', 'finish_type', 'purchase_price', 'piece_rate', 'selling_price',
+        'weight', 'size', 'finish_type', 'purchase_price', 'piece_rate', 'margin_percentage', 'selling_price',
         'wholesale_price', 'discount_percent', 'gst_percent', 'hsn_code',
         'current_stock', 'min_stock', 'max_stock', 'stock_location', 'image', 'status',
         'created_by', 'updated_by'

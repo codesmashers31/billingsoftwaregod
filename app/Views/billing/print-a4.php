@@ -66,11 +66,11 @@ $items = $items ?? $invoice['items'] ?? [];
                         <span class="text-[10px] text-amber-800 font-bold uppercase tracking-wider block">Sacred Idols & Temple Art Heritage</span>
                     </div>
                 </div>
-                <p class="text-slate-600 text-[11px] leading-relaxed"><?= nl2br(sanitize(getSetting('company_address', "108 Sannidhi Square, Near Kapaleeshwarar Temple\nMylapore, Chennai - 600004, Tamil Nadu"))) ?></p>
+                <p class="text-slate-600 text-[11px] leading-relaxed"><?= nl2br(sanitize(getSetting('company_address', "No.41/13, Narayanappan Naiken Main St, NN Garden, Washermanpet, Chennai, Tamil Nadu 600021"))) ?></p>
                 <div class="mt-1.5 text-[11px] font-mono text-slate-700 space-x-2">
                     <span>GSTIN: <strong><?= getSetting('company_gstin', '33AABCG1234H1Z0') ?></strong></span>
                     <span>•</span>
-                    <span>Phone: <?= getSetting('company_phone', '+91 44 2464 1008') ?></span>
+                    <span>Phone: <?= getSetting('company_phone', '9840796300') ?></span>
                     <span>•</span>
                     <span>State: Tamil Nadu (33)</span>
                 </div>
@@ -211,11 +211,24 @@ $items = $items ?? $invoice['items'] ?? [];
                 </div>
 
                 <!-- GST Split -->
+                <?php
+                    $a4TaxRates = [];
+                    if (!empty($items)) {
+                        foreach ($items as $it) {
+                            if (isset($it['tax_percent'])) {
+                                $a4TaxRates[] = (float)$it['tax_percent'];
+                            }
+                        }
+                        $a4TaxRates = array_values(array_unique($a4TaxRates));
+                    }
+                    $singleTaxRate = count($a4TaxRates) === 1 ? $a4TaxRates[0] : null;
+                    $halfTaxRate = $singleTaxRate !== null ? ($singleTaxRate / 2) : null;
+                ?>
                 <?php if ((float)$invoice['igst_amount'] > 0): ?>
-                    <div class="flex justify-between text-[11px]"><span>IGST:</span><span>₹<?= number_format((float)$invoice['igst_amount'], 2) ?></span></div>
+                    <div class="flex justify-between text-[11px]"><span>IGST<?= $singleTaxRate !== null ? " ({$singleTaxRate}%)" : '' ?>:</span><span>₹<?= number_format((float)$invoice['igst_amount'], 2) ?></span></div>
                 <?php else: ?>
-                    <div class="flex justify-between text-[11px]"><span>CGST:</span><span>₹<?= number_format((float)$invoice['cgst_amount'], 2) ?></span></div>
-                    <div class="flex justify-between text-[11px]"><span>SGST:</span><span>₹<?= number_format((float)$invoice['sgst_amount'], 2) ?></span></div>
+                    <div class="flex justify-between text-[11px]"><span>CGST<?= $halfTaxRate !== null ? " ({$halfTaxRate}%)" : '' ?>:</span><span>₹<?= number_format((float)$invoice['cgst_amount'], 2) ?></span></div>
+                    <div class="flex justify-between text-[11px]"><span>SGST<?= $halfTaxRate !== null ? " ({$halfTaxRate}%)" : '' ?>:</span><span>₹<?= number_format((float)$invoice['sgst_amount'], 2) ?></span></div>
                 <?php endif; ?>
 
                 <?php if ((float)($invoice['additional_charges'] ?? 0) > 0): ?>
