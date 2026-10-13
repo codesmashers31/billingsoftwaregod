@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= sanitize($pageTitle ?? 'Login - Divya Murti ERP') ?></title>
     
+    <!-- Favicon / Brand Icon in Browser Tab -->
+    <link rel="icon" type="image/png" href="<?= asset('images/logo.png') ?>?v=3">
+    <link rel="shortcut icon" type="image/png" href="<?= asset('images/logo.png') ?>?v=3">
+    <link rel="apple-touch-icon" href="<?= asset('images/logo.png') ?>?v=3">
+    
     <!-- Tailwind CSS CDN & Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
