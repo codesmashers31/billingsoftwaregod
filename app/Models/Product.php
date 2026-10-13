@@ -18,7 +18,10 @@ class Product extends Model {
         $sql = "SELECT p.*, c.name as category_name, s.name as subcategory_name, 
                        sup.name as supplier_name, sup.supplier_code, sup.mobile as supplier_mobile,
                        sup.email as supplier_email, sup.gst_number as supplier_gst,
-                       sup.address as supplier_address, sup.city as supplier_city, sup.state as supplier_state
+                       sup.address as supplier_address, sup.city as supplier_city, sup.state as supplier_state,
+                       (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
+                       (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
+                       (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty
                 FROM `products` p 
                 LEFT JOIN `categories` c ON p.category_id = c.id 
                 LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
@@ -89,8 +92,8 @@ class Product extends Model {
         ];
     }
 
-    public function searchForPos(string $keyword, ?int $categoryId = null, int $limit = 24): array {
-        $conditions = ["p.status = 'active'"];
+    public function searchForPos(string $keyword, ?int $categoryId = null, int $limit = 36): array {
+        $conditions = ["p.status != 'inactive'"];
         $params = [];
 
         if (!empty($keyword)) {
@@ -118,7 +121,7 @@ class Product extends Model {
     }
 
     public function findByBarcodeOrSku(string $code): ?array {
-        $sql = "SELECT * FROM `products` WHERE (barcode = ? OR sku = ? OR code = ?) AND status = 'active' LIMIT 1";
+        $sql = "SELECT * FROM `products` WHERE (barcode = ? OR sku = ? OR code = ?) AND status != 'inactive' LIMIT 1";
         $res = $this->db->query($sql, [$code, $code, $code]);
         return !empty($res) ? $res[0] : null;
     }
@@ -165,9 +168,38 @@ class Product extends Model {
     public function generateUniqueSku(): string {
         do {
             $sku = 'SKU-' . mt_rand(10000, 99999);
-            $existing = $this->findBy('sku', $sku);
         } while ($existing);
 
         return $sku;
+    }
+
+    public function findForSupplierByName(int $supplierId, string $name, ?int $excludeId = null): ?array {
+        $trimmedName = trim($name);
+        if ($trimmedName === '') {
+            return null;
+        }
+
+        $conditions = [
+            "LOWER(TRIM(name)) = LOWER(TRIM(?))",
+            "status != 'deleted'"
+        ];
+        $params = [$trimmedName];
+
+        if ($supplierId > 0) {
+            $conditions[] = "(supplier_id = ? OR supplier_id IS NULL OR supplier_id = 0)";
+            $params[] = $supplierId;
+        }
+
+        if ($excludeId !== null && $excludeId > 0) {
+            $conditions[] = "id != ?";
+            $params[] = $excludeId;
+        }
+
+        $where = implode(' AND ', $conditions);
+        $order = $supplierId > 0 ? "CASE WHEN supplier_id = {$supplierId} THEN 0 ELSE 1 END, id ASC" : "id ASC";
+        $sql = "SELECT * FROM `products` WHERE {$where} ORDER BY {$order} LIMIT 1";
+
+        $rows = $this->db->query($sql, $params);
+        return !empty($rows) ? $rows[0] : null;
     }
 }

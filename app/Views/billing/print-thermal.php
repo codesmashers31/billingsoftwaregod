@@ -9,7 +9,8 @@
     <div class="py-2 border-b border-dashed border-black text-[10px] space-y-0.5">
         <div class="flex justify-between"><span>Bill No:</span><strong><?= $invoice['invoice_no'] ?></strong></div>
         <div class="flex justify-between"><span>Date/Time:</span><span><?= $invoice['invoice_date'] ?> <?= $invoice['invoice_time'] ?></span></div>
-        <div class="flex justify-between"><span>Customer:</span><span><?= sanitize($invoice['customer_name'] ?? 'Walk-in Retail Customer') ?></span></div>
+        <div class="flex justify-between"><span>Customer:</span><span class="font-bold"><?= sanitize($invoice['customer_name'] ?? 'Walk-in Retail Customer') ?></span></div>
+        <div class="flex justify-between"><span>Customer Mobile:</span><strong class="font-bold tracking-wider"><?= !empty($invoice['customer_mobile']) ? sanitize($invoice['customer_mobile']) : 'N/A' ?></strong></div>
     </div>
 
     <!-- Items -->

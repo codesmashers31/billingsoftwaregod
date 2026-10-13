@@ -65,10 +65,25 @@ body {
 .pos-product-card {
     transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.pos-product-card:hover {
+.pos-product-card:not(.pos-card-out-of-stock):hover {
     transform: translateY(-2px);
     border-color: #d97706;
     box-shadow: 0 6px 18px -3px rgba(0, 0, 0, 0.08);
+}
+.pos-product-card.pos-card-out-of-stock {
+    background-color: #fff1f2 !important;
+    border: 2px solid #ef4444 !important;
+    cursor: not-allowed !important;
+    opacity: 0.92 !important;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.12) !important;
+}
+.pos-product-card.pos-card-out-of-stock:hover {
+    transform: none !important;
+    border-color: #dc2626 !important;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2) !important;
+}
+.pos-product-card.pos-card-out-of-stock * {
+    cursor: not-allowed !important;
 }
 
 /* Toast Container */

@@ -129,29 +129,44 @@
         <!-- Product Grid (Scrollable) -->
         <div id="pos-product-grid" class="flex-1 overflow-y-auto pt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 pr-1 content-start pb-4">
             <?php foreach ($products as $p): ?>
-                <?php $isOutOfStock = $p['current_stock'] <= 0; ?>
-                <div onclick="addToCartById(<?= $p['id'] ?>, '<?= escapeHtml($p['name']) ?>', <?= $p['selling_price'] ?>, <?= $p['discount_percent'] ?? 0 ?>, <?= $p['gst_percent'] ?? 12 ?>, <?= $p['current_stock'] ?>)" 
-                     class="pos-product-card h-[144px] bg-white border border-slate-100 shadow-sm rounded-2xl p-3.5 flex flex-col cursor-pointer group hover:border-amber-300 hover:shadow-md transition-all <?= $isOutOfStock ? 'opacity-50 pointer-events-none' : '' ?>">
+                <?php 
+                    $stock = (int)$p['current_stock'];
+                    $isOutOfStock = $stock <= 0; 
+                ?>
+                <div data-product-id="<?= $p['id'] ?>"
+                     data-max-stock="<?= $stock ?>"
+                     data-name="<?= escapeHtml($p['name']) ?>"
+                     data-price="<?= $p['selling_price'] ?>"
+                     data-discount="<?= $p['discount_percent'] ?? 0 ?>"
+                     data-gst="<?= $p['gst_percent'] ?? 12 ?>"
+                     data-code="<?= escapeHtml($p['code'] ?: $p['sku']) ?>"
+                     data-disabled="<?= $isOutOfStock ? 'true' : 'false' ?>"
+                     onclick="handleProductCardClick(this)"
+                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock bg-red-50 border-2 border-red-500 cursor-not-allowed shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer' ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
                     <div>
-                          <div class="flex items-center justify-between gap-1">
-                              <span class="text-[10px] font-bold text-amber-700 bg-[#fff8ef] px-2 py-1 rounded-md border border-amber-200 whitespace-nowrap truncate"><?= $p['code'] ?: $p['sku'] ?></span>
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="pos-code-badge text-[10px] font-bold <?= $isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200' ?> px-2 py-1 rounded-md border whitespace-nowrap truncate"><?= $p['code'] ?: $p['sku'] ?></span>
                             <?php if ($isOutOfStock): ?>
-                                <span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-rose-200 whitespace-nowrap shrink-0">Out of Stock</span>
+                                <span class="pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1">
+                                    <i class="fas fa-ban text-[9px]"></i> Out of Stock
+                                </span>
                             <?php else: ?>
-                                <span class="bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0"><?= $p['current_stock'] ?> in stock</span>
+                                <span class="pos-stock-badge bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0">
+                                    <?= $stock ?> in stock
+                                </span>
                             <?php endif; ?>
                         </div>
-                        <h4 class="text-[13px] font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
+                        <h4 class="pos-prod-title text-[13px] font-extrabold <?= $isOutOfStock ? 'text-red-950' : 'text-slate-900 group-hover:text-amber-700' ?> transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
                             <?= sanitize($p['name']) ?>
                         </h4>
                     </div>
                     <div class="mt-auto pt-3 flex items-center justify-between">
                         <div class="flex items-baseline">
                             <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
-                            <span class="text-[14px] font-black text-slate-900 font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
+                            <span class="pos-price-val text-[14px] font-black <?= $isOutOfStock ? 'text-red-900' : 'text-slate-900' ?> font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
                         </div>
-                        <button class="w-7 h-7 rounded-lg bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white flex items-center justify-center transition-all shadow-sm">
-                            <i class="fas fa-plus text-xs"></i>
+                        <button type="button" class="pos-add-btn w-7 h-7 rounded-lg <?= $isOutOfStock ? 'bg-red-200 text-red-700 border border-red-300 cursor-not-allowed' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer' ?> flex items-center justify-center transition-all shadow-sm" <?= $isOutOfStock ? 'disabled' : '' ?>>
+                            <i class="fas <?= $isOutOfStock ? 'fa-ban' : 'fa-plus' ?> text-xs"></i>
                         </button>
                     </div>
                 </div>
@@ -269,27 +284,57 @@
 <div id="pos-customer-modal" class="pos-modal hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-            <h3 class="text-base font-bold text-slate-900">Select or Add Customer</h3>
-            <button onclick="closeModal('pos-customer-modal')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs border border-amber-200">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Select or Add Customer</h3>
+            </div>
+            <button onclick="closeModal('pos-customer-modal')" class="text-slate-400 hover:text-slate-700 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <div class="space-y-4">
-            <input type="text" id="cust-search-input" oninput="searchCustomerPos(this.value)" placeholder="Type customer name or mobile..." 
-                   class="w-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-amber-500 rounded-xl px-3.5 py-2 text-xs text-slate-900 outline-none">
+            <!-- Search Customer Box -->
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    <i class="fas fa-search text-xs"></i>
+                </span>
+                <input type="text" id="cust-search-input" placeholder="Type customer name or mobile..." 
+                       class="w-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-amber-500 rounded-xl pl-8 pr-8 py-2 text-xs text-slate-900 outline-none transition-all">
+                <button type="button" id="btn-clear-cust-search" onclick="clearCustomerSearch()" class="hidden absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times-circle text-xs"></i>
+                </button>
+            </div>
 
-            <div id="pos-customer-list" class="max-h-56 overflow-y-auto space-y-1.5">
-                <!-- Loaded via JS -->
+            <!-- Customer Search Results List -->
+            <div>
+                <div class="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 px-0.5">
+                    <span>Available Customers</span>
+                    <span id="cust-list-status" class="text-slate-400 font-normal">All</span>
+                </div>
+                <div id="pos-customer-list" class="max-h-56 overflow-y-auto space-y-1.5 pr-0.5">
+                    <!-- Loaded via JS -->
+                </div>
             </div>
 
             <!-- Quick Add Customer Form -->
             <div class="pt-3 border-t border-slate-100">
-                <h5 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Quick Register Customer</h5>
-                <form action="<?= url('customers/create') ?>" method="POST" data-ajax="true" class="space-y-2 text-xs">
+                <div class="flex items-center justify-between mb-2">
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                        <i class="fas fa-user-plus text-amber-600"></i> Quick Register Customer
+                    </h5>
+                    <span class="text-[10px] text-slate-400">Instant Link to Bill</span>
+                </div>
+                <form id="pos-quick-customer-form" class="space-y-2 text-xs">
                     <?= csrf_field() ?>
-                    <input type="text" name="name" required placeholder="Customer Full Name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900">
-                    <input type="text" name="mobile" required placeholder="Mobile Number" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono">
-                    <button type="submit" class="w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm">
-                        Save & Select Customer
+                    <input type="text" id="pos-quick-cust-name" name="name" required placeholder="Customer Full Name" 
+                           class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:border-amber-500 outline-none transition-all">
+                    <input type="tel" id="pos-quick-cust-mobile" name="mobile" required placeholder="Mobile Number (10 digits)" 
+                           class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:bg-white focus:border-amber-500 outline-none transition-all">
+                    <button type="submit" id="btn-save-quick-cust" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all">
+                        <i class="fas fa-check-circle"></i> Save & Select Customer
                     </button>
                 </form>
             </div>
@@ -306,6 +351,20 @@
         </div>
 
         <div class="space-y-4 text-xs">
+            <!-- Selected Customer Badge in Payment Modal -->
+            <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <div class="w-6 h-6 rounded-lg bg-amber-200/70 text-amber-800 flex items-center justify-center text-[10px] shrink-0 font-bold">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-slate-500 text-[10px] uppercase font-bold tracking-wider block leading-tight">Customer</span>
+                        <span id="modal-pay-customer-name" class="font-bold text-slate-900 truncate block">Walk-in Retail Customer</span>
+                    </div>
+                </div>
+                <span id="modal-pay-customer-mobile" class="font-mono text-slate-700 text-xs font-semibold bg-white px-2 py-0.5 rounded border border-amber-200/60 shrink-0">9999999999</span>
+            </div>
+
             <!-- Grand Total Display -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
                 <span class="text-slate-500 text-xs uppercase font-bold tracking-wider">Invoice Net Payable</span>
@@ -424,6 +483,11 @@
         </div>
         <h3 class="text-xl font-bold text-slate-900">Invoice Generated!</h3>
         <p class="text-xs text-slate-500 mt-1">Invoice Number: <span id="completed-invoice-no" class="text-amber-800 font-mono font-bold text-sm"></span></p>
+        <div class="mt-2 py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-xl inline-flex items-center gap-2 text-xs font-mono text-slate-700">
+            <span>Customer: <strong id="completed-customer-name" class="text-slate-900 font-bold">Walk-in</strong></span>
+            <span class="text-slate-300">•</span>
+            <span>Mobile: <strong id="completed-customer-mobile" class="text-amber-700 font-bold">9999999999</strong></span>
+        </div>
 
         <div class="grid grid-cols-2 gap-3 mt-6">
             <button id="btn-print-thermal" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex flex-col items-center justify-center gap-1.5 transition-colors border border-slate-200">

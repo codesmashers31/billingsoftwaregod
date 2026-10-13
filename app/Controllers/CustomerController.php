@@ -62,7 +62,11 @@ class CustomerController extends Controller {
         $custModel = new Customer();
         $existing = $custModel->findBy('mobile', $mobile);
         if ($existing) {
-            Response::success('Customer already exists. Reusing record.', ['customer' => $existing]);
+            if (!empty($name) && $existing['name'] !== $name) {
+                $custModel->update((int)$existing['id'], ['name' => $name]);
+                $existing['name'] = $name;
+            }
+            Response::success('Customer verified and selected!', ['customer' => $existing]);
             return;
         }
 
