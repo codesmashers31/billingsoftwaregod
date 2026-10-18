@@ -116,6 +116,8 @@ Router::post('/purchases/approve/{id}', [PurchaseController::class, 'approve']);
 // 12. POS Billing & Invoicing
 Router::get('/billing', [BillingController::class, 'pos']);
 Router::get('/pos', [BillingController::class, 'pos']);
+Router::get('/customer-invoices', [BillingController::class, 'customerInvoices']);
+Router::get('/billing/customer-invoices', [BillingController::class, 'customerInvoices']);
 Router::get('/billing/search-products', [BillingController::class, 'searchProducts']);
 Router::post('/billing/scan', [BillingController::class, 'scanBarcode']);
 Router::post('/billing/checkout', [BillingController::class, 'checkout']);

@@ -7,6 +7,8 @@ $items = $items ?? $invoice['items'] ?? [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $invoice['invoice_no'] ?> - <?= sanitize(getSetting('company_name', 'Divya Murti Heritage')) ?></title>
+    <link rel="icon" type="image/png" href="<?= asset('images/logo.png') ?>?v=3">
+    <link rel="shortcut icon" type="image/png" href="<?= asset('images/logo.png') ?>?v=3">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -101,8 +103,11 @@ $items = $items ?? $invoice['items'] ?? [];
                 <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1 tracking-wider">Billed To (Buyer / Consignee):</span>
                 <div class="font-black text-sm text-slate-950"><?= sanitize($invoice['customer_name']) ?></div>
                 <div class="text-slate-600 text-[11px] mt-0.5 leading-relaxed"><?= nl2br(sanitize($invoice['customer_address'] ?: 'Direct Counter Purchase')) ?></div>
-                <div class="font-mono text-[11px] text-slate-700 mt-1 space-y-0.5">
-                    <div>Mobile: <strong><?= $invoice['customer_mobile'] ?></strong></div>
+                <div class="font-mono text-[11px] text-slate-700 mt-1.5 space-y-1">
+                    <div class="text-xs font-semibold text-slate-900">
+                        <span class="text-slate-500 font-sans">Customer Mobile:</span> 
+                        <strong class="font-mono text-slate-950 bg-slate-100 px-2 py-0.5 rounded border border-slate-200"><?= !empty($invoice['customer_mobile']) ? sanitize($invoice['customer_mobile']) : 'N/A' ?></strong>
+                    </div>
                     <?php if (!empty($invoice['customer_email'])): ?>
                         <div>Email: <?= sanitize($invoice['customer_email']) ?></div>
                     <?php endif; ?>
@@ -267,10 +272,7 @@ $items = $items ?? $invoice['items'] ?? [];
         </div>
 
         <!-- Signatures Section -->
-        <div class="pt-8 border-t border-slate-300 flex justify-between items-end text-center text-xs">
-            <div>
-                <div class="w-48 border-t border-slate-400 pt-1 text-slate-600">Customer Signature</div>
-            </div>
+        <div class="pt-8 border-t border-slate-300 flex justify-start items-end text-center text-xs">
             <div>
                 <div class="w-56 border-t border-slate-400 pt-1 text-slate-900 font-bold">
                     For <?= sanitize(getSetting('company_name', 'Divya Murti Heritage')) ?>

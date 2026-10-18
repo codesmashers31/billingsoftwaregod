@@ -27,12 +27,22 @@ $currentUri = (new \App\Core\Request())->uri();
 
             <!-- POS BILLING TERMINAL -->
             <?php if (hasPermission('billing.pos')): ?>
-            <a href="<?= url('billing') ?>" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all <?= isActiveRoute('/billing', $currentUri) && !isActiveRoute('/billing/invoices', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200 font-bold' ?>">
+            <a href="<?= url('billing') ?>" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all <?= (isActiveRoute('/billing', $currentUri) || isActiveRoute('/pos', $currentUri)) && !isActiveRoute('/billing/invoices', $currentUri) && !isActiveRoute('/billing/customer-invoices', $currentUri) && !isActiveRoute('/customer-invoices', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200 font-bold' ?>">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-cash-register text-sm w-4"></i>
                     <span>POS Billing Terminal</span>
                 </div>
-                <span class="text-[9px] uppercase px-1.5 py-0.5 rounded <?= isActiveRoute('/billing', $currentUri) && !isActiveRoute('/billing/invoices', $currentUri) ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-900' ?> font-extrabold">Fast</span>
+                <span class="text-[9px] uppercase px-1.5 py-0.5 rounded <?= (isActiveRoute('/billing', $currentUri) || isActiveRoute('/pos', $currentUri)) && !isActiveRoute('/billing/invoices', $currentUri) && !isActiveRoute('/billing/customer-invoices', $currentUri) && !isActiveRoute('/customer-invoices', $currentUri) ? 'bg-white/20 text-white' : 'bg-amber-200 text-amber-900' ?> font-extrabold">Fast</span>
+            </a>
+            <?php endif; ?>
+
+            <!-- Customer Invoice Details -->
+            <?php if (hasPermission('billing.view') || hasPermission('billing.pos')): ?>
+            <a href="<?= url('customer-invoices') ?>" class="flex items-center justify-between px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/customer-invoices', $currentUri) || isActiveRoute('/billing/customer-invoices', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-file-invoice text-sm w-4 <?= isActiveRoute('/customer-invoices', $currentUri) || isActiveRoute('/billing/customer-invoices', $currentUri) ? 'text-white' : 'text-slate-400' ?>"></i>
+                    <span>Customer Invoice Details</span>
+                </div>
             </a>
             <?php endif; ?>
 

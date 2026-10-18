@@ -228,8 +228,33 @@ class SupplierController extends Controller {
                     $gst = max(0, (float)($prodGsts[$i] ?? 0));
                     $barcode = $prodModel->generateUniqueBarcode($prodBarcodes[$i] ?? null);
 
-                    if ($pId > 0 && ($existingProd = $prodModel->find($pId))) {
-                        $prodModel->update($pId, [
+                    $submittedId = $pId > 0 ? $pId : 0;
+                    $existingProd = null;
+
+                    if ($submittedId > 0) {
+                        $existingProd = $prodModel->find($submittedId);
+                    }
+                    if (!$existingProd) {
+                        $existingProd = $prodModel->findForSupplierByName($supplierId, $pName);
+                    }
+
+                    if ($existingProd) {
+                        $savedProdId = (int)$existingProd['id'];
+                        $sku = $existingProd['sku'];
+                        $barcode = $existingProd['barcode'];
+
+                        $prevStock = (int)($existingProd['current_stock'] ?? 0);
+                        if ($submittedId > 0) {
+                            $newStock = $units;
+                            $diffQty = $newStock - $prevStock;
+                        } else {
+                            $newStock = $prevStock + $units;
+                            $diffQty = $units;
+                        }
+
+                        $newStatus = $newStock > 0 ? 'active' : 'out_of_stock';
+
+                        $prodModel->update($savedProdId, [
                             'supplier_id' => $supplierId,
                             'name' => $pName,
                             'category_id' => $catId,
@@ -239,11 +264,25 @@ class SupplierController extends Controller {
                             'margin_percentage' => $effectiveMargin,
                             'selling_price' => $sellingPrice,
                             'gst_percent' => $gst,
-                            'current_stock' => $units,
-                            'status' => 'active',
+                            'current_stock' => $newStock,
+                            'status' => $newStatus,
                             'updated_by' => \App\Core\Auth::id() ?: 1
                         ]);
-                        $savedProdId = $pId;
+
+                        if ($diffQty > 0) {
+                            $invModel = new \App\Models\Inventory();
+                            $invModel->create([
+                                'product_id' => $savedProdId,
+                                'transaction_type' => 'stock_in',
+                                'reference_type' => 'restock',
+                                'reference_no' => 'RESTOCK-' . ($sku ?: $savedProdId),
+                                'previous_stock' => $prevStock,
+                                'quantity' => $diffQty,
+                                'new_stock' => $newStock,
+                                'notes' => "Restocked {$diffQty} units from supplier {$name}",
+                                'user_id' => \App\Core\Auth::id() ?: 1
+                            ]);
+                        }
                     } else {
                         $sku = $prodModel->generateUniqueSku();
                         $savedProdId = (int)$prodModel->create([
@@ -261,9 +300,24 @@ class SupplierController extends Controller {
                             'selling_price' => $sellingPrice,
                             'gst_percent' => $gst,
                             'current_stock' => $units,
-                            'status' => 'active',
+                            'status' => $units > 0 ? 'active' : 'out_of_stock',
                             'created_by' => \App\Core\Auth::id() ?: 1
                         ]);
+
+                        if ($units > 0) {
+                            $invModel = new \App\Models\Inventory();
+                            $invModel->create([
+                                'product_id' => $savedProdId,
+                                'transaction_type' => 'stock_in',
+                                'reference_type' => 'opening_stock',
+                                'reference_no' => 'INIT-' . $sku,
+                                'previous_stock' => 0,
+                                'quantity' => $units,
+                                'new_stock' => $units,
+                                'notes' => "Initial stock from supplier {$name}",
+                                'user_id' => \App\Core\Auth::id() ?: 1
+                            ]);
+                        }
                     }
 
                     $savedProducts[] = $prodModel->getWithDetails($savedProdId);

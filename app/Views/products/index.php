@@ -1474,7 +1474,10 @@
             prod_offer_amount: p.offer_amount || p.prod_offer_amount || '',
             prod_opening_stock: parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_opening_stock || 0))),
             prod_current_stock: parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_current_stock || 0))),
-            prod_status: (p.status && p.status.toLowerCase() === 'inactive') ? 'Inactive' : 'Active'
+            prod_status: (p.status && (p.status.toLowerCase() === 'inactive' || p.status.toLowerCase() === 'out_of_stock')) ? (p.status.toLowerCase() === 'out_of_stock' ? 'Out of Stock' : 'Inactive') : 'Active',
+            last_restocked_qty: p.last_restocked_qty ? parseInt(p.last_restocked_qty) : 0,
+            last_restocked_at: p.last_restocked_at || '',
+            total_restocked_qty: p.total_restocked_qty ? parseInt(p.total_restocked_qty) : 0
         };
     }
 
@@ -1636,7 +1639,8 @@
             </button>
             <div class="md:col-span-1">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Product Name</label>
-                <input type="text" name="sp_product_name[]" value="${productData ? (productData.prod_name || '') : ''}" placeholder="e.g. Brass Ganesha Idol" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                <input type="text" name="sp_product_name[]" value="${productData ? (productData.prod_name || '') : ''}" placeholder="e.g. Brass Ganesha Idol" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" oninput="checkProductRestockMatch(this)">
+                <div class="restock-hint-container mt-1 hidden"></div>
             </div>
             <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Category</label>
@@ -2742,10 +2746,16 @@
                     <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5"><span class="text-[10px] font-semibold text-emerald-500">S:</span> ₹${sellingPrice.toFixed(2)}</div>
                 </td>
                 <td class="py-3.5 px-4 text-center font-mono text-[11px] text-slate-600 font-bold whitespace-nowrap">${gst}%</td>
-                <td class="py-3.5 px-4 text-center font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs whitespace-nowrap">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></td>
+                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                    <div class="font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></div>
+                    ${p.last_restocked_qty > 0 ? `
+                        <div class="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Last restock: +${p.last_restocked_qty} (Total restocked: ${p.total_restocked_qty || p.last_restocked_qty})">
+                            <i class="fas fa-arrow-up text-[8px]"></i> +${p.last_restocked_qty} restocked
+                        </div>` : ''}
+                </td>
                 <td class="py-3.5 px-4 text-center font-bold text-fuchsia-600 text-xs whitespace-nowrap">${offerDisplay}</td>
                 <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${(p.prod_status || 'Active') === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${(p.prod_status || 'Active') === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ((p.prod_status || '') === 'Out of Stock' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-slate-100 text-slate-600 border border-slate-200')}">
                         ${p.prod_status || 'Active'}
                     </span>
                 </td>
@@ -2878,10 +2888,21 @@
                 </div>
 
                 <!-- Inventory -->
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Stock</p>
                         <p class="font-bold ${(p.prod_current_stock !== undefined ? p.prod_current_stock : 0) <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-lg mt-0.5">${p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)} ${p.prod_unit || 'Pieces'}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Restocked Count</p>
+                        ${p.last_restocked_qty > 0 ? `
+                            <p class="font-bold text-emerald-700 text-sm mt-0.5 flex items-center gap-1.5">
+                                <i class="fas fa-boxes text-emerald-500"></i> +${p.last_restocked_qty} ${p.prod_unit || 'Pieces'}
+                            </p>
+                            <p class="text-[9px] text-slate-400 mt-0.5">${p.last_restocked_at ? 'On ' + p.last_restocked_at : ''} (Total: ${p.total_restocked_qty || p.last_restocked_qty})</p>
+                        ` : `
+                            <p class="font-semibold text-slate-500 text-xs mt-0.5">Initial Batch</p>
+                        `}
                     </div>
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Min / Max Stock</p>
@@ -2963,7 +2984,8 @@
             </button>
             <div class="md:col-span-1">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Product Name <span class="text-rose-500">*</span></label>
-                <input type="text" name="ap_product_name[]" value="${productData ? (productData.prod_name || '') : ''}" placeholder="e.g. Brass Ganesha Idol" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                <input type="text" name="ap_product_name[]" value="${productData ? (productData.prod_name || '') : ''}" placeholder="e.g. Brass Ganesha Idol" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500" oninput="checkProductRestockMatch(this)">
+                <div class="restock-hint-container mt-1 hidden"></div>
             </div>
             <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Category <span class="text-rose-500">*</span></label>
@@ -3015,6 +3037,75 @@
         const block = button.closest('.product-product-block');
         block.remove();
         calculateTotalProductPurchase();
+    }
+
+    function checkProductRestockMatch(input) {
+        const block = input.closest('.product-product-block') || input.closest('.supplier-product-block');
+        if (!block) return;
+        const nameVal = input.value.trim().toLowerCase();
+        const hintDiv = block.querySelector('.restock-hint-container');
+        if (!hintDiv) return;
+
+        if (!nameVal) {
+            hintDiv.classList.add('hidden');
+            hintDiv.innerHTML = '';
+            return;
+        }
+
+        let suppId = null;
+        const prodSuppSelect = document.getElementById('prod_supplier_id');
+        if (prodSuppSelect && prodSuppSelect.value) {
+            suppId = prodSuppSelect.value;
+        } else if (typeof currentEditId !== 'undefined' && currentEditId) {
+            suppId = currentEditId;
+        }
+
+        const match = products.find(p => {
+            const pName = (p.prod_name || '').trim().toLowerCase();
+            if (pName !== nameVal) return false;
+            if (suppId) {
+                return String(p.prod_supplier_id) === String(suppId);
+            }
+            return true;
+        });
+
+        if (match) {
+            hintDiv.classList.remove('hidden');
+            hintDiv.innerHTML = `
+                <div class="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 border border-emerald-200 rounded-md text-[10px] text-emerald-800 font-medium">
+                    <i class="fas fa-sync-alt text-emerald-600"></i>
+                    <span><strong>Existing Product:</strong> ${match.prod_sku} (Stock: ${match.prod_current_stock}). Pieces count will <strong>restock</strong> this item.</span>
+                </div>`;
+
+            const hidId = block.querySelector('input[name="ap_product_id[]"]') || block.querySelector('input[name="sp_product_id[]"]');
+            if (hidId && !hidId.value) {
+                hidId.value = match.id;
+            }
+            const catInput = block.querySelector('.cat-search-input');
+            const catHid = block.querySelector('input[name="ap_product_category[]"]') || block.querySelector('input[name="sp_product_category[]"]');
+            if (catInput && !catInput.value && match.prod_category) {
+                catInput.value = match.prod_category;
+                if (catHid) catHid.value = match.prod_category;
+            }
+            const rateInput = block.querySelector('input[name="ap_piece_rate[]"]') || block.querySelector('input[name="sp_piece_rate[]"]');
+            if (rateInput && (!rateInput.value || parseFloat(rateInput.value) <= 0) && match.prod_piece_rate) {
+                rateInput.value = match.prod_piece_rate;
+            }
+            const barInput = block.querySelector('input[name="ap_barcode[]"]') || block.querySelector('input[name="sp_barcode[]"]');
+            if (barInput && match.prod_barcode) {
+                barInput.value = match.prod_barcode;
+            }
+            if (typeof calculateProductPurchase === 'function' && block.classList.contains('product-product-block')) {
+                const piecesInput = block.querySelector('input[name="ap_unit[]"]');
+                if (piecesInput) calculateProductPurchase(piecesInput);
+            } else if (typeof calculateSupplierPurchase === 'function' && block.classList.contains('supplier-product-block')) {
+                const piecesInput = block.querySelector('input[name="sp_unit[]"]');
+                if (piecesInput) calculateSupplierPurchase(piecesInput);
+            }
+        } else {
+            hintDiv.classList.add('hidden');
+            hintDiv.innerHTML = '';
+        }
     }
 
     function calculateProductSellingPrice(element) {

@@ -25,7 +25,7 @@ class BillingController extends Controller {
         $accModel = new Account();
 
         $categories = $catModel->where("status = 'active'", [], 'name ASC');
-        $initialProducts = $prodModel->searchForPos('', null, 24);
+        $initialProducts = $prodModel->searchForPos('', null, 40);
         $accounts = $accModel->where("status = 'active' AND type IN ('cash', 'bank')", [], 'type ASC, name ASC');
 
         $this->render('billing.pos', [
@@ -86,6 +86,56 @@ class BillingController extends Controller {
             'pageTitle' => 'Supplier Purchase & Payment Management',
             'invoices' => $invoices,
             'filters' => $filters
+        ]);
+    }
+
+    public function customerInvoices(Request $request): void {
+        $this->requirePermission('billing.view');
+        $invModel = new Invoice();
+
+        $page = max(1, (int)$request->input('page', 1));
+        $perPage = max(10, min(100, (int)$request->input('per_page', 20)));
+
+        $search = trim((string)$request->input('search', ''));
+        $paymentStatus = trim((string)$request->input('payment_status', ''));
+        $invoiceType = trim((string)$request->input('invoice_type', ''));
+        $paymentMethod = trim((string)$request->input('payment_method', ''));
+        $dateFrom = trim((string)$request->input('date_from', ''));
+        $dateTo = trim((string)$request->input('date_to', ''));
+
+        $filters = [
+            'search' => $search,
+            'payment_status' => $paymentStatus,
+            'invoice_type' => $invoiceType,
+            'payment_method' => $paymentMethod,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+        ];
+
+        $paginated = $invModel->getPaginatedList($page, $perPage, $filters);
+        $metrics = $invModel->getSummaryMetrics($filters);
+
+        if ($request->isAjax() && ($request->input('ajax_table') || $request->input('json'))) {
+            Response::json([
+                'success' => true,
+                'data' => $paginated['data'],
+                'pagination' => [
+                    'total' => $paginated['total'],
+                    'page' => $paginated['page'],
+                    'per_page' => $paginated['per_page'],
+                    'total_pages' => $paginated['total_pages'],
+                ],
+                'metrics' => $metrics
+            ]);
+            return;
+        }
+
+        $this->render('billing.customer-invoices', [
+            'pageTitle' => 'Customer Invoice Details & Register',
+            'invoices' => $paginated['data'],
+            'pagination' => $paginated,
+            'filters' => $filters,
+            'metrics' => $metrics
         ]);
     }
 
@@ -163,6 +213,26 @@ class BillingController extends Controller {
             $customer = $custModel->find($customerId);
             if (!$customer) {
                 throw new \Exception('Invalid customer selected.');
+            }
+
+            $custMobileInput = trim((string)$request->input('customer_mobile', ''));
+            $custNameInput = trim((string)$request->input('customer_name', ''));
+
+            if (!empty($custMobileInput) && $custMobileInput !== '9999999999') {
+                $existing = $custModel->findBy('mobile', $custMobileInput);
+                if ($existing) {
+                    $customer = $existing;
+                    $customerId = (int)$customer['id'];
+                } elseif ($customerId === 1 || empty($customer['mobile']) || $customer['mobile'] === '9999999999') {
+                    $newCustId = $custModel->create([
+                        'name' => $custNameInput ?: ($customer['name'] ?? 'Counter Customer'),
+                        'mobile' => $custMobileInput,
+                        'customer_type' => 'retail',
+                        'status' => 'active'
+                    ]);
+                    $customer = $custModel->find($newCustId);
+                    $customerId = (int)$newCustId;
+                }
             }
 
             $invoiceNo = $invModel->generateInvoiceNo();
@@ -424,6 +494,8 @@ class BillingController extends Controller {
             Response::success('Invoice completed successfully!', [
                 'invoice_id' => $invoiceId,
                 'invoice_no' => $invoiceNo,
+                'customer_name' => $customer['name'] ?? 'Walk-in Retail Customer',
+                'customer_mobile' => $customer['mobile'] ?? '',
                 'grand_total' => $grandTotal,
                 'print_a4_url' => url("billing/invoice/{$invoiceId}/print?type=a4"),
                 'print_thermal_url' => url("billing/invoice/{$invoiceId}/print?type=thermal"),
@@ -458,6 +530,17 @@ class BillingController extends Controller {
             $accModel = new Account();
             $payments = $payModel->where('invoice_id = ?', [$id], 'payment_date DESC, id DESC');
             $accounts = $accModel->where("status = 'active' AND type IN ('cash', 'bank')", [], 'type ASC, name ASC');
+
+            if ($request->isAjax() || $request->input('json')) {
+                Response::json([
+                    'success' => true,
+                    'invoice' => $invoice,
+                    'items' => $items,
+                    'payments' => $payments,
+                    'accounts' => $accounts
+                ]);
+                return;
+            }
 
             $this->render('billing.invoice-view', [
                 'pageTitle' => "Invoice: {$invoice['invoice_no']}",

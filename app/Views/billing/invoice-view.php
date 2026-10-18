@@ -174,9 +174,7 @@
                 </div>
                 <h3 class="text-base font-extrabold text-slate-900"><?= sanitize($invoice['customer_name'] ?? 'Walk-in Retail Customer') ?></h3>
                 <div class="text-xs text-slate-600 font-mono space-y-0.5">
-                    <?php if (!empty($invoice['customer_mobile'])): ?>
-                        <div><span class="text-slate-400">Mobile:</span> <strong><?= sanitize($invoice['customer_mobile']) ?></strong></div>
-                    <?php endif; ?>
+                    <div><span class="text-slate-400">Mobile:</span> <strong class="text-slate-900"><?= !empty($invoice['customer_mobile']) ? sanitize($invoice['customer_mobile']) : 'N/A' ?></strong></div>
                     <?php if (!empty($invoice['customer_email'])): ?>
                         <div><span class="text-slate-400">Email:</span> <?= sanitize($invoice['customer_email']) ?></div>
                     <?php endif; ?>

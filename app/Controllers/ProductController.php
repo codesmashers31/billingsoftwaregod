@@ -40,7 +40,10 @@ class ProductController extends Controller {
         $materials = $productModel->getDistinctMaterials();
 
         $db = Database::getInstance();
-        $allProducts = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name 
+        $allProducts = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name,
+                                  (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
+                                  (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
+                                  (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty 
                                   FROM `products` p 
                                   LEFT JOIN `categories` c ON p.category_id = c.id 
                                   LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
@@ -79,7 +82,10 @@ class ProductController extends Controller {
 
     public function apiData(Request $request): void {
         $db = Database::getInstance();
-        $products = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name 
+        $products = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name,
+                                (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
+                                (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
+                                (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty 
                                 FROM `products` p 
                                 LEFT JOIN `categories` c ON p.category_id = c.id 
                                 LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
@@ -204,7 +210,32 @@ class ProductController extends Controller {
                 $singleEditId = (int)$request->input('product_id', 0);
                 $pId = !empty($prodIds[$i]) ? (int)$prodIds[$i] : ($i === 0 ? $singleEditId : 0);
 
-                if ($pId > 0 && ($existingProd = $prodModel->find($pId))) {
+                $existingProd = null;
+                if ($pId > 0) {
+                    $existingProd = $prodModel->find($pId);
+                }
+                if (!$existingProd) {
+                    $existingProd = $prodModel->findForSupplierByName($supplierId, $pName);
+                }
+
+                if ($existingProd) {
+                    $savedProdId = (int)$existingProd['id'];
+                    $sku = $existingProd['sku'];
+                    $barcode = $existingProd['barcode'];
+
+                    $prevStock = (int)($existingProd['current_stock'] ?? 0);
+                    if ($pId > 0) {
+                        $newStock = $units;
+                        $diffQty = $newStock - $prevStock;
+                        $isRestock = false;
+                    } else {
+                        $newStock = $prevStock + $units;
+                        $diffQty = $units;
+                        $isRestock = true;
+                    }
+
+                    $effectiveStatus = $statusVal === 'inactive' ? 'inactive' : ($newStock > 0 ? 'active' : 'out_of_stock');
+
                     $marginToSave = $effectiveMargin;
                     if (!$hasMarginInput) {
                         if (isset($existingProd['margin_percentage']) && $existingProd['margin_percentage'] !== null) {
@@ -215,7 +246,7 @@ class ProductController extends Controller {
                         }
                     }
 
-                    $prodModel->update($pId, [
+                    $prodModel->update($savedProdId, [
                         'supplier_id' => $supplierId,
                         'name' => $pName,
                         'category_id' => $catId,
@@ -225,11 +256,27 @@ class ProductController extends Controller {
                         'margin_percentage' => $marginToSave,
                         'selling_price' => $sellingPrice,
                         'gst_percent' => $gst,
-                        'current_stock' => $units,
-                        'status' => $statusVal,
+                        'current_stock' => $newStock,
+                        'status' => $effectiveStatus,
                         'updated_by' => Auth::id() ?: 1
                     ]);
-                    $savedProdId = $pId;
+
+                    if ($diffQty > 0) {
+                        $invModel = new Inventory();
+                        $invModel->create([
+                            'product_id' => $savedProdId,
+                            'transaction_type' => 'stock_in',
+                            'reference_type' => $isRestock ? 'restock' : 'stock_adjustment',
+                            'reference_no' => ($isRestock ? 'RESTOCK-' : 'ADJ-') . ($sku ?: $savedProdId),
+                            'previous_stock' => $prevStock,
+                            'quantity' => $diffQty,
+                            'new_stock' => $newStock,
+                            'notes' => $isRestock 
+                                ? "Restocked {$diffQty} units from supplier {$supplier['name']}" 
+                                : "Stock updated in Product Details",
+                            'user_id' => Auth::id() ?: 1
+                        ]);
+                    }
                 } else {
                     $sku = $prodModel->generateUniqueSku();
                     $savedProdId = (int)$prodModel->create([
@@ -247,7 +294,7 @@ class ProductController extends Controller {
                         'selling_price' => $sellingPrice,
                         'gst_percent' => $gst,
                         'current_stock' => $units,
-                        'status' => $statusVal,
+                        'status' => $units > 0 ? $statusVal : 'out_of_stock',
                         'created_by' => Auth::id() ?: 1
                     ]);
 

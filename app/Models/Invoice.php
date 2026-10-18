@@ -104,23 +104,30 @@ class Invoice extends Model {
             $params[] = $filters['date_to'];
         }
 
+        if (!empty($filters['payment_method'])) {
+            $conditions[] = "i.payment_method = ?";
+            $params[] = $filters['payment_method'];
+        }
+
         $whereClause = implode(' AND ', $conditions);
         $offset = max(0, ($page - 1) * $perPage);
 
-        $countSql = "SELECT COUNT(*) as total FROM `invoices` i JOIN `customers` c ON i.customer_id = c.id WHERE {$whereClause}";
+        $countSql = "SELECT COUNT(*) as total FROM `invoices` i LEFT JOIN `customers` c ON i.customer_id = c.id WHERE {$whereClause}";
         $totalRes = $this->db->query($countSql, $params);
         $total = isset($totalRes[0]['total']) ? (int)$totalRes[0]['total'] : 0;
 
         $dataSql = "SELECT i.*, 
                            c.name as customer_name, c.mobile as customer_mobile, c.email as customer_email,
-                           c.state as customer_state, u.name as cashier_name,
+                           c.city as customer_city, c.state as customer_state, u.name as cashier_name,
+                           (SELECT COUNT(*) FROM `invoice_items` WHERE invoice_id = i.id) as items_count,
+                           (SELECT COALESCE(SUM(quantity), 0) FROM `invoice_items` WHERE invoice_id = i.id) as total_qty,
                            CASE 
                                WHEN i.status != 'cancelled' AND i.due_amount > 0 AND i.due_date IS NOT NULL AND i.due_date < CURDATE() THEN 1 
                                ELSE 0 
                            END as is_overdue
                     FROM `invoices` i 
-                    JOIN `customers` c ON i.customer_id = c.id 
-                    JOIN `users` u ON i.user_id = u.id 
+                    LEFT JOIN `customers` c ON i.customer_id = c.id 
+                    LEFT JOIN `users` u ON i.user_id = u.id 
                     WHERE {$whereClause} 
                     ORDER BY i.id DESC 
                     LIMIT {$perPage} OFFSET {$offset}";
@@ -132,6 +139,66 @@ class Invoice extends Model {
             'page' => $page,
             'per_page' => $perPage,
             'total_pages' => (int)ceil($total / $perPage),
+        ];
+    }
+
+    public function getSummaryMetrics(array $filters = []): array {
+        $conditions = ["1=1"];
+        $params = [];
+
+        if (!empty($filters['search'])) {
+            $term = "%{$filters['search']}%";
+            $conditions[] = "(i.invoice_no LIKE ? OR c.name LIKE ? OR c.mobile LIKE ? OR i.reference_no LIKE ?)";
+            $params = array_merge($params, [$term, $term, $term, $term]);
+        }
+        if (!empty($filters['status'])) {
+            $conditions[] = "i.status = ?";
+            $params[] = $filters['status'];
+        }
+        if (!empty($filters['invoice_type'])) {
+            $conditions[] = "i.invoice_type = ?";
+            $params[] = $filters['invoice_type'];
+        }
+        if (!empty($filters['payment_status'])) {
+            if ($filters['payment_status'] === 'overdue') {
+                $conditions[] = "i.status != 'cancelled' AND i.due_amount > 0 AND i.due_date IS NOT NULL AND i.due_date < CURDATE()";
+            } else {
+                $conditions[] = "i.payment_status = ?";
+                $params[] = $filters['payment_status'];
+            }
+        }
+        if (!empty($filters['payment_method'])) {
+            $conditions[] = "i.payment_method = ?";
+            $params[] = $filters['payment_method'];
+        }
+        if (!empty($filters['date_from'])) {
+            $conditions[] = "i.invoice_date >= ?";
+            $params[] = $filters['date_from'];
+        }
+        if (!empty($filters['date_to'])) {
+            $conditions[] = "i.invoice_date <= ?";
+            $params[] = $filters['date_to'];
+        }
+
+        $whereClause = implode(' AND ', $conditions);
+        $sql = "SELECT 
+                    COUNT(i.id) as total_invoices,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' THEN i.grand_total ELSE 0 END), 0) as total_sales,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' THEN i.paid_amount ELSE 0 END), 0) as total_paid,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' THEN i.due_amount ELSE 0 END), 0) as total_due,
+                    COALESCE(SUM(CASE WHEN i.payment_status = 'paid' THEN 1 ELSE 0 END), 0) as paid_count,
+                    COALESCE(SUM(CASE WHEN i.due_amount > 0 AND i.status != 'cancelled' THEN 1 ELSE 0 END), 0) as due_count
+                FROM `invoices` i 
+                LEFT JOIN `customers` c ON i.customer_id = c.id 
+                WHERE {$whereClause}";
+        $res = $this->db->query($sql, $params);
+        return !empty($res) ? $res[0] : [
+            'total_invoices' => 0,
+            'total_sales' => 0.00,
+            'total_paid' => 0.00,
+            'total_due' => 0.00,
+            'paid_count' => 0,
+            'due_count' => 0,
         ];
     }
 
