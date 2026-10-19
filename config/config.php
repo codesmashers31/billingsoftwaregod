@@ -30,6 +30,6 @@ return [
     'debug' => filter_var(getenv('APP_DEBUG') ?: true, FILTER_VALIDATE_BOOLEAN),
     'timezone' => getenv('TIMEZONE') ?: 'Asia/Kolkata',
     'session_lifetime' => 86400, // 24 hours
-    'upload_dir' => dirname(__DIR__) . '/public/assets/uploads/',
-    'storage_dir' => dirname(__DIR__) . '/storage/',
+    'upload_dir' => getenv('UPLOAD_DIR') ?: (dirname(__DIR__) . '/public/assets/uploads/'),
+    'storage_dir' => getenv('STORAGE_DIR') ?: (dirname(__DIR__) . '/storage/'),
 ];

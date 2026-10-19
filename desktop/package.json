@@ -1,0 +1,121 @@
+{
+  "name": "god-statue-billing",
+  "version": "1.0.0",
+  "description": "God Statue Billing & Management Desktop ERP Application",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "electron tests/verify-electron.js",
+    "test:error": "electron tests/verify-error-fallback.js",
+    "test:crud": "electron tests/verify-all-crud.js",
+    "test:standalone": "electron tests/verify-standalone.js",
+    "download:php": "node scripts/download-mac-php.js",
+    "build:mac": "electron-builder --mac",
+    "build:mac:dir": "electron-builder --mac --dir"
+  },
+  "keywords": [
+    "billing",
+    "erp",
+    "electron",
+    "desktop"
+  ],
+  "author": "Sastha Sasti",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.sasthasasti.billing",
+    "productName": "God Statue Billing",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../app",
+        "to": "backend/app",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../public",
+        "to": "backend/public",
+        "filter": [
+          "**/*",
+          "!assets/uploads/**/*"
+        ]
+      },
+      {
+        "from": "../config",
+        "to": "backend/config",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../routes",
+        "to": "backend/routes",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "server",
+        "to": "backend/server",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "database/billing.sqlite",
+        "to": "database/billing.sqlite"
+      },
+      {
+        "from": "bin/mac",
+        "to": "bin/mac",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "icon": "assets/icon.png",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "title": "God Statue Billing",
+      "icon": "assets/icon.png",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    }
+  }
+}

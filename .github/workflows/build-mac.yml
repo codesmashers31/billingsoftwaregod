@@ -1,0 +1,56 @@
+name: Build macOS DMG Application
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install Desktop Dependencies
+        working-directory: desktop
+        run: npm ci || npm install
+
+      - name: Download Standalone macOS PHP Runtimes (arm64 & x64)
+        working-directory: desktop
+        run: node scripts/download-mac-php.js
+
+      - name: Verify Embedded PHP & SQLite
+        working-directory: desktop
+        run: |
+          chmod +x bin/mac/arm64/php
+          bin/mac/arm64/php -v
+          bin/mac/arm64/php -m | grep -i pdo_sqlite
+
+      - name: Build macOS Application & DMG
+        working-directory: desktop
+        env:
+          # Optional: Apple Developer ID credentials for signing and notarization
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          npm run build:mac
+
+      - name: Upload DMG & Distribution Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: God-Statue-Billing-macOS
+          path: |
+            desktop/dist/*.dmg
+            desktop/dist/*.zip
