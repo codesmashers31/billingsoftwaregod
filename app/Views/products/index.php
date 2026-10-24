@@ -508,7 +508,7 @@
 <!-- Supplier Form Modal -->
 <div id="supplier-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
     <div class="min-h-full w-full flex items-center justify-center p-4 sm:p-6 py-10">
-        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl relative animate-fade-in mx-auto">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative animate-fade-in mx-auto">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
             <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2" id="supplier-modal-title">
@@ -524,8 +524,8 @@
             
             <!-- 1. Supplier Information -->
             <div class="bg-slate-50 p-5 rounded-xl border border-slate-100">
-                <h4 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4"><i class="fas fa-user-tag text-indigo-500 mr-2"></i>1. Supplier Information</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <h4 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4"><i class="fas fa-user-tag text-indigo-500 mr-2"></i>Supplier Information</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Supplier Name <span class="text-rose-500">*</span></label>
                         <input type="text" name="supplier_name" id="supplier_name" placeholder="Enter supplier name (e.g. Swamimalai Bronze Heritage Works)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
@@ -535,6 +535,10 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Number <span class="text-rose-500">*</span></label>
                         <input type="text" name="mobile_number" id="mobile_number" placeholder="Enter mobile number (e.g. 9876543210)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                         <span class="text-[10px] text-rose-500 hidden mt-1" id="err-mobile_number">Valid mobile number is required</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                        <input type="email" name="email" id="email" placeholder="e.g. supplier@domain.com (Optional)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Purchase Date</label>
@@ -586,7 +590,7 @@
             </div>
 
             <!-- 3. Payment Information -->
-            <div class="bg-emerald-50/30 p-5 rounded-xl border border-emerald-100">
+            <div class="hidden">
                 <div class="flex items-center justify-between border-b border-emerald-200 pb-2 mb-4">
                     <h4 class="text-sm font-bold text-slate-800"><i class="fas fa-credit-card text-emerald-500 mr-2"></i>2. Payment Information</h4>
                     <span id="supplier_status_badge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200">Status: Unpaid</span>
@@ -2542,8 +2546,6 @@
         
         if (supplierProducts.length > 0) {
             supplierProducts.forEach(p => addSupplierProductField(p));
-        } else {
-            addSupplierProductField();
         }
         
         // Recalculate purchase amounts
