@@ -142,8 +142,8 @@ function updateProductGridStockStates() {
         const remainingStock = Math.max(0, maxStock - inCartQty);
 
         const isOutOfStock = (maxStock <= 0 || remainingStock <= 0);
-        // Yellow blinking warning: when product had initial stock > 2, and either remaining <= 2 or inCart >= 80% of stock
-        const isYellowWarning = (!isOutOfStock && maxStock > 2 && (remainingStock <= 2 || (inCartQty > 0 && (inCartQty / maxStock) >= 0.8)));
+        // Yellow blinking warning: when remaining stock is low (1 or 2 left), OR when 80%+ is added to bill
+        const isYellowWarning = (!isOutOfStock && (remainingStock <= 2 || (maxStock > 0 && (inCartQty / maxStock) >= 0.8)));
 
         const badgeEl = card.querySelector('.pos-stock-badge');
         const codeBadge = card.querySelector('.pos-code-badge');
@@ -152,14 +152,10 @@ function updateProductGridStockStates() {
         const addBtn = card.querySelector('.pos-add-btn');
 
         // Remove previous state classes
-        card.classList.remove(
-            'pos-card-out-of-stock', 'bg-red-50', 'bg-red-50/90', 'border-red-500', 'border-2',
-            'yellow-blink-warning', 'bg-amber-50', 'bg-amber-50/90', 'border-amber-400', 'border-amber-500',
-            'bg-white', 'border-slate-100', 'border'
-        );
+        card.classList.remove('pos-card-out-of-stock', 'yellow-blink-warning');
 
         if (isOutOfStock) {
-            card.classList.add('pos-card-out-of-stock', 'bg-red-50/90', 'border-2', 'border-red-500');
+            card.classList.add('pos-card-out-of-stock');
             if (badgeEl) {
                 badgeEl.className = 'pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1';
                 badgeEl.innerHTML = `<i class="fas fa-ban text-[9px]"></i> ${maxStock <= 0 ? 'Out of Stock' : '0 in stock'}`;
@@ -169,17 +165,16 @@ function updateProductGridStockStates() {
             if (priceEl) { priceEl.className = 'pos-price-val text-[14px] font-black text-red-900 font-mono ml-1'; }
             if (addBtn) { addBtn.className = 'pos-add-btn w-7 h-7 rounded-lg bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm flex items-center justify-center transition-all'; }
         } else if (isYellowWarning) {
-            card.classList.add('yellow-blink-warning', 'bg-amber-50/90', 'border-2', 'border-amber-400');
+            card.classList.add('yellow-blink-warning');
             if (badgeEl) {
-                badgeEl.className = 'pos-stock-badge bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1';
+                badgeEl.className = 'pos-stock-badge yellow-blink-badge text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1';
                 badgeEl.innerHTML = `<i class="fas fa-exclamation-triangle text-[9px]"></i> Only ${remainingStock} left!`;
             }
             if (codeBadge) codeBadge.className = 'pos-code-badge text-[10px] font-bold text-amber-900 bg-amber-100 border-amber-300 px-2 py-1 rounded-md border whitespace-nowrap truncate';
-            if (titleEl) { titleEl.className = 'pos-prod-title text-[13px] font-extrabold text-amber-950 transition-colors line-clamp-2 h-[36px] leading-snug mt-2'; }
+            if (titleEl) { titleEl.className = 'pos-prod-title text-[13px] font-black text-amber-950 transition-colors line-clamp-2 h-[36px] leading-snug mt-2'; }
             if (priceEl) { priceEl.className = 'pos-price-val text-[14px] font-black text-amber-900 font-mono ml-1'; }
             if (addBtn) { addBtn.className = 'pos-add-btn w-7 h-7 rounded-lg bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold cursor-pointer shadow-sm flex items-center justify-center transition-all'; }
         } else {
-            card.classList.add('bg-white', 'border', 'border-slate-100');
             const inCartLabel = inCartQty > 0 ? ` (${inCartQty} in cart)` : '';
             if (badgeEl) {
                 badgeEl.className = 'pos-stock-badge bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0';
@@ -216,8 +211,8 @@ function renderProductGrid(products) {
         const inCartQty = cartItem ? cartItem.quantity : 0;
         const remainingStock = Math.max(0, maxStock - inCartQty);
         const isOutOfStock = (remainingStock <= 0 || maxStock <= 0);
-        // Yellow blinking warning on product card: when initial stock > 2 and remaining <= 2 or inCart >= 80%
-        const isYellowWarning = (!isOutOfStock && maxStock > 2 && (remainingStock <= 2 || (inCartQty > 0 && (inCartQty / maxStock) >= 0.8)));
+        // Yellow blinking warning: when remaining stock is low (1 or 2 left), OR when 80%+ is added to bill
+        const isYellowWarning = (!isOutOfStock && (remainingStock <= 2 || (maxStock > 0 && (inCartQty / maxStock) >= 0.8)));
 
         const safeName = escapeHtml(p.name);
         const code = escapeHtml(p.code || p.sku || '');
@@ -230,18 +225,18 @@ function renderProductGrid(products) {
         let addBtnClass = 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white';
 
         if (isOutOfStock) {
-            cardClass = 'pos-card-out-of-stock bg-red-50/90 border-2 border-red-500 cursor-pointer shadow-xs';
+            cardClass = 'pos-card-out-of-stock cursor-pointer shadow-xs';
             stockBadge = `<span class="pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1"><i class="fas fa-ban text-[9px]"></i> ${maxStock <= 0 ? 'Out of Stock' : '0 in stock'}</span>`;
             codeClass = 'text-red-800 bg-red-100 border-red-300';
             titleClass = 'text-red-950';
             priceClass = 'text-red-900';
             addBtnClass = 'bg-red-600 text-white hover:bg-red-700';
         } else if (isYellowWarning) {
-            cardClass = 'yellow-blink-warning bg-amber-50/90 border-2 border-amber-400 cursor-pointer shadow-xs';
-            stockBadge = `<span class="pos-stock-badge bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1"><i class="fas fa-exclamation-triangle text-[9px]"></i> Only ${remainingStock} left!</span>`;
+            cardClass = 'yellow-blink-warning cursor-pointer shadow-xs';
+            stockBadge = `<span class="pos-stock-badge yellow-blink-badge text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1"><i class="fas fa-exclamation-triangle text-[9px]"></i> Only ${remainingStock} left!</span>`;
             codeClass = 'text-amber-900 bg-amber-100 border-amber-300';
-            titleClass = 'text-amber-950';
-            priceClass = 'text-amber-900';
+            titleClass = 'text-amber-950 font-black';
+            priceClass = 'text-amber-900 font-black';
             addBtnClass = 'bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold';
         } else {
             const inCartLabel = inCartQty > 0 ? ` (${inCartQty} in cart)` : '';

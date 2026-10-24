@@ -85,31 +85,43 @@
             }
             @keyframes yellowWarningBlink {
                 0%, 100% {
-                    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-                    border-color: #f59e0b;
-                    background-color: #fffbeb;
+                    background-color: #ffffff !important;
+                    border-color: #f59e0b !important;
+                    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0) !important;
                 }
                 50% {
-                    box-shadow: 0 0 12px 2px rgba(245, 158, 11, 0.7);
-                    border-color: #d97706;
-                    background-color: #fef3c7;
+                    background-color: #fef08a !important; /* Bright Warning Yellow */
+                    border-color: #d97706 !important;
+                    box-shadow: 0 0 16px 4px rgba(245, 158, 11, 0.85) !important;
                 }
             }
             .yellow-blink-warning {
-                animation: yellowWarningBlink 1.4s ease-in-out infinite;
+                animation: yellowWarningBlink 0.9s ease-in-out infinite !important;
+                border-width: 2px !important;
+                border-style: solid !important;
             }
-            @keyframes redOutStockPulse {
+            @keyframes yellowBadgeBlink {
                 0%, 100% {
-                    border-color: #ef4444;
-                    background-color: #fef2f2;
+                    opacity: 1;
+                    transform: scale(1);
+                    background-color: #f59e0b;
+                    color: #0f172a;
                 }
                 50% {
-                    border-color: #dc2626;
-                    background-color: #fee2e2;
+                    opacity: 0.4;
+                    transform: scale(0.96);
+                    background-color: #b45309;
+                    color: #ffffff;
                 }
             }
-            .red-out-of-stock-row {
-                animation: redOutStockPulse 2s ease-in-out infinite;
+            .yellow-blink-badge {
+                animation: yellowBadgeBlink 0.9s ease-in-out infinite !important;
+            }
+            .pos-card-out-of-stock {
+                background-color: #fef2f2 !important;
+                border-color: #ef4444 !important;
+                border-width: 2px !important;
+                border-style: solid !important;
             }
         </style>
 
@@ -160,8 +172,8 @@
                 <?php 
                     $stock = (int)$p['current_stock'];
                     $isOutOfStock = $stock <= 0; 
-                    // Yellow warning if low stock (e.g. 1 or 2 left, when initial stock was higher)
-                    $isYellowWarning = (!$isOutOfStock && $stock <= 2 && (int)($p['initial_stock'] ?? 10) > 2);
+                    // Yellow blinking warning if low stock (e.g. 1 or 2 left in store)
+                    $isYellowWarning = (!$isOutOfStock && $stock <= 2);
                 ?>
                 <div data-product-id="<?= $p['id'] ?>"
                      data-max-stock="<?= $stock ?>"
@@ -172,7 +184,7 @@
                      data-code="<?= escapeHtml($p['code'] ?: $p['sku']) ?>"
                      data-disabled="false"
                      onclick="handleProductCardClick(this)"
-                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock bg-red-50/90 border-2 border-red-500 cursor-pointer shadow-xs' : ($isYellowWarning ? 'yellow-blink-warning bg-amber-50/90 border-2 border-amber-400 cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer') ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
+                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock cursor-pointer shadow-xs' : ($isYellowWarning ? 'yellow-blink-warning cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer') ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
                     <div>
                         <div class="flex items-center justify-between gap-1">
                             <span class="pos-code-badge text-[10px] font-bold <?= $isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : ($isYellowWarning ? 'text-amber-900 bg-amber-100 border-amber-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200') ?> px-2 py-1 rounded-md border whitespace-nowrap truncate"><?= $p['code'] ?: $p['sku'] ?></span>
@@ -181,7 +193,7 @@
                                     <i class="fas fa-ban text-[9px]"></i> Out of Stock
                                 </span>
                             <?php elseif ($isYellowWarning): ?>
-                                <span class="pos-stock-badge bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1">
+                                <span class="pos-stock-badge yellow-blink-badge text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1">
                                     <i class="fas fa-exclamation-triangle text-[9px]"></i> Only <?= $stock ?> left!
                                 </span>
                             <?php else: ?>
@@ -190,14 +202,14 @@
                                 </span>
                             <?php endif; ?>
                         </div>
-                        <h4 class="pos-prod-title text-[13px] font-extrabold <?= $isOutOfStock ? 'text-red-950' : ($isYellowWarning ? 'text-amber-950' : 'text-slate-900 group-hover:text-amber-700') ?> transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
+                        <h4 class="pos-prod-title text-[13px] font-extrabold <?= $isOutOfStock ? 'text-red-950' : ($isYellowWarning ? 'text-amber-950 font-black' : 'text-slate-900 group-hover:text-amber-700') ?> transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
                             <?= sanitize($p['name']) ?>
                         </h4>
                     </div>
                     <div class="mt-auto pt-3 flex items-center justify-between">
                         <div class="flex items-baseline">
                             <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
-                            <span class="pos-price-val text-[14px] font-black <?= $isOutOfStock ? 'text-red-900' : ($isYellowWarning ? 'text-amber-900' : 'text-slate-900') ?> font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
+                            <span class="pos-price-val text-[14px] font-black <?= $isOutOfStock ? 'text-red-900' : ($isYellowWarning ? 'text-amber-900 font-black' : 'text-slate-900') ?> font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
                         </div>
                         <button type="button" class="pos-add-btn w-7 h-7 rounded-lg <?= $isOutOfStock ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm' : ($isYellowWarning ? 'bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold cursor-pointer' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer') ?> flex items-center justify-center transition-all shadow-sm">
                             <i class="fas fa-plus text-xs"></i>
