@@ -44,7 +44,9 @@ class ProductController extends Controller {
                                   (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
                                   (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
                                   (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty,
-                                  (SELECT COALESCE(SUM(ii.quantity), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sold_qty 
+                                  (SELECT COALESCE(SUM(ii.quantity), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sold_qty,
+                                  (SELECT COALESCE(SUM(ii.total_amount), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sales_revenue,
+                                  (SELECT COALESCE(SUM(it.quantity), 0) FROM inventory_transactions it WHERE it.product_id = p.id AND it.transaction_type = 'stock_in' AND it.reference_type IN ('opening_stock', 'restock', 'purchase')) as total_purchased_qty 
                                   FROM `products` p 
                                   LEFT JOIN `categories` c ON p.category_id = c.id 
                                   LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
@@ -87,7 +89,9 @@ class ProductController extends Controller {
                                 (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
                                 (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
                                 (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty,
-                                (SELECT COALESCE(SUM(ii.quantity), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sold_qty 
+                                (SELECT COALESCE(SUM(ii.quantity), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sold_qty,
+                                (SELECT COALESCE(SUM(ii.total_amount), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sales_revenue,
+                                (SELECT COALESCE(SUM(it.quantity), 0) FROM inventory_transactions it WHERE it.product_id = p.id AND it.transaction_type = 'stock_in' AND it.reference_type IN ('opening_stock', 'restock', 'purchase')) as total_purchased_qty 
                                 FROM `products` p 
                                 LEFT JOIN `categories` c ON p.category_id = c.id 
                                 LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 

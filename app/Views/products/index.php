@@ -146,11 +146,31 @@
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
                 <div>
                     <h4 class="text-xl font-extrabold text-amber-900">Product Management</h4>
-                    <p class="text-xs text-amber-600/80 mt-1 font-medium">Add new products to your catalog and manage inventory.</p>
+                    <p class="text-xs text-amber-600/80 mt-1 font-medium">Add new products to your catalog, track investments (Invert), and monitor sales.</p>
                 </div>
                 <button onclick="openProductModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-6 rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                     <i class="fas fa-plus"></i> Add Products Detail
                 </button>
+            </div>
+
+            <!-- Product Overview KPI Cards: Evlo Vangunom, Evlo Invert, Evlo Sales -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5" id="product-overview-kpis">
+                <div class="bg-white border border-amber-200/90 rounded-xl p-3 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-amber-700/80 block"><i class="fas fa-boxes text-amber-500 mr-1"></i>Total Catalog Items</span>
+                    <span class="text-base sm:text-lg font-black text-amber-950 font-mono" id="prod-kpi-count">0 Products</span>
+                </div>
+                <div class="bg-white border border-indigo-200/90 rounded-xl p-3 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-indigo-700/80 block"><i class="fas fa-truck-loading text-indigo-500 mr-1"></i>Total Bought (Vangunom)</span>
+                    <span class="text-base sm:text-lg font-black text-indigo-950 font-mono" id="prod-kpi-bought">0 Units</span>
+                </div>
+                <div class="bg-white border border-amber-200/90 rounded-xl p-3 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-amber-700/80 block"><i class="fas fa-coins text-amber-600 mr-1"></i>Total Invested (Invert)</span>
+                    <span class="text-base sm:text-lg font-black text-amber-900 font-mono" id="prod-kpi-invert">INR 0.00</span>
+                </div>
+                <div class="bg-white border border-emerald-200/90 rounded-xl p-3 shadow-xs">
+                    <span class="text-[10px] font-bold uppercase text-emerald-700/80 block"><i class="fas fa-chart-line text-emerald-600 mr-1"></i>Total Sales (Sold Value)</span>
+                    <span class="text-base sm:text-lg font-black text-emerald-900 font-mono" id="prod-kpi-sales">INR 0.00</span>
+                </div>
             </div>
 
             <!-- Product Search & Filter Controls -->
@@ -211,20 +231,19 @@
                 <table class="w-full text-left text-xs text-slate-600">
                     <thead class="bg-amber-100/60 text-amber-800 uppercase text-[10px] font-extrabold border-b border-amber-200 tracking-wider">
                         <tr>
-                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[200px]">Product & SKU</th>
-                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Category</th>
-                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[140px]">Supplier</th>
-                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[160px]">Prices (Purchase / Sell)</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[220px]">Product & Barcode</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[130px]">Category & Vendor</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[140px]">Unit Rates (Cost / Sell)</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[170px]">Stock Movement (Vangunom / Sold / Stock)</th>
+                            <th class="py-3.5 px-4 text-right whitespace-nowrap min-w-[180px]">Total Investment & Sales (Invert / Sales)</th>
                             <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[70px]">GST</th>
-                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[100px]">Stock</th>
-                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[80px]">Offer</th>
                             <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[90px]">Status</th>
-                            <th class="py-3.5 px-4 text-right whitespace-nowrap min-w-[120px]">Actions</th>
+                            <th class="py-3.5 px-4 text-right whitespace-nowrap min-w-[110px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="product-table-body" class="divide-y divide-amber-100 bg-white">
                         <tr id="product-empty-state-row">
-                            <td colspan="9" class="py-12 text-center text-amber-400">
+                            <td colspan="8" class="py-12 text-center text-amber-400">
                                 <i class="fas fa-box-open text-3xl mb-3 block text-amber-300"></i>
                                 <p class="font-bold text-amber-600 text-sm">No products found</p>
                                 <p class="text-xs mt-1">Click "Add Products Detail" to create your first entry.</p>
@@ -1232,8 +1251,9 @@
                     <thead class="bg-slate-100 text-slate-700 uppercase text-[10px] font-black border-b border-slate-200 tracking-wider sticky top-0 z-10 shadow-xs h-10">
                         <tr>
                             <th class="w-12 min-w-[48px] max-w-[48px] px-2 text-center bg-slate-100 truncate">#</th>
-                            <th class="w-64 min-w-[260px] max-w-[260px] px-3 bg-slate-100 truncate">Product & SKU</th>
-                            <th class="w-36 min-w-[140px] max-w-[140px] px-3 bg-slate-100 truncate">Category</th>
+                            <th class="w-60 min-w-[240px] max-w-[240px] px-3 bg-slate-100 truncate">Product & SKU</th>
+                            <th class="w-36 min-w-[140px] max-w-[140px] px-3 text-center bg-slate-100 truncate"><i class="fas fa-barcode mr-1 text-slate-500"></i>Barcode</th>
+                            <th class="w-32 min-w-[130px] max-w-[130px] px-3 bg-slate-100 truncate">Category</th>
                             <th class="w-28 min-w-[110px] max-w-[110px] px-3 text-center bg-slate-100 truncate">Supply Date</th>
                             <th class="w-28 min-w-[110px] max-w-[110px] px-3 text-right bg-slate-100 truncate">Piece Rate</th>
                             <th class="w-24 min-w-[90px] max-w-[90px] px-2 text-center bg-slate-100 truncate">Margin %</th>
@@ -1901,6 +1921,11 @@
     }
 
     function mapProductFromDb(p) {
+        const soldQty = parseInt(p.total_sold_qty || 0);
+        const currStock = parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_current_stock || 0)));
+        const dbPurchasedQty = p.total_purchased_qty ? parseInt(p.total_purchased_qty) : 0;
+        const effectivePurchasedQty = Math.max(dbPurchasedQty, currStock + soldQty);
+
         return {
             id: p.id,
             prod_supplier_id: p.supplier_id || p.prod_supplier_id || null,
@@ -1921,13 +1946,15 @@
             prod_offer_available: p.offer_available || p.prod_offer_available || 'No',
             prod_offer_type: p.offer_type || p.prod_offer_type || '%',
             prod_offer_amount: p.offer_amount || p.prod_offer_amount || '',
-            prod_opening_stock: parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_opening_stock || 0))),
-            prod_current_stock: parseInt(p.current_stock !== undefined ? p.current_stock : (p.stock_quantity !== undefined ? p.stock_quantity : (p.prod_current_stock || 0))),
+            prod_opening_stock: parseInt(p.opening_stock !== undefined ? p.opening_stock : currStock),
+            prod_current_stock: currStock,
             prod_status: (p.status && (p.status.toLowerCase() === 'inactive' || p.status.toLowerCase() === 'out_of_stock')) ? (p.status.toLowerCase() === 'out_of_stock' ? 'Out of Stock' : 'Inactive') : 'Active',
             last_restocked_qty: p.last_restocked_qty ? parseInt(p.last_restocked_qty) : 0,
             last_restocked_at: p.last_restocked_at || '',
             total_restocked_qty: p.total_restocked_qty ? parseInt(p.total_restocked_qty) : 0,
-            total_sold_qty: parseInt(p.total_sold_qty || 0),
+            total_sold_qty: soldQty,
+            total_sales_revenue: parseFloat(p.total_sales_revenue || 0),
+            total_purchased_qty: effectivePurchasedQty,
             created_at: p.created_at || ''
         };
     }
@@ -3285,7 +3312,7 @@
         if (filteredProds.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="11" class="py-12 text-center text-slate-400">
+                    <td colspan="12" class="py-12 text-center text-slate-400">
                         <i class="fas fa-boxes text-3xl mb-3 block text-slate-300"></i>
                         <p class="font-bold text-slate-600 text-sm">No products found</p>
                         <p class="text-xs mt-1 text-slate-400">No products match your filter criteria or none added yet.</p>
@@ -3333,15 +3360,20 @@
             tr.className = 'hover:bg-indigo-50/40 transition-colors text-xs border-b border-slate-100 h-14 max-h-14';
             tr.innerHTML = `
                 <td class="w-12 min-w-[48px] max-w-[48px] px-2 text-slate-400 font-mono text-center font-bold truncate cursor-pointer hover:text-indigo-600" data-copy="${index + 1}" title="Click to copy index: ${index + 1}">${index + 1}</td>
-                <td class="w-64 min-w-[260px] max-w-[260px] px-3 font-semibold text-slate-800">
+                <td class="w-60 min-w-[240px] max-w-[240px] px-3 font-semibold text-slate-800">
                     <div class="font-bold text-slate-900 truncate leading-snug cursor-pointer hover:text-indigo-600" data-copy="${p.prod_name}" title="Click to copy product name">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-500 font-mono truncate cursor-pointer hover:text-indigo-600" data-copy="${p.prod_sku || p.prod_barcode || ''}" title="Click to copy SKU">${p.prod_sku || p.prod_barcode || 'SKU-N/A'}</div>
+                    <div class="text-[10px] text-slate-500 font-mono truncate cursor-pointer hover:text-indigo-600" data-copy="${p.prod_sku || ''}" title="Click to copy SKU"><span class="text-slate-400">SKU:</span> ${p.prod_sku || 'N/A'}</div>
                 </td>
-                <td class="w-36 min-w-[140px] max-w-[140px] px-3">
-                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 truncate max-w-[130px] leading-tight cursor-pointer hover:bg-slate-200" data-copy="${p.prod_category || 'General'}" title="Click to copy category">
+                <td class="w-36 min-w-[140px] max-w-[140px] px-3 text-center whitespace-nowrap cursor-pointer hover:text-indigo-600" data-copy="${p.prod_barcode || p.prod_sku || ''}" title="Click to copy Barcode">
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md font-mono font-bold text-[11px] bg-slate-100 text-slate-800 border border-slate-200 shadow-2xs">
+                        <i class="fas fa-barcode text-slate-500"></i> ${p.prod_barcode || p.prod_sku || 'N/A'}
+                    </span>
+                </td>
+                <td class="w-32 min-w-[130px] max-w-[130px] px-3">
+                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 truncate max-w-[120px] leading-tight cursor-pointer hover:bg-slate-200" data-copy="${p.prod_category || 'General'}" title="Click to copy category">
                         ${p.prod_category || 'General'}
                     </span>
-                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 truncate max-w-[130px] font-medium leading-tight mt-0.5 cursor-pointer hover:text-indigo-600" data-copy="${p.prod_subcategory}" title="Click to copy subcategory">${p.prod_subcategory}</div>` : ''}
+                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 truncate max-w-[120px] font-medium leading-tight mt-0.5 cursor-pointer hover:text-indigo-600" data-copy="${p.prod_subcategory}" title="Click to copy subcategory">${p.prod_subcategory}</div>` : ''}
                 </td>
                 <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono text-slate-600 text-center whitespace-nowrap truncate cursor-pointer hover:text-indigo-600" data-copy="${supplyDate}" title="Click to copy supply date">
                     <i class="far fa-calendar-alt text-slate-400 mr-1 text-[11px]"></i>${supplyDate}
@@ -3377,7 +3409,7 @@
 
         if (footerRow) {
             footerRow.innerHTML = `
-                <td colspan="7" class="py-3 px-3 font-bold text-slate-700 uppercase tracking-wider text-right text-xs">Sheet Summary:</td>
+                <td colspan="8" class="py-3 px-3 font-bold text-slate-700 uppercase tracking-wider text-right text-xs">Sheet Summary:</td>
                 <td class="py-3 px-2 text-center font-mono font-black text-emerald-800 text-xs bg-emerald-50 whitespace-nowrap">${filteredSoldUnits} Sold</td>
                 <td class="py-3 px-2 text-center font-mono font-black text-amber-900 text-xs bg-amber-50 whitespace-nowrap">${filteredStockUnits} In Stock</td>
                 <td class="py-3 px-2 text-center text-xs text-slate-400">—</td>
@@ -4369,6 +4401,31 @@
         const tbody = document.getElementById('product-table-body');
         if (!tbody) return;
 
+        // Calculate overarching Product Catalog KPIs (Evlo Vangunom, Evlo Invert, Evlo Sales)
+        let grandBought = 0;
+        let grandInvert = 0;
+        let grandSales = 0;
+
+        products.forEach(p => {
+            const buyPrice = parseFloat(p.prod_purchase_price) || 0;
+            const sellPrice = parseFloat(p.prod_selling_price) || 0;
+            const stk = p.prod_current_stock !== undefined ? p.prod_current_stock : 0;
+            const sld = parseInt(p.total_sold_qty || 0);
+            const bought = p.total_purchased_qty ? parseInt(p.total_purchased_qty) : Math.max(stk + sld, 1);
+            grandBought += bought;
+            grandInvert += (bought * buyPrice);
+            grandSales += (p.total_sales_revenue && p.total_sales_revenue > 0 ? parseFloat(p.total_sales_revenue) : (sld * sellPrice));
+        });
+
+        const kpiCount = document.getElementById('prod-kpi-count');
+        if (kpiCount) kpiCount.textContent = `${products.length} Products`;
+        const kpiBought = document.getElementById('prod-kpi-bought');
+        if (kpiBought) kpiBought.textContent = `${grandBought.toLocaleString('en-IN')} Units`;
+        const kpiInvert = document.getElementById('prod-kpi-invert');
+        if (kpiInvert) kpiInvert.textContent = `₹${grandInvert.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        const kpiSales = document.getElementById('prod-kpi-sales');
+        if (kpiSales) kpiSales.textContent = `₹${grandSales.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
         // Apply filters
         const filtered = products.filter(p => {
             const pName = (p.prod_name || '').toLowerCase();
@@ -4416,7 +4473,7 @@
         if (filtered.length === 0) {
             tbody.innerHTML = `
                 <tr id="product-empty-state-row">
-                    <td colspan="9" class="py-12 text-center text-amber-400">
+                    <td colspan="8" class="py-12 text-center text-amber-400">
                         <i class="fas fa-box-open text-3xl mb-3 block text-amber-300"></i>
                         <p class="font-bold text-amber-600 text-sm">No products found</p>
                         <p class="text-xs mt-1 text-slate-500">Try adjusting your search query or filters above.</p>
@@ -4440,11 +4497,6 @@
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-amber-50/30 transition-colors text-xs border-b border-amber-100/60';
             
-            let offerDisplay = 'N/A';
-            if (p.prod_offer_available === 'Yes' && p.prod_offer_amount) {
-                offerDisplay = p.prod_offer_type === '%' ? `${p.prod_offer_amount}%` : `₹${parseFloat(p.prod_offer_amount).toFixed(2)}`;
-            }
-            
             let supplierName = 'Unknown';
             const sup = suppliers.find(s => String(s.id) === String(p.prod_supplier_id));
             if (sup) supplierName = sup.supplier_name || sup.name || 'Unknown';
@@ -4453,36 +4505,115 @@
             const sellingPrice = parseFloat(p.prod_selling_price) || 0;
             const gst = parseFloat(p.prod_gst) || 0;
             const stock = p.prod_current_stock !== undefined ? p.prod_current_stock : (parseInt(p.prod_unit) || 0);
+            const sold = parseInt(p.total_sold_qty || 0);
+            const purchasedQty = p.total_purchased_qty ? parseInt(p.total_purchased_qty) : Math.max(stock + sold, 1);
             const unit = p.prod_unit && isNaN(p.prod_unit) ? p.prod_unit : 'Pieces';
 
+            const totalInvested = purchasedQty * purchasePrice;
+            const totalSales = p.total_sales_revenue && p.total_sales_revenue > 0 ? parseFloat(p.total_sales_revenue) : (sold * sellingPrice);
+            const costOfSold = sold * purchasePrice;
+            const realizedProfit = totalSales - costOfSold;
+            const margin = (p.prod_margin_percentage !== undefined && p.prod_margin_percentage !== null) 
+                ? p.prod_margin_percentage 
+                : (purchasePrice > 0 ? (((sellingPrice - purchasePrice) / purchasePrice) * 100).toFixed(1) : '60.0');
+
+            const barcode = p.prod_barcode || p.prod_sku || ('BAR-' + p.id);
+            const sku = p.prod_sku || ('SKU-' + p.id);
+
             tr.innerHTML = `
-                <td class="py-3.5 px-4 min-w-[200px]">
-                    <div class="font-extrabold text-slate-800 text-sm leading-snug hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${p.prod_name}" title="Click to copy product name">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5"><i class="fas fa-barcode text-slate-400"></i> <span class="hover:text-indigo-600 cursor-pointer" data-copy="${p.prod_sku || ''}" title="Click to copy SKU">${p.prod_sku || 'N/A'}</span> <span class="text-slate-300">/</span> <span class="hover:text-indigo-600 cursor-pointer" data-copy="${p.prod_barcode || ''}" title="Click to copy barcode">${p.prod_barcode || 'N/A'}</span></div>
+                <!-- 1. Product Name, Barcode & Price Strip -->
+                <td class="py-3 px-4 min-w-[220px]">
+                    <div class="font-extrabold text-slate-900 text-sm leading-snug hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${p.prod_name}" title="Click to copy product name">${p.prod_name}</div>
+                    <div class="mt-1 flex flex-wrap items-center gap-1.5 font-mono">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200 cursor-pointer hover:bg-slate-200 hover:text-indigo-600" data-copy="${barcode}" title="Click to copy Barcode">
+                            <i class="fas fa-barcode text-slate-500"></i> ${barcode}
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-50 text-slate-500 border border-slate-200 cursor-pointer hover:text-indigo-600" data-copy="${sku}" title="Click to copy SKU">
+                            SKU: ${sku}
+                        </span>
+                    </div>
+                    <!-- Financial Metrics Strip Under Product -->
+                    <div class="mt-1.5 flex flex-wrap items-center gap-1 text-[10px] font-mono">
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 font-bold" title="Total Invested Amount: ${purchasedQty} pcs × ₹${purchasePrice.toFixed(2)}">
+                            <i class="fas fa-coins text-amber-600"></i> Invert: ₹${totalInvested.toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-900 border border-emerald-200 font-bold" title="Total Realized Sales: ₹${totalSales.toFixed(2)}">
+                            <i class="fas fa-chart-line text-emerald-600"></i> Sales: ₹${totalSales.toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                        </span>
+                        ${sold > 0 ? `
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-900 border border-indigo-200 font-bold" title="Realized Profit">
+                            <i class="fas fa-arrow-trend-up text-indigo-600"></i> Profit: ₹${realizedProfit.toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                        </span>` : ''}
+                    </div>
                 </td>
-                <td class="py-3.5 px-4 whitespace-nowrap">
-                    <span class="text-[10px] text-amber-800 bg-amber-50 inline-block px-2.5 py-1 rounded-md border border-amber-200/80 font-bold cursor-pointer hover:bg-amber-100" data-copy="${p.prod_category || 'General'}" title="Click to copy category">${p.prod_category || 'General'}</span>
+
+                <!-- 2. Category & Vendor -->
+                <td class="py-3 px-4 whitespace-nowrap min-w-[130px]">
+                    <div>
+                        <span class="text-[10px] text-amber-800 bg-amber-50 inline-block px-2.5 py-1 rounded-md border border-amber-200/80 font-bold cursor-pointer hover:bg-amber-100" data-copy="${p.prod_category || 'General'}" title="Click to copy category">${p.prod_category || 'General'}</span>
+                    </div>
+                    <div class="font-semibold text-slate-600 text-xs mt-1 truncate max-w-[140px] hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${supplierName}" title="Supplier: ${supplierName}">
+                        <i class="fas fa-truck text-[9px] text-slate-400 mr-1"></i>${supplierName}
+                    </div>
                 </td>
-                <td class="py-3.5 px-4 font-semibold text-slate-700 text-xs whitespace-nowrap hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${supplierName}" title="Click to copy supplier name">${supplierName}</td>
-                <td class="py-3.5 px-4 font-mono whitespace-nowrap">
-                    <div class="text-slate-900 font-bold text-xs flex items-center gap-1 hover:text-indigo-600 cursor-pointer" data-copy="${purchasePrice.toFixed(2)}" title="Click to copy purchase price"><span class="text-[10px] font-semibold text-slate-400">P:</span> ₹${purchasePrice.toFixed(2)}</div>
-                    <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5 hover:text-emerald-800 cursor-pointer" data-copy="${sellingPrice.toFixed(2)}" title="Click to copy selling price"><span class="text-[10px] font-semibold text-emerald-500">S:</span> ₹${sellingPrice.toFixed(2)}</div>
+
+                <!-- 3. Unit Rates (Cost / Sell) -->
+                <td class="py-3 px-4 font-mono whitespace-nowrap min-w-[140px]">
+                    <div class="text-slate-900 font-bold text-xs flex items-center gap-1 cursor-pointer hover:text-indigo-600" data-copy="${purchasePrice.toFixed(2)}" title="Click to copy cost rate">
+                        <span class="text-[10px] font-semibold text-slate-400">Cost:</span> ₹${purchasePrice.toFixed(2)}
+                    </div>
+                    <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5 cursor-pointer hover:text-emerald-800" data-copy="${sellingPrice.toFixed(2)}" title="Click to copy selling price">
+                        <span class="text-[10px] font-semibold text-emerald-500">Sell:</span> ₹${sellingPrice.toFixed(2)}
+                    </div>
+                    <div class="text-[10px] text-indigo-600 font-bold mt-0.5">
+                        Margin: ${margin}%
+                    </div>
                 </td>
-                <td class="py-3.5 px-4 text-center font-mono text-[11px] text-slate-600 font-bold whitespace-nowrap hover:text-indigo-600 cursor-pointer" data-copy="${gst}%" title="Click to copy GST %">${gst}%</td>
-                <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                    <div class="font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs cursor-pointer" data-copy="${stock}" title="Click to copy stock units">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></div>
-                    ${p.last_restocked_qty > 0 ? `
-                        <div class="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Last restock: +${p.last_restocked_qty}">
-                            <i class="fas fa-arrow-up text-[8px]"></i> +${p.last_restocked_qty}
-                        </div>` : ''}
+
+                <!-- 4. Stock Movement (Evlo Vangunom / Evlo Sale / Stock) -->
+                <td class="py-3 px-4 text-center whitespace-nowrap min-w-[170px]">
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-indigo-50 text-indigo-800 border border-indigo-200 cursor-pointer" data-copy="${purchasedQty}" title="Total Bought / Sourced Units">
+                            <i class="fas fa-cart-arrow-down text-[9px] text-indigo-500"></i> ${purchasedQty} Bought
+                        </span>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer ${sold > 0 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-slate-100 text-slate-500'}" data-copy="${sold}" title="Total Sold Units">
+                                <i class="fas fa-shopping-bag text-[8px]"></i> ${sold} Sold
+                            </span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer ${stock <= (p.prod_min_stock || 0) ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-amber-100 text-amber-900 border border-amber-200'}" data-copy="${stock}" title="Remaining in stock">
+                                ${stock} Stock
+                            </span>
+                        </div>
+                    </div>
                 </td>
-                <td class="py-3.5 px-4 text-center font-bold text-fuchsia-600 text-xs whitespace-nowrap">${offerDisplay}</td>
-                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+
+                <!-- 5. Total Investment & Sales (Evlo Invert / Evlo Sales) -->
+                <td class="py-3 px-4 text-right font-mono whitespace-nowrap min-w-[180px]">
+                    <div class="text-xs font-black text-amber-900 flex items-center justify-end gap-1 cursor-pointer hover:text-amber-700" data-copy="${totalInvested.toFixed(2)}" title="Total Investment: ${purchasedQty} pcs × ₹${purchasePrice.toFixed(2)}">
+                        <span class="text-[10px] font-semibold text-amber-600 font-sans">Invert:</span> ₹${totalInvested.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </div>
+                    <div class="text-xs font-black text-emerald-700 flex items-center justify-end gap-1 mt-0.5 cursor-pointer hover:text-emerald-900" data-copy="${totalSales.toFixed(2)}" title="Total Sales Realized: ${sold} sold × ₹${sellingPrice.toFixed(2)}">
+                        <span class="text-[10px] font-semibold text-emerald-500 font-sans">Sales:</span> ₹${totalSales.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </div>
+                    <div class="text-[10px] font-bold ${realizedProfit >= 0 ? 'text-indigo-600' : 'text-rose-600'} flex items-center justify-end gap-1 mt-0.5 cursor-pointer" data-copy="${realizedProfit.toFixed(2)}" title="Gross Profit">
+                        <span class="text-[9px] text-slate-400 font-sans">Profit:</span> ₹${realizedProfit.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </div>
+                </td>
+
+                <!-- 6. GST -->
+                <td class="py-3 px-4 text-center font-mono text-[11px] text-slate-600 font-bold whitespace-nowrap cursor-pointer hover:text-indigo-600" data-copy="${gst}%" title="Click to copy GST %">
+                    ${gst}%
+                </td>
+
+                <!-- 7. Status -->
+                <td class="py-3 px-4 text-center whitespace-nowrap">
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${(p.prod_status || 'Active') === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ((p.prod_status || '') === 'Out of Stock' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-slate-100 text-slate-600 border border-slate-200')}">
                         ${p.prod_status || 'Active'}
                     </span>
                 </td>
-                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+
+                <!-- 8. Actions -->
+                <td class="py-3 px-4 text-right whitespace-nowrap min-w-[110px]">
                     <div class="inline-flex items-center justify-end gap-1.5">
                         <button onclick="viewProduct('${p.id}')" title="View Product" class="w-7 h-7 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs flex items-center justify-center transition-colors border border-amber-200 shadow-xs"><i class="fas fa-eye"></i></button>
                         <button onclick="editProduct('${p.id}')" title="Edit Product" class="w-7 h-7 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs flex items-center justify-center transition-colors border border-indigo-200 shadow-xs"><i class="fas fa-edit"></i></button>
