@@ -1,55 +1,62 @@
-<div class="space-y-6 max-w-7xl mx-auto relative">
-    <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Product Management</h1>
-        <p class="text-sm text-slate-500 mt-1">Select an entry module below to manage your catalog and billing details</p>
+<div class="space-y-4 max-w-7xl mx-auto relative">
+    <!-- Compact Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+        <div>
+            <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Product Management</h1>
+            <p class="text-xs text-slate-500">Select an entry module below to manage your catalog and billing details</p>
+        </div>
     </div>
 
-    <!-- Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Compact Cards Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         <!-- Supplier Details Card -->
-        <button id="btn-supplier-section" onclick="toggleSection('supplier-section')" class="active-tab group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm border border-indigo-100 group-hover:border-indigo-600">
-                <i class="fas fa-truck text-2xl"></i>
+        <button id="btn-supplier-section" onclick="toggleSection('supplier-section')" class="active-tab group relative bg-white border border-slate-200 rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all duration-200 flex items-center gap-3 text-left w-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+                <i class="fas fa-truck text-base"></i>
             </div>
-            <h3 class="relative text-lg font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">Supplier Details</h3>
-            <p class="relative text-xs text-slate-500 mt-2 leading-relaxed">Manage vendor profiles, track restock sources, and view supplier history.</p>
+            <div class="min-w-0">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-indigo-700 transition-colors truncate">Supplier Details</h3>
+                <p class="text-[11px] text-slate-400 truncate mt-0.5">Vendors & products</p>
+            </div>
         </button>
 
         <!-- Product Details Card -->
-        <button id="btn-product-section" onclick="toggleSection('product-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
-            <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300 shadow-sm border border-amber-100 group-hover:border-amber-500">
-                <i class="fas fa-box-open text-2xl"></i>
+        <button id="btn-product-section" onclick="toggleSection('product-section')" class="group relative bg-white border border-slate-200 rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md hover:border-amber-300 transition-all duration-200 flex items-center gap-3 text-left w-full focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-xs">
+                <i class="fas fa-box-open text-base"></i>
             </div>
-            <h3 class="relative text-lg font-bold text-slate-800 group-hover:text-amber-700 transition-colors">Product Details</h3>
-            <p class="relative text-xs text-slate-500 mt-2 leading-relaxed">Update inventory items, modify pricing, and catalog idol specifications.</p>
+            <div class="min-w-0">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-amber-700 transition-colors truncate">Product Details</h3>
+                <p class="text-[11px] text-slate-400 truncate mt-0.5">Catalog & inventory</p>
+            </div>
         </button>
 
         <!-- Barcode Details Card -->
-        <button id="btn-barcode-section" onclick="toggleSection('barcode-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100 group-hover:border-emerald-500">
-                <i class="fas fa-barcode text-2xl"></i>
+        <button id="btn-barcode-section" onclick="toggleSection('barcode-section')" class="group relative bg-white border border-slate-200 rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-200 flex items-center gap-3 text-left w-full focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-xs">
+                <i class="fas fa-barcode text-base"></i>
             </div>
-            <h3 class="relative text-lg font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Barcode Details</h3>
-            <p class="relative text-xs text-slate-500 mt-2 leading-relaxed">Generate labels, print tags, and configure SKU tracking parameters.</p>
+            <div class="min-w-0">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors truncate">Barcode Details</h3>
+                <p class="text-[11px] text-slate-400 truncate mt-0.5">Print labels & tags</p>
+            </div>
         </button>
 
         <!-- Invoice Details Card -->
-        <button id="btn-invoice-section" onclick="toggleSection('invoice-section')" class="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-rose-300 transition-all duration-300 overflow-hidden flex flex-col items-center text-center w-full focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
-            <div class="absolute inset-0 bg-gradient-to-br from-rose-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-5 group-hover:-translate-y-1 group-hover:bg-rose-500 group-hover:text-white transition-all duration-300 shadow-sm border border-rose-100 group-hover:border-rose-500">
-                <i class="fas fa-file-invoice-dollar text-2xl"></i>
+        <button id="btn-invoice-section" onclick="toggleSection('invoice-section')" class="group relative bg-white border border-slate-200 rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md hover:border-rose-300 transition-all duration-200 flex items-center gap-3 text-left w-full focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 group-hover:bg-rose-500 group-hover:text-white transition-all shadow-xs">
+                <i class="fas fa-file-invoice-dollar text-base"></i>
             </div>
-            <h3 class="relative text-lg font-bold text-slate-800 group-hover:text-rose-700 transition-colors">Invoice Details</h3>
-            <p class="relative text-xs text-slate-500 mt-2 leading-relaxed">Review purchase orders, billing records, and transaction history.</p>
+            <div class="min-w-0">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-rose-700 transition-colors truncate">Invoice Details</h3>
+                <p class="text-[11px] text-slate-400 truncate mt-0.5">Billing & payables</p>
+            </div>
         </button>
 
     </div>
 
+    <!-- Dynamic Sections Panel -->
     <!-- Dynamic Sections Panel -->
     <div id="dynamic-sections" class="mt-8">
         
@@ -176,38 +183,100 @@
         </div>
 
         <!-- Barcode Section -->
-        <div id="barcode-section" class="hidden animate-fade-in bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 shadow-inner">
+        <div id="barcode-section" class="hidden animate-fade-in bg-white border border-emerald-200/90 rounded-2xl p-6 shadow-sm">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
                 <div>
-                    <h4 class="text-lg font-extrabold text-emerald-900">Barcode Management</h4>
-                    <p class="text-xs text-emerald-600/80 mt-1 font-medium">Generate new barcode labels for products and shipments.</p>
+                    <h4 class="text-xl font-extrabold text-emerald-950">Barcode Management</h4>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">Generate new barcode labels for products and shipments.</p>
                 </div>
-                <button class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                <button type="button" onclick="printAllBarcodes()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                     <i class="fas fa-barcode"></i> Print All Barcodes
                 </button>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-emerald-200">
+            <!-- Barcode Search & Filter Controls -->
+            <div class="mb-5 bg-slate-50/80 p-4 rounded-xl border border-slate-200/90 shadow-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+                    <!-- Search Input -->
+                    <div class="lg:col-span-5 relative">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="barcode-search-input" oninput="filterBarcodeTable()" placeholder="Search Barcode No., Product Name, SKU..." class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium">
+                        <button type="button" onclick="clearBarcodeSearch()" id="barcode-search-clear" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="lg:col-span-3">
+                        <select id="barcode-category-filter" onchange="filterBarcodeTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                    <!-- Supplier Filter -->
+                    <div class="lg:col-span-2">
+                        <select id="barcode-supplier-filter" onchange="filterBarcodeTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium">
+                            <option value="">All Suppliers</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset & Summary -->
+                    <div class="lg:col-span-2 flex items-center justify-between sm:justify-end gap-2">
+                        <button type="button" onclick="resetBarcodeFilters()" title="Reset Filters" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-all shadow-xs flex items-center gap-1.5">
+                            <i class="fas fa-undo text-[10px]"></i> Reset
+                        </button>
+                        <span id="barcode-count-badge" class="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200 whitespace-nowrap">
+                            0 Barcodes
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barcode Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-emerald-100/50 text-emerald-700 uppercase text-[10px] font-bold border-b border-emerald-200">
+                    <thead class="bg-slate-100/90 text-slate-700 uppercase text-[10px] font-bold border-b border-slate-200">
                         <tr>
-                            <th class="py-3 px-4">Barcode No.</th>
-                            <th class="py-3 px-4">Product Name</th>
-                            <th class="py-3 px-4">Category</th>
-                            <th class="py-3 px-4">Supplier Name</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
+                            <th class="py-3 px-4 min-w-[140px]">Barcode No.</th>
+                            <th class="py-3 px-4 min-w-[220px]">Product Name & SKU</th>
+                            <th class="py-3 px-4 min-w-[130px]">Category</th>
+                            <th class="py-3 px-4 min-w-[140px]">Supplier Name</th>
+                            <th class="py-3 px-4 text-center min-w-[80px]">Stock</th>
+                            <th class="py-3 px-4 text-right min-w-[110px]">Selling Price</th>
+                            <th class="py-3 px-4 text-right min-w-[100px]">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="barcode-table-body" class="divide-y divide-emerald-100 bg-white">
+                    <tbody id="barcode-table-body" class="divide-y divide-slate-100 bg-white">
                         <tr id="barcode-empty-state-row">
-                            <td colspan="5" class="py-12 text-center text-emerald-400">
-                                <i class="fas fa-barcode text-3xl mb-3 block text-emerald-300"></i>
-                                <p class="font-bold text-emerald-600 text-sm">No barcodes found</p>
+                            <td colspan="7" class="py-12 text-center text-slate-400">
+                                <i class="fas fa-barcode text-3xl mb-3 block text-slate-300"></i>
+                                <p class="font-bold text-slate-600 text-sm">No barcodes found</p>
                                 <p class="text-xs mt-1">Add products or suppliers to generate barcodes.</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Barcode Pagination Controls -->
+            <div class="mt-4 pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" id="barcode-pagination-container">
+                <div class="flex items-center gap-2 text-slate-500 font-medium">
+                    <span id="barcode-page-info">Showing 0 to 0 of 0 entries</span>
+                    <span class="mx-1">•</span>
+                    <label class="flex items-center gap-1.5">
+                        <span>Show</span>
+                        <select id="barcode-per-page-select" onchange="changeBarcodePerPage(this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs outline-none focus:border-emerald-500 font-bold text-slate-700">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>per page</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-1.5" id="barcode-page-buttons">
+                    <!-- Page buttons injected via JS -->
+                </div>
             </div>
         </div>
 
@@ -931,137 +1000,151 @@
     </div>
 </div>
 
-<!-- Supplier Products Detailed Sheet Modal -->
-<div id="supplier-products-modal" onclick="if(event.target === this) closeSupplierProductsModal()" class="hidden fixed inset-0 z-[105] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-    <div class="min-h-full w-full flex items-center justify-center p-3 sm:p-6 py-8">
-        <div class="bg-white rounded-2xl w-full max-w-6xl shadow-2xl relative animate-fade-in mx-auto flex flex-col max-h-[92vh]">
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-20">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">
-                        <i class="fas fa-warehouse"></i>
+<!-- Supplier Products Detailed Sheet Modal (Full Screen & Drag to Scroll) -->
+<div id="supplier-products-modal" onclick="if(event.target === this) closeSupplierProductsModal()" class="hidden fixed inset-0 z-[105] bg-slate-900/80 backdrop-blur-sm overflow-hidden p-2 sm:p-3 flex items-center justify-center">
+    <div class="bg-white rounded-2xl w-full h-[96vh] max-w-[98vw] shadow-2xl relative animate-fade-in mx-auto flex flex-col overflow-hidden border border-slate-200">
+        <!-- Sticky Header: Supplier Identity & Compact Single-Line KPI Badges -->
+        <div class="px-5 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-white shrink-0 z-20 shadow-xs">
+            <!-- Supplier Profile -->
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm sm:text-base font-extrabold text-slate-900 truncate max-w-xs" id="sp-modal-supplier-name">Supplier Name</h3>
+                        <span id="sp-modal-supplier-code" class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">SUP-0000</span>
                     </div>
+                    <p class="text-[11px] text-slate-500 truncate max-w-md" id="sp-modal-supplier-info">Phone • Location • GST</p>
+                </div>
+            </div>
+
+            <!-- Single-line Compact KPI Badges -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center gap-2 shadow-xs">
+                    <i class="fas fa-cubes text-indigo-600 text-xs"></i>
                     <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base sm:text-lg font-extrabold text-slate-900" id="sp-modal-supplier-name">Supplier Name</h3>
-                            <span id="sp-modal-supplier-code" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">SUP-0000</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-0.5 font-medium" id="sp-modal-supplier-info">Phone • Location • GST</p>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block leading-none">Products</span>
+                        <span class="text-xs font-black text-indigo-900 font-mono leading-none" id="sp-kpi-total-products">0</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="printSupplierProductsSheet()" title="Print / Export Sheet" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs">
-                        <i class="fas fa-print"></i> Print Sheet
-                    </button>
-                    <button type="button" onclick="closeSupplierProductsModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors">
-                        <i class="fas fa-times text-base"></i>
-                    </button>
+                <div class="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center gap-2 shadow-xs">
+                    <i class="fas fa-shopping-bag text-emerald-600 text-xs"></i>
+                    <div>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block leading-none">Sold</span>
+                        <span class="text-xs font-black text-emerald-900 font-mono leading-none" id="sp-kpi-units-sold">0 Units</span>
+                    </div>
+                </div>
+                <div class="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-100 flex items-center gap-2 shadow-xs">
+                    <i class="fas fa-layer-group text-amber-600 text-xs"></i>
+                    <div>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block leading-none">In Stock</span>
+                        <span class="text-xs font-black text-amber-900 font-mono leading-none" id="sp-kpi-stock-remaining">0 Units</span>
+                    </div>
+                </div>
+                <div class="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100 flex items-center gap-2 shadow-xs">
+                    <i class="fas fa-receipt text-purple-600 text-xs"></i>
+                    <div>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block leading-none">Sales Revenue</span>
+                        <span class="text-xs font-black text-purple-900 font-mono leading-none" id="sp-kpi-sales-revenue">₹0.00</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Modal Content (Scrollable) -->
-            <div class="p-6 overflow-y-auto space-y-6 flex-1" id="supplier-sheet-printable-area">
-                <!-- 4 KPI Summary Cards -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3.5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
-                            <i class="fas fa-cubes"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Products Associated</span>
-                            <span class="text-base sm:text-lg font-black text-indigo-950 font-mono" id="sp-kpi-total-products">0</span>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
-                            <i class="fas fa-shopping-bag"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Units Sold</span>
-                            <span class="text-base sm:text-lg font-black text-emerald-950 font-mono" id="sp-kpi-units-sold">0 Units</span>
-                        </div>
-                    </div>
-                    <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-3.5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm">
-                            <i class="fas fa-layer-group"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">In Stock (Unsold)</span>
-                            <span class="text-base sm:text-lg font-black text-amber-950 font-mono" id="sp-kpi-stock-remaining">0 Units</span>
-                        </div>
-                    </div>
-                    <div class="bg-purple-50/50 border border-purple-100 rounded-xl p-3.5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
-                            <i class="fas fa-receipt"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Sales Revenue</span>
-                            <span class="text-base sm:text-lg font-black text-purple-950 font-mono" id="sp-kpi-sales-revenue">₹0.00</span>
-                        </div>
-                    </div>
+            <!-- Header Action Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Drag helper & Left/Right Nudge buttons -->
+                <div class="hidden sm:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button type="button" onclick="scrollSheetLeft()" title="Scroll Left" class="w-6 h-6 rounded-lg bg-white hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 flex items-center justify-center text-[10px] shadow-xs transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="px-2 text-[10px] font-bold text-slate-600 flex items-center gap-1 select-none">
+                        <i class="fas fa-hand-paper text-indigo-500 animate-pulse"></i> Drag Left/Right
+                    </span>
+                    <button type="button" onclick="scrollSheetRight()" title="Scroll Right" class="w-6 h-6 rounded-lg bg-white hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 flex items-center justify-center text-[10px] shadow-xs transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
 
-                <!-- Inner Search & Filter Bar for Sheet -->
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="w-full sm:w-72 relative">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="sp-sheet-search" oninput="renderSupplierProductsSheet()" placeholder="Search product name, SKU..." class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-500 transition-all font-medium">
-                    </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="sp-sheet-status-filter" onchange="renderSupplierProductsSheet()" class="w-full sm:w-auto bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-indigo-500 font-medium">
-                            <option value="">All Product Statuses</option>
-                            <option value="partially_sold">Partially Sold</option>
-                            <option value="sold_out">Sold Out</option>
-                            <option value="in_stock">In Stock (Unsold)</option>
-                            <option value="out_of_stock">Out of Stock</option>
-                        </select>
-                        <button type="button" onclick="openAddProductForSupplier(currentSheetSupplierId)" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shadow-xs">
-                            <i class="fas fa-plus"></i> Add Product
-                        </button>
-                    </div>
-                </div>
+                <button type="button" onclick="printSupplierProductsSheet()" title="Print / Export Sheet" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button type="button" onclick="closeSupplierProductsModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-base"></i>
+                </button>
+            </div>
+        </div>
 
-                <!-- Product Sales Sheet Table -->
-                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs">
-                    <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-slate-100/90 text-slate-700 uppercase text-[10px] font-black border-b border-slate-200 tracking-wider">
-                            <tr>
-                                <th class="py-3 px-3 text-center w-10">#</th>
-                                <th class="py-3 px-3 min-w-[200px]">Product & SKU</th>
-                                <th class="py-3 px-3 min-w-[120px]">Category</th>
-                                <th class="py-3 px-3 min-w-[105px]">Supply Date</th>
-                                <th class="py-3 px-3 text-right min-w-[100px]">Piece Rate</th>
-                                <th class="py-3 px-3 text-center min-w-[80px]">Margin %</th>
-                                <th class="py-3 px-3 text-right min-w-[100px]">Selling Price</th>
-                                <th class="py-3 px-3 text-center min-w-[80px]">Sold</th>
-                                <th class="py-3 px-3 text-center min-w-[80px]">In Stock</th>
-                                <th class="py-3 px-3 text-center min-w-[120px]">Sales Status</th>
-                                <th class="py-3 px-3 text-right min-w-[120px]">Total Sold Value</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sp-sheet-table-body" class="divide-y divide-slate-100 bg-white">
+        <!-- Filter Sub-bar -->
+        <div class="px-5 py-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div class="flex items-center gap-2 flex-1 min-w-[240px]">
+                <div class="relative flex-1 max-w-xs">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="sp-sheet-search" oninput="renderSupplierProductsSheet()" placeholder="Search product name, SKU..." class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-500 transition-all font-medium">
+                </div>
+                <select id="sp-sheet-status-filter" onchange="renderSupplierProductsSheet()" class="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-indigo-500 font-medium">
+                    <option value="">All Product Statuses</option>
+                    <option value="partially_sold">Partially Sold</option>
+                    <option value="sold_out">Sold Out</option>
+                    <option value="in_stock">In Stock (Unsold)</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-500 font-medium hidden md:inline">
+                    <i class="fas fa-mouse-pointer text-indigo-400 mr-1"></i>Click & drag table horizontally to explore columns
+                </span>
+                <button type="button" onclick="openAddProductForSupplier(currentSheetSupplierId)" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shadow-xs">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+            </div>
+        </div>
+
+        <!-- Printable & Draggable Table Area (Full Flex Height) -->
+        <div class="flex-1 overflow-hidden flex flex-col relative" id="supplier-sheet-printable-area">
+            <!-- Table Container with Mouse Drag Scroll -->
+            <div id="sp-table-scroll-container" class="flex-1 overflow-x-auto overflow-y-auto cursor-grab select-none bg-slate-50/20">
+                <table class="w-max min-w-full text-left text-xs text-slate-600 border-collapse table-fixed">
+                    <thead class="bg-slate-100 text-slate-700 uppercase text-[10px] font-black border-b border-slate-200 tracking-wider sticky top-0 z-10 shadow-xs h-10">
+                        <tr>
+                            <th class="w-12 min-w-[48px] max-w-[48px] px-2 text-center bg-slate-100 truncate">#</th>
+                            <th class="w-64 min-w-[260px] max-w-[260px] px-3 bg-slate-100 truncate">Product & SKU</th>
+                            <th class="w-36 min-w-[140px] max-w-[140px] px-3 bg-slate-100 truncate">Category</th>
+                            <th class="w-28 min-w-[110px] max-w-[110px] px-3 text-center bg-slate-100 truncate">Supply Date</th>
+                            <th class="w-28 min-w-[110px] max-w-[110px] px-3 text-right bg-slate-100 truncate">Piece Rate</th>
+                            <th class="w-24 min-w-[90px] max-w-[90px] px-2 text-center bg-slate-100 truncate">Margin %</th>
+                            <th class="w-32 min-w-[120px] max-w-[120px] px-3 text-right bg-slate-100 truncate">Selling Price</th>
+                            <th class="w-24 min-w-[90px] max-w-[90px] px-2 text-center bg-slate-100 truncate">Sold</th>
+                            <th class="w-28 min-w-[100px] max-w-[100px] px-2 text-center bg-slate-100 truncate">In Stock</th>
+                            <th class="w-36 min-w-[130px] max-w-[130px] px-2 text-center bg-slate-100 truncate">Sales Status</th>
+                            <th class="w-36 min-w-[140px] max-w-[140px] px-3 text-right bg-slate-100 truncate">Total Sold Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sp-sheet-table-body" class="divide-y divide-slate-100 bg-white">
+                        <!-- Populated dynamically with fixed height & widths -->
+                    </tbody>
+                    <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold sticky bottom-0 z-10 shadow-xs h-12">
+                        <tr id="sp-sheet-footer-row">
                             <!-- Populated dynamically -->
-                        </tbody>
-                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold">
-                            <tr id="sp-sheet-footer-row">
-                                <!-- Populated dynamically -->
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
+        </div>
 
-            <!-- Footer -->
-            <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex items-center justify-between sticky bottom-0 z-20">
-                <span class="text-xs text-slate-500 font-medium">Full detailed sheet showing product sales, pricing, and stock metrics.</span>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="closeSupplierProductsModal()" class="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all shadow-xs">
-                        Close
-                    </button>
-                    <button type="button" onclick="openAddProductForSupplier(currentSheetSupplierId)" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
-                        <i class="fas fa-plus"></i> Add Another Product
-                    </button>
-                </div>
+        <!-- Sticky Footer -->
+        <div class="px-5 py-2.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between shrink-0 z-20">
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                <i class="fas fa-hand-paper text-indigo-500"></i>
+                <span class="truncate">Grab anywhere on table to drag left/right. Full screen view eliminates vertical page scrolling.</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="closeSupplierProductsModal()" class="px-4 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all shadow-xs">
+                    Close
+                </button>
+                <button type="button" onclick="openAddProductForSupplier(currentSheetSupplierId)" class="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
             </div>
         </div>
     </div>
@@ -2373,52 +2456,320 @@
         }
     }
 
+    let barcodeCurrentPage = 1;
+    let barcodePerPage = 10;
+    let barcodeSearchQuery = '';
+    let barcodeCategoryFilter = '';
+    let barcodeSupplierFilter = '';
+
+    function filterBarcodeTable() {
+        barcodeSearchQuery = (document.getElementById('barcode-search-input')?.value || '').toLowerCase().trim();
+        barcodeCategoryFilter = (document.getElementById('barcode-category-filter')?.value || '').trim();
+        barcodeSupplierFilter = (document.getElementById('barcode-supplier-filter')?.value || '').trim();
+        barcodeCurrentPage = 1;
+
+        const clearBtn = document.getElementById('barcode-search-clear');
+        if (clearBtn) {
+            if (barcodeSearchQuery.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+
+        renderBarcodeTable();
+    }
+
+    function clearBarcodeSearch() {
+        const inp = document.getElementById('barcode-search-input');
+        if (inp) inp.value = '';
+        filterBarcodeTable();
+    }
+
+    function resetBarcodeFilters() {
+        const sInp = document.getElementById('barcode-search-input');
+        if (sInp) sInp.value = '';
+        const cSel = document.getElementById('barcode-category-filter');
+        if (cSel) cSel.value = '';
+        const supSel = document.getElementById('barcode-supplier-filter');
+        if (supSel) supSel.value = '';
+        barcodeSearchQuery = '';
+        barcodeCategoryFilter = '';
+        barcodeSupplierFilter = '';
+        barcodeCurrentPage = 1;
+        filterBarcodeTable();
+    }
+
+    function changeBarcodePerPage(val) {
+        barcodePerPage = parseInt(val) || 10;
+        barcodeCurrentPage = 1;
+        renderBarcodeTable();
+    }
+
+    function goToBarcodePage(page) {
+        barcodeCurrentPage = page;
+        renderBarcodeTable();
+    }
+
+    function populateBarcodeDropdowns() {
+        // Categories
+        const catSelect = document.getElementById('barcode-category-filter');
+        if (catSelect && catSelect.options.length <= 1) {
+            const curVal = catSelect.value;
+            const uniqueCats = [...new Set(products.map(p => p.prod_category).filter(Boolean))].sort();
+            uniqueCats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                catSelect.appendChild(opt);
+            });
+            if (curVal) catSelect.value = curVal;
+        }
+
+        // Suppliers
+        const supSelect = document.getElementById('barcode-supplier-filter');
+        if (supSelect && supSelect.options.length <= 1) {
+            const curVal = supSelect.value;
+            suppliers.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.supplier_name;
+                supSelect.appendChild(opt);
+            });
+            if (curVal) supSelect.value = curVal;
+        }
+    }
+
     function renderBarcodeTable() {
+        populateBarcodeDropdowns();
+
         const tbody = document.getElementById('barcode-table-body');
         if (!tbody) return;
-        if (products.length === 0) {
+
+        // Filter products for barcode table
+        const filtered = products.filter(p => {
+            const barcodeNo = (p.prod_barcode || '').toLowerCase();
+            const pName = (p.prod_name || '').toLowerCase();
+            const pSku = (p.prod_sku || '').toLowerCase();
+            const pCat = (p.prod_category || '').toLowerCase();
+            const supplier = suppliers.find(s => String(s.id) === String(p.prod_supplier_id));
+            const suppName = (supplier ? supplier.supplier_name : '').toLowerCase();
+
+            if (barcodeSearchQuery) {
+                const matches = barcodeNo.includes(barcodeSearchQuery) ||
+                                pName.includes(barcodeSearchQuery) ||
+                                pSku.includes(barcodeSearchQuery) ||
+                                pCat.includes(barcodeSearchQuery) ||
+                                suppName.includes(barcodeSearchQuery);
+                if (!matches) return false;
+            }
+
+            if (barcodeCategoryFilter) {
+                if (pCat !== barcodeCategoryFilter.toLowerCase()) return false;
+            }
+
+            if (barcodeSupplierFilter) {
+                if (String(p.prod_supplier_id) !== String(barcodeSupplierFilter)) return false;
+            }
+
+            return true;
+        });
+
+        const badge = document.getElementById('barcode-count-badge');
+        if (badge) {
+            badge.textContent = `${filtered.length} Barcodes`;
+        }
+
+        if (filtered.length === 0) {
             tbody.innerHTML = `
                 <tr id="barcode-empty-state-row">
-                    <td colspan="5" class="py-12 text-center text-emerald-400">
-                        <i class="fas fa-barcode text-3xl mb-3 block text-emerald-300"></i>
-                        <p class="font-bold text-emerald-600 text-sm">No barcodes found</p>
-                        <p class="text-xs mt-1">Add products or suppliers to generate barcodes.</p>
+                    <td colspan="7" class="py-12 text-center text-slate-400">
+                        <i class="fas fa-barcode text-3xl mb-3 block text-slate-300"></i>
+                        <p class="font-bold text-slate-600 text-sm">No barcodes found</p>
+                        <p class="text-xs mt-1">Try adjusting your search query or filters.</p>
                     </td>
                 </tr>`;
+            renderBarcodePagination(0);
             return;
         }
 
+        // Pagination calculations
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / barcodePerPage) || 1;
+        if (barcodeCurrentPage > totalPages) barcodeCurrentPage = totalPages;
+        if (barcodeCurrentPage < 1) barcodeCurrentPage = 1;
+
+        const startIdx = (barcodeCurrentPage - 1) * barcodePerPage;
+        const pageItems = filtered.slice(startIdx, startIdx + barcodePerPage);
+
         tbody.innerHTML = '';
-        products.forEach(p => {
-            const supplier = suppliers.find(s => s.id == p.prod_supplier_id);
+        pageItems.forEach(p => {
+            const supplier = suppliers.find(s => String(s.id) === String(p.prod_supplier_id));
+            const stock = p.prod_current_stock || 0;
+            const price = parseFloat(p.prod_selling_price || 0);
+
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-emerald-50/50 transition-colors';
+            tr.className = 'hover:bg-emerald-50/40 transition-colors text-xs border-b border-slate-100';
             
             tr.innerHTML = `
-                <td class="py-3 px-4 font-mono text-[13px] font-bold text-emerald-700 bg-emerald-50/30 tracking-wider">
-                    ${p.prod_barcode || 'N/A'}
+                <td class="py-3 px-4 font-mono text-[13px] font-bold text-emerald-800 bg-emerald-50/50 tracking-wider whitespace-nowrap">
+                    <i class="fas fa-barcode text-emerald-500 mr-1.5"></i>${p.prod_barcode || 'N/A'}
                 </td>
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-800">${p.prod_name}</div>
+                    <div class="font-bold text-slate-800 text-xs">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-500 font-mono mt-0.5">${p.prod_sku || 'N/A'}</div>
                 </td>
-                <td class="py-3 px-4">
-                    <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-md text-[10px] font-bold border border-slate-200">
-                        ${p.prod_category || 'N/A'}
+                <td class="py-3 px-4 whitespace-nowrap">
+                    <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-bold border border-slate-200">
+                        ${p.prod_category || 'General'}
                     </span>
                 </td>
-                <td class="py-3 px-4">
-                    <div class="font-bold text-indigo-700">${supplier ? supplier.supplier_name : 'N/A'}</div>
+                <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="font-semibold text-slate-700">${supplier ? supplier.supplier_name : 'Unnamed Supplier'}</div>
                 </td>
-                <td class="py-3 px-4 text-right">
-                    <button class="bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm flex items-center gap-2 ml-auto">
-                        <i class="fas fa-print"></i> Print
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                    <span class="font-mono font-bold text-xs ${stock > 0 ? 'text-emerald-700' : 'text-rose-600'}">
+                        ${stock} Units
+                    </span>
+                </td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                    ₹${price.toFixed(2)}
+                </td>
+                <td class="py-3 px-4 text-right whitespace-nowrap">
+                    <button type="button" onclick="printSingleBarcode('${p.id}')" class="bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5">
+                        <i class="fas fa-print text-[11px]"></i> Print Label
                     </button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
+
+        renderBarcodePagination(totalItems);
     }
 
+    function renderBarcodePagination(totalItems) {
+        const pageInfo = document.getElementById('barcode-page-info');
+        const btnContainer = document.getElementById('barcode-page-buttons');
+        if (!pageInfo || !btnContainer) return;
+
+        if (totalItems === 0) {
+            pageInfo.textContent = 'Showing 0 to 0 of 0 entries';
+            btnContainer.innerHTML = '';
+            return;
+        }
+
+        const totalPages = Math.ceil(totalItems / barcodePerPage) || 1;
+        const startItem = (barcodeCurrentPage - 1) * barcodePerPage + 1;
+        const endItem = Math.min(barcodeCurrentPage * barcodePerPage, totalItems);
+
+        pageInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalItems} entries`;
+
+        let btnsHtml = '';
+
+        // Previous button
+        btnsHtml += `
+            <button type="button" onclick="goToBarcodePage(${barcodeCurrentPage - 1})" ${barcodeCurrentPage <= 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold shadow-xs">
+                <i class="fas fa-chevron-left mr-1"></i> Prev
+            </button>
+        `;
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (totalPages > 7) {
+                if (i !== 1 && i !== totalPages && Math.abs(i - barcodeCurrentPage) > 2) {
+                    if (i === 2 || i === totalPages - 1) {
+                        btnsHtml += '<span class="px-1 text-slate-400">...</span>';
+                    }
+                    continue;
+                }
+            }
+            const isActive = i === barcodeCurrentPage;
+            btnsHtml += `
+                <button type="button" onclick="goToBarcodePage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold transition-colors ${isActive ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        btnsHtml += `
+            <button type="button" onclick="goToBarcodePage(${barcodeCurrentPage + 1})" ${barcodeCurrentPage >= totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold shadow-xs">
+                Next <i class="fas fa-chevron-right ml-1"></i>
+            </button>
+        `;
+
+        btnContainer.innerHTML = btnsHtml;
+    }
+
+    function printSingleBarcode(productId) {
+        const p = products.find(prod => String(prod.id) === String(productId));
+        if (!p) {
+            showToast('error', 'Product not found.');
+            return;
+        }
+
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html>
+                <head>
+                    <title>Barcode Label - ${p.prod_name}</title>
+                    <style>
+                        body { font-family: monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+                        .label-box { border: 2px dashed #333; padding: 16px; border-radius: 8px; text-align: center; width: 280px; }
+                        .brand { font-size: 11px; text-transform: uppercase; font-weight: bold; color: #555; }
+                        .title { font-size: 14px; font-weight: bold; margin: 6px 0; }
+                        .barcode-val { font-size: 20px; font-weight: 900; letter-spacing: 4px; margin: 10px 0; }
+                        .price { font-size: 16px; font-weight: bold; color: #047857; margin-top: 6px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="label-box">
+                        <div class="brand">God Statue Billing</div>
+                        <div class="title">${p.prod_name}</div>
+                        <div class="barcode-val">${p.prod_barcode || 'BAR-' + p.id}</div>
+                        <div class="price">MRP: ₹${parseFloat(p.prod_selling_price || 0).toFixed(2)}</div>
+                    </div>
+                </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
+    function printAllBarcodes() {
+        if (products.length === 0) {
+            showToast('error', 'No products to print.');
+            return;
+        }
+
+        const win = window.open('', '_blank');
+        const cardsHtml = products.map(p => `
+            <div style="border: 1px solid #ccc; padding: 12px; border-radius: 6px; text-align: center; width: 200px; page-break-inside: avoid; display: inline-block; margin: 6px;">
+                <div style="font-size: 9px; font-weight: bold; color: #666;">God Statue Billing</div>
+                <div style="font-size: 12px; font-weight: bold; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.prod_name}</div>
+                <div style="font-size: 16px; font-weight: 900; letter-spacing: 2px; margin: 6px 0;">${p.prod_barcode || 'BAR-' + p.id}</div>
+                <div style="font-size: 13px; font-weight: bold; color: #047857;">₹${parseFloat(p.prod_selling_price || 0).toFixed(2)}</div>
+            </div>
+        `).join('');
+
+        win.document.write(`
+            <html>
+                <head>
+                    <title>All Barcode Labels</title>
+                    <style>
+                        body { font-family: monospace; padding: 15px; }
+                        @media print { body { padding: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${cardsHtml}
+                    </div>
+                </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); win.close(); }, 500);
+    }
     function filterSupplierTable() {
         const search = (document.getElementById('supplier-search-input')?.value || '').toLowerCase().trim();
         const statusFilter = (document.getElementById('supplier-status-filter')?.value || '').trim();
@@ -2579,6 +2930,61 @@
     }
 
     let currentSheetSupplierId = null;
+    let isSheetDragging = false;
+    let sheetStartX = 0;
+    let sheetScrollLeft = 0;
+
+    function initSheetDragScroll() {
+        const slider = document.getElementById('sp-table-scroll-container');
+        if (!slider) return;
+
+        slider.onmousedown = (e) => {
+            if (e.target.closest('button, input, select, a')) return;
+            isSheetDragging = true;
+            slider.style.cursor = 'grabbing';
+            sheetStartX = e.pageX - slider.offsetLeft;
+            sheetScrollLeft = slider.scrollLeft;
+        };
+
+        slider.onmouseleave = () => {
+            isSheetDragging = false;
+            slider.style.cursor = 'grab';
+        };
+
+        slider.onmouseup = () => {
+            isSheetDragging = false;
+            slider.style.cursor = 'grab';
+        };
+
+        slider.onmousemove = (e) => {
+            if (!isSheetDragging) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - sheetStartX) * 1.5;
+            slider.scrollLeft = sheetScrollLeft - walk;
+        };
+
+        // Touch support
+        slider.ontouchstart = (e) => {
+            sheetStartX = e.touches[0].pageX - slider.offsetLeft;
+            sheetScrollLeft = slider.scrollLeft;
+        };
+        slider.ontouchmove = (e) => {
+            const x = e.touches[0].pageX - slider.offsetLeft;
+            const walk = (x - sheetStartX) * 1.5;
+            slider.scrollLeft = sheetScrollLeft - walk;
+        };
+    }
+
+    function scrollSheetLeft() {
+        const slider = document.getElementById('sp-table-scroll-container');
+        if (slider) slider.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+
+    function scrollSheetRight() {
+        const slider = document.getElementById('sp-table-scroll-container');
+        if (slider) slider.scrollBy({ left: 320, behavior: 'smooth' });
+    }
 
     function openSupplierProductsModal(supplierId) {
         currentSheetSupplierId = supplierId;
@@ -2611,8 +3017,12 @@
         const modal = document.getElementById('supplier-products-modal');
         if (modal) {
             modal.classList.remove('hidden');
-            modal.style.display = 'block';
+            modal.style.display = 'flex';
         }
+
+        setTimeout(() => {
+            initSheetDragScroll();
+        }, 100);
     }
 
     function closeSupplierProductsModal() {
@@ -2730,57 +3140,57 @@
             // Determine status badge
             let statusBadge = '';
             if (sold > 0 && stock === 0) {
-                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap"><i class="fas fa-check-double mr-1"></i>Sold Out</span>';
+                statusBadge = '<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap"><i class="fas fa-check-double mr-1"></i>Sold Out</span>';
             } else if (sold > 0 && stock > 0) {
-                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 whitespace-nowrap"><i class="fas fa-chart-pie mr-1"></i>Partially Sold</span>';
+                statusBadge = '<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 whitespace-nowrap"><i class="fas fa-chart-pie mr-1"></i>Partially Sold</span>';
             } else if (sold === 0 && stock > 0) {
-                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap"><i class="fas fa-box mr-1"></i>In Stock</span>';
+                statusBadge = '<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap"><i class="fas fa-box mr-1"></i>In Stock</span>';
             } else {
-                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">Out of Stock</span>';
+                statusBadge = '<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">Out of Stock</span>';
             }
 
             const supplyDate = p.created_at ? p.created_at.split(' ')[0] : 'N/A';
 
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-indigo-50/30 transition-colors text-xs border-b border-slate-100';
+            tr.className = 'hover:bg-indigo-50/40 transition-colors text-xs border-b border-slate-100 h-14 max-h-14';
             tr.innerHTML = `
-                <td class="py-3 px-3 text-slate-400 font-mono text-center font-bold">${index + 1}</td>
-                <td class="py-3 px-3 font-semibold text-slate-800">
-                    <div class="font-bold text-slate-900">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-500 font-mono mt-0.5">${p.prod_sku || p.prod_barcode || 'SKU-N/A'}</div>
+                <td class="w-12 min-w-[48px] max-w-[48px] px-2 text-slate-400 font-mono text-center font-bold truncate">${index + 1}</td>
+                <td class="w-64 min-w-[260px] max-w-[260px] px-3 font-semibold text-slate-800">
+                    <div class="font-bold text-slate-900 truncate leading-snug" title="${p.prod_name}">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-500 font-mono truncate" title="${p.prod_sku || p.prod_barcode || 'SKU-N/A'}">${p.prod_sku || p.prod_barcode || 'SKU-N/A'}</div>
                 </td>
-                <td class="py-3 px-3">
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                <td class="w-36 min-w-[140px] max-w-[140px] px-3">
+                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 truncate max-w-[130px] leading-tight" title="${p.prod_category || 'General'}">
                         ${p.prod_category || 'General'}
                     </span>
-                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 mt-0.5 font-medium">${p.prod_subcategory}</div>` : ''}
+                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 truncate max-w-[130px] font-medium leading-tight mt-0.5" title="${p.prod_subcategory}">${p.prod_subcategory}</div>` : ''}
                 </td>
-                <td class="py-3 px-3 font-mono text-slate-600 whitespace-nowrap">
+                <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono text-slate-600 text-center whitespace-nowrap truncate">
                     <i class="far fa-calendar-alt text-slate-400 mr-1 text-[11px]"></i>${supplyDate}
                 </td>
-                <td class="py-3 px-3 font-mono font-bold text-slate-800 text-right">
+                <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono font-bold text-slate-800 text-right whitespace-nowrap">
                     ₹${pieceRate.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
-                <td class="py-3 px-3 font-mono text-center font-bold text-indigo-700 bg-indigo-50/50 rounded-lg">
+                <td class="w-24 min-w-[90px] max-w-[90px] px-2 font-mono text-center font-bold text-indigo-700 bg-indigo-50/50 whitespace-nowrap">
                     ${margin}%
                 </td>
-                <td class="py-3 px-3 font-mono font-bold text-emerald-700 text-right">
+                <td class="w-32 min-w-[120px] max-w-[120px] px-3 font-mono font-bold text-emerald-700 text-right whitespace-nowrap">
                     ₹${sellingPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
-                <td class="py-3 px-3 text-center">
-                    <span class="font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${sold > 0 ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400'}">
+                <td class="w-24 min-w-[90px] max-w-[90px] px-2 text-center whitespace-nowrap">
+                    <span class="inline-block font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${sold > 0 ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400'}">
                         ${sold}
                     </span>
                 </td>
-                <td class="py-3 px-3 text-center">
-                    <span class="font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${stock > 0 ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-800'}">
+                <td class="w-28 min-w-[100px] max-w-[100px] px-2 text-center whitespace-nowrap">
+                    <span class="inline-block font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${stock > 0 ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-800'}">
                         ${stock}
                     </span>
                 </td>
-                <td class="py-3 px-3 text-center whitespace-nowrap">
+                <td class="w-36 min-w-[130px] max-w-[130px] px-2 text-center whitespace-nowrap">
                     ${statusBadge}
                 </td>
-                <td class="py-3 px-3 font-mono font-extrabold text-slate-900 text-right">
+                <td class="w-36 min-w-[140px] max-w-[140px] px-3 font-mono font-extrabold text-slate-900 text-right whitespace-nowrap">
                     ₹${productSalesVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
             `;
@@ -2790,14 +3200,13 @@
         if (footerRow) {
             footerRow.innerHTML = `
                 <td colspan="7" class="py-3 px-3 font-bold text-slate-700 uppercase tracking-wider text-right text-xs">Sheet Summary:</td>
-                <td class="py-3 px-3 text-center font-mono font-black text-emerald-800 text-xs bg-emerald-50">${filteredSoldUnits} Sold</td>
-                <td class="py-3 px-3 text-center font-mono font-black text-amber-900 text-xs bg-amber-50">${filteredStockUnits} In Stock</td>
-                <td class="py-3 px-3"></td>
-                <td class="py-3 px-3 text-right font-mono font-black text-indigo-900 text-xs bg-indigo-50">₹${filteredRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="py-3 px-2 text-center font-mono font-black text-emerald-800 text-xs bg-emerald-50 whitespace-nowrap">${filteredSoldUnits} Sold</td>
+                <td class="py-3 px-2 text-center font-mono font-black text-amber-900 text-xs bg-amber-50 whitespace-nowrap">${filteredStockUnits} In Stock</td>
+                <td class="py-3 px-2 text-center text-xs text-slate-400">—</td>
+                <td class="py-3 px-3 text-right font-mono font-black text-indigo-900 text-xs bg-indigo-50 whitespace-nowrap">₹${filteredRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             `;
         }
     }
-
     function printSupplierProductsSheet() {
         if (!currentSheetSupplierId) return;
         const s = suppliers.find(sup => String(sup.id) === String(currentSheetSupplierId));
