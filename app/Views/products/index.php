@@ -820,11 +820,61 @@
                     <h4 class="text-sm font-bold text-slate-800 border-b border-indigo-200 pb-2 mb-4"><i class="fas fa-truck text-indigo-500 mr-2"></i>1. Supplier Information</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Supplier Name <span class="text-rose-500">*</span></label>
-                            <select name="prod_supplier_id" id="prod_supplier_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-slate-700">Supplier Name <span class="text-rose-500">*</span></label>
+                                <button type="button" onclick="openQuickAddSupplierModal()" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 hover:underline">
+                                    <i class="fas fa-plus-circle text-xs"></i> + New Supplier
+                                </button>
+                            </div>
+
+                            <!-- Native hidden select for form submission & validation compatibility -->
+                            <select name="prod_supplier_id" id="prod_supplier_id" class="hidden">
                                 <option value="">Select Supplier</option>
-                                <!-- Populated dynamically -->
                             </select>
+
+                            <!-- Custom Searchable Combobox -->
+                            <div class="relative" id="supplier-combobox-wrapper">
+                                <!-- Trigger Display Button -->
+                                <button type="button" id="supplier-combobox-trigger" onclick="toggleSupplierCombobox()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-left flex items-center justify-between outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all hover:border-slate-300 shadow-xs">
+                                    <span id="supplier-combobox-selected-text" class="text-slate-400 font-medium truncate">
+                                        <i class="fas fa-search text-slate-300 mr-1.5"></i>Select or search supplier...
+                                    </span>
+                                    <div class="flex items-center gap-1.5 ml-2 text-slate-400 shrink-0">
+                                        <span id="supplier-combobox-clear-btn" onclick="event.stopPropagation(); clearSupplierComboboxSelection();" class="hidden hover:text-rose-500 p-0.5 cursor-pointer" title="Clear selection">
+                                            <i class="fas fa-times-circle text-xs"></i>
+                                        </span>
+                                        <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="supplier-combobox-arrow"></i>
+                                    </div>
+                                </button>
+
+                                <!-- Dropdown Box with Live Search -->
+                                <div id="supplier-combobox-dropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden animate-fade-in">
+                                    <!-- Search Input inside dropdown -->
+                                    <div class="p-2 border-b border-slate-100 bg-slate-50 relative">
+                                        <i class="fas fa-search absolute left-4.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                        <input type="text" id="supplier-combobox-search-input" oninput="filterSupplierCombobox(this.value)" placeholder="Search supplier by name, mobile, city..." class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-7 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-medium" autocomplete="off">
+                                        <button type="button" onclick="document.getElementById('supplier-combobox-search-input').value=''; filterSupplierCombobox('');" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-xs">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Scrollable Suppliers List -->
+                                    <div id="supplier-combobox-list" class="max-h-56 overflow-y-auto divide-y divide-slate-100">
+                                        <!-- Dynamically populated -->
+                                    </div>
+
+                                    <!-- Quick Add Option at Bottom -->
+                                    <div class="p-2 border-t border-slate-100 bg-slate-50">
+                                        <button type="button" onclick="openQuickAddSupplierModal()" class="w-full text-left px-3 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-900 rounded-lg transition-colors flex items-center justify-between border border-indigo-200 shadow-xs">
+                                            <span class="flex items-center gap-1.5 truncate">
+                                                <i class="fas fa-user-plus text-indigo-600"></i>
+                                                <span>+ Add New Supplier<span id="quick-add-typed-name"></span></span>
+                                            </span>
+                                            <span class="text-[10px] bg-white text-indigo-600 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider font-black">Quick Add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             <span class="text-[10px] text-rose-500 hidden mt-1" id="err-prod_supplier_id">Supplier is required</span>
                         </div>
                         <div>
@@ -1147,6 +1197,48 @@
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Quick Add Supplier Modal -->
+<div id="quick-add-supplier-modal" class="hidden fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl relative animate-fade-in border border-slate-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-indigo-50/50">
+            <h3 class="text-sm font-extrabold text-indigo-950 flex items-center gap-2">
+                <i class="fas fa-truck text-indigo-600"></i> Quick Register Supplier
+            </h3>
+            <button type="button" onclick="closeQuickAddSupplierModal()" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        <form id="quick-add-supplier-form" onsubmit="handleQuickAddSupplier(event)" class="p-5 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Supplier / Artisan Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="quick-supp-name" required placeholder="e.g. Swamimalai Bronze Works" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-medium">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Number <span class="text-rose-500">*</span></label>
+                <input type="tel" id="quick-supp-mobile" required placeholder="e.g. 9876543210" maxlength="15" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-medium">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">City / Town</label>
+                    <input type="text" id="quick-supp-city" placeholder="Swamimalai" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">GST Number (Optional)</label>
+                    <input type="text" id="quick-supp-gst" placeholder="GSTIN (optional)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase">
+                </div>
+            </div>
+            <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <button type="button" onclick="closeQuickAddSupplierModal()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" id="quick-supp-save-btn" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="fas fa-check"></i> Save & Select Supplier
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -2609,27 +2701,27 @@
             tr.className = 'hover:bg-emerald-50/40 transition-colors text-xs border-b border-slate-100';
             
             tr.innerHTML = `
-                <td class="py-3 px-4 font-mono text-[13px] font-bold text-emerald-800 bg-emerald-50/50 tracking-wider whitespace-nowrap">
+                <td class="py-3 px-4 font-mono text-[13px] font-bold text-emerald-800 bg-emerald-50/50 tracking-wider whitespace-nowrap cursor-pointer hover:bg-emerald-100/60 transition-colors" data-copy="${p.prod_barcode || ''}" title="Click to copy barcode: ${p.prod_barcode || 'N/A'}">
                     <i class="fas fa-barcode text-emerald-500 mr-1.5"></i>${p.prod_barcode || 'N/A'}
                 </td>
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-800 text-xs">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-500 font-mono mt-0.5">${p.prod_sku || 'N/A'}</div>
+                    <div class="font-bold text-slate-800 text-xs hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${p.prod_name}" title="Click to copy product name">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-500 font-mono mt-0.5 hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${p.prod_sku || ''}" title="Click to copy SKU">${p.prod_sku || 'N/A'}</div>
                 </td>
                 <td class="py-3 px-4 whitespace-nowrap">
-                    <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-bold border border-slate-200">
+                    <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-bold border border-slate-200 hover:bg-slate-200 cursor-pointer transition-colors" data-copy="${p.prod_category || 'General'}" title="Click to copy category">
                         ${p.prod_category || 'General'}
                     </span>
                 </td>
                 <td class="py-3 px-4 whitespace-nowrap">
-                    <div class="font-semibold text-slate-700">${supplier ? supplier.supplier_name : 'Unnamed Supplier'}</div>
+                    <div class="font-semibold text-slate-700 hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${supplier ? (supplier.supplier_name || supplier.name) : 'Unnamed Supplier'}" title="Click to copy supplier name">${supplier ? (supplier.supplier_name || supplier.name) : 'Unnamed Supplier'}</div>
                 </td>
                 <td class="py-3 px-4 text-center whitespace-nowrap">
-                    <span class="font-mono font-bold text-xs ${stock > 0 ? 'text-emerald-700' : 'text-rose-600'}">
+                    <span class="font-mono font-bold text-xs ${stock > 0 ? 'text-emerald-700' : 'text-rose-600'} cursor-pointer" data-copy="${stock}" title="Click to copy stock units">
                         ${stock} Units
                     </span>
                 </td>
-                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap cursor-pointer hover:text-indigo-600" data-copy="${price.toFixed(2)}" title="Click to copy price">
                     ₹${price.toFixed(2)}
                 </td>
                 <td class="py-3 px-4 text-right whitespace-nowrap">
@@ -2897,20 +2989,20 @@
 
             tr.innerHTML = `
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-800">${suppName}</div>
+                    <div class="font-bold text-slate-800 hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${suppName}" title="Click to copy supplier name">${suppName}</div>
                     <div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-2">
-                        <span><i class="fas fa-map-marker-alt text-slate-400 mr-1"></i>${s.city || 'Tamil Nadu'}</span>
-                        ${s.email ? `<span>• <i class="fas fa-envelope text-slate-400 mx-1"></i>${s.email}</span>` : ''}
+                        <span class="hover:text-indigo-600 cursor-pointer" data-copy="${s.city || 'Tamil Nadu'}" title="Click to copy city"><i class="fas fa-map-marker-alt text-slate-400 mr-1"></i>${s.city || 'Tamil Nadu'}</span>
+                        ${s.email ? `<span class="hover:text-indigo-600 cursor-pointer" data-copy="${s.email}" title="Click to copy email">• <i class="fas fa-envelope text-slate-400 mx-1"></i>${s.email}</span>` : ''}
                     </div>
                 </td>
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-700">${suppMobile}</div>
+                    <div class="font-bold text-slate-700 font-mono hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${suppMobile}" title="Click to copy mobile number">${suppMobile}</div>
                 </td>
                 
                 <td class="py-3 px-4">
                     ${productButtonHtml}
                 </td>
-                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${suppGst}</td>
+                <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${suppGst}" title="Click to copy GST number">${suppGst}</td>
                 <td class="py-3 px-4">
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${suppStatus.toLowerCase() === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
                         ${suppStatus}
@@ -2941,7 +3033,7 @@
         slider.onmousedown = (e) => {
             if (e.target.closest('button, input, select, a')) return;
             isSheetDragging = true;
-            slider.style.cursor = 'grabbing';
+            window.sheetDragHasMoved = false;
             sheetStartX = e.pageX - slider.offsetLeft;
             sheetScrollLeft = slider.scrollLeft;
         };
@@ -2958,10 +3050,13 @@
 
         slider.onmousemove = (e) => {
             if (!isSheetDragging) return;
-            e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
             const walk = (x - sheetStartX) * 1.5;
-            slider.scrollLeft = sheetScrollLeft - walk;
+            if (Math.abs(walk) > 5) {
+                window.sheetDragHasMoved = true;
+                slider.style.cursor = 'grabbing';
+                slider.scrollLeft = sheetScrollLeft - walk;
+            }
         };
 
         // Touch support
@@ -3154,43 +3249,43 @@
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-indigo-50/40 transition-colors text-xs border-b border-slate-100 h-14 max-h-14';
             tr.innerHTML = `
-                <td class="w-12 min-w-[48px] max-w-[48px] px-2 text-slate-400 font-mono text-center font-bold truncate">${index + 1}</td>
+                <td class="w-12 min-w-[48px] max-w-[48px] px-2 text-slate-400 font-mono text-center font-bold truncate cursor-pointer hover:text-indigo-600" data-copy="${index + 1}" title="Click to copy index: ${index + 1}">${index + 1}</td>
                 <td class="w-64 min-w-[260px] max-w-[260px] px-3 font-semibold text-slate-800">
-                    <div class="font-bold text-slate-900 truncate leading-snug" title="${p.prod_name}">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-500 font-mono truncate" title="${p.prod_sku || p.prod_barcode || 'SKU-N/A'}">${p.prod_sku || p.prod_barcode || 'SKU-N/A'}</div>
+                    <div class="font-bold text-slate-900 truncate leading-snug cursor-pointer hover:text-indigo-600" data-copy="${p.prod_name}" title="Click to copy product name">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-500 font-mono truncate cursor-pointer hover:text-indigo-600" data-copy="${p.prod_sku || p.prod_barcode || ''}" title="Click to copy SKU">${p.prod_sku || p.prod_barcode || 'SKU-N/A'}</div>
                 </td>
                 <td class="w-36 min-w-[140px] max-w-[140px] px-3">
-                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 truncate max-w-[130px] leading-tight" title="${p.prod_category || 'General'}">
+                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 truncate max-w-[130px] leading-tight cursor-pointer hover:bg-slate-200" data-copy="${p.prod_category || 'General'}" title="Click to copy category">
                         ${p.prod_category || 'General'}
                     </span>
-                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 truncate max-w-[130px] font-medium leading-tight mt-0.5" title="${p.prod_subcategory}">${p.prod_subcategory}</div>` : ''}
+                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 truncate max-w-[130px] font-medium leading-tight mt-0.5 cursor-pointer hover:text-indigo-600" data-copy="${p.prod_subcategory}" title="Click to copy subcategory">${p.prod_subcategory}</div>` : ''}
                 </td>
-                <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono text-slate-600 text-center whitespace-nowrap truncate">
+                <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono text-slate-600 text-center whitespace-nowrap truncate cursor-pointer hover:text-indigo-600" data-copy="${supplyDate}" title="Click to copy supply date">
                     <i class="far fa-calendar-alt text-slate-400 mr-1 text-[11px]"></i>${supplyDate}
                 </td>
-                <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono font-bold text-slate-800 text-right whitespace-nowrap">
+                <td class="w-28 min-w-[110px] max-w-[110px] px-3 font-mono font-bold text-slate-800 text-right whitespace-nowrap cursor-pointer hover:text-indigo-600" data-copy="${pieceRate.toFixed(2)}" title="Click to copy piece rate">
                     ₹${pieceRate.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
-                <td class="w-24 min-w-[90px] max-w-[90px] px-2 font-mono text-center font-bold text-indigo-700 bg-indigo-50/50 whitespace-nowrap">
+                <td class="w-24 min-w-[90px] max-w-[90px] px-2 font-mono text-center font-bold text-indigo-700 bg-indigo-50/50 whitespace-nowrap cursor-pointer hover:bg-indigo-100/60" data-copy="${margin}%" title="Click to copy margin %">
                     ${margin}%
                 </td>
-                <td class="w-32 min-w-[120px] max-w-[120px] px-3 font-mono font-bold text-emerald-700 text-right whitespace-nowrap">
+                <td class="w-32 min-w-[120px] max-w-[120px] px-3 font-mono font-bold text-emerald-700 text-right whitespace-nowrap cursor-pointer hover:text-emerald-900" data-copy="${sellingPrice.toFixed(2)}" title="Click to copy selling price">
                     ₹${sellingPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
                 <td class="w-24 min-w-[90px] max-w-[90px] px-2 text-center whitespace-nowrap">
-                    <span class="inline-block font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${sold > 0 ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400'}">
+                    <span class="inline-block font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs cursor-pointer ${sold > 0 ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400'}" data-copy="${sold}" title="Click to copy sold units">
                         ${sold}
                     </span>
                 </td>
                 <td class="w-28 min-w-[100px] max-w-[100px] px-2 text-center whitespace-nowrap">
-                    <span class="inline-block font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${stock > 0 ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-800'}">
+                    <span class="inline-block font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs cursor-pointer ${stock > 0 ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-800'}" data-copy="${stock}" title="Click to copy stock units">
                         ${stock}
                     </span>
                 </td>
-                <td class="w-36 min-w-[130px] max-w-[130px] px-2 text-center whitespace-nowrap">
+                <td class="w-36 min-w-[130px] max-w-[130px] px-2 text-center whitespace-nowrap cursor-pointer">
                     ${statusBadge}
                 </td>
-                <td class="w-36 min-w-[140px] max-w-[140px] px-3 font-mono font-extrabold text-slate-900 text-right whitespace-nowrap">
+                <td class="w-36 min-w-[140px] max-w-[140px] px-3 font-mono font-extrabold text-slate-900 text-right whitespace-nowrap cursor-pointer hover:text-indigo-600" data-copy="${productSalesVal.toFixed(2)}" title="Click to copy total sold value">
                     ₹${productSalesVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
             `;
@@ -3535,27 +3630,400 @@
     }
 
     // --- PRODUCT MANAGEMENT LOGIC ---
+    // =========================================================================
+    // SEARCHABLE SUPPLIER COMBOBOX & QUICK-ADD SUPPLIER LOGIC
+    // =========================================================================
+    let currentSelectedSupplierId = null;
+    let supplierComboboxSearchTerm = '';
+
+    function toggleSupplierCombobox() {
+        const dropdown = document.getElementById('supplier-combobox-dropdown');
+        const arrow = document.getElementById('supplier-combobox-arrow');
+        if (!dropdown) return;
+
+        const isOpening = dropdown.classList.contains('hidden');
+        if (isOpening) {
+            dropdown.classList.remove('hidden');
+            if (arrow) arrow.style.transform = 'rotate(180deg)';
+            const searchInput = document.getElementById('supplier-combobox-search-input');
+            if (searchInput) {
+                searchInput.value = '';
+                filterSupplierCombobox('');
+                setTimeout(() => searchInput.focus(), 50);
+            }
+        } else {
+            dropdown.classList.add('hidden');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    function closeSupplierCombobox() {
+        const dropdown = document.getElementById('supplier-combobox-dropdown');
+        const arrow = document.getElementById('supplier-combobox-arrow');
+        if (dropdown) dropdown.classList.add('hidden');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+
+    // Close combobox when clicking outside
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('supplier-combobox-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+            closeSupplierCombobox();
+        }
+    });
+
+    function filterSupplierCombobox(query) {
+        supplierComboboxSearchTerm = (query || '').toLowerCase().trim();
+        const list = document.getElementById('supplier-combobox-list');
+        const typedNameSpan = document.getElementById('quick-add-typed-name');
+        if (typedNameSpan) {
+            typedNameSpan.textContent = supplierComboboxSearchTerm ? ': "' + (query.trim()) + '"' : '';
+        }
+
+        if (!list) return;
+
+        const filtered = suppliers.filter(s => {
+            if (!supplierComboboxSearchTerm) return true;
+            const name = (s.supplier_name || s.name || '').toLowerCase();
+            const mobile = (s.mobile_number || s.mobile || s.phone || '').toLowerCase();
+            const code = (s.barcode || s.supplier_code || ('SUP-' + s.id)).toLowerCase();
+            const city = (s.city || '').toLowerCase();
+            const gst = (s.gst_number || '').toLowerCase();
+            return name.includes(supplierComboboxSearchTerm) ||
+                   mobile.includes(supplierComboboxSearchTerm) ||
+                   code.includes(supplierComboboxSearchTerm) ||
+                   city.includes(supplierComboboxSearchTerm) ||
+                   gst.includes(supplierComboboxSearchTerm);
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = `
+                <div class="p-4 text-center text-slate-400">
+                    <i class="fas fa-search text-slate-300 text-lg mb-1 block"></i>
+                    <p class="text-xs font-semibold text-slate-600">No matching suppliers found</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Click "+ Add New Supplier" below to create it instantly.</p>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = '';
+        filtered.forEach(s => {
+            const isSelected = String(s.id) === String(currentSelectedSupplierId);
+            const suppName = s.supplier_name || s.name || 'Unnamed Supplier';
+            const suppMobile = s.mobile_number || s.mobile || s.phone || 'N/A';
+            const suppCode = s.barcode || s.supplier_code || ('SUP-' + s.id);
+            const suppCity = s.city || 'Tamil Nadu';
+
+            const item = document.createElement('div');
+            item.className = `p-2.5 hover:bg-indigo-50/80 cursor-pointer flex items-center justify-between transition-colors ${isSelected ? 'bg-indigo-50 text-indigo-900 font-bold border-l-4 border-indigo-600' : 'text-slate-700'}`;
+            item.onclick = () => {
+                selectSupplierCombobox(s.id);
+                closeSupplierCombobox();
+            };
+
+            item.innerHTML = `
+                <div class="min-w-0 pr-2">
+                    <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5 truncate">
+                        <span>${suppName}</span>
+                        ${isSelected ? '<i class="fas fa-check text-indigo-600 text-[10px]"></i>' : ''}
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-mono mt-0.5 flex items-center gap-2 truncate">
+                        <span><i class="fas fa-phone-alt text-[9px] text-slate-400 mr-1"></i>${suppMobile}</span>
+                        <span>•</span>
+                        <span><i class="fas fa-map-marker-alt text-[9px] text-slate-400 mr-1"></i>${suppCity}</span>
+                    </div>
+                </div>
+                <div class="shrink-0 text-right">
+                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                        ${suppCode}
+                    </span>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function selectSupplierCombobox(id) {
+        currentSelectedSupplierId = id ? String(id) : null;
+        const select = document.getElementById('prod_supplier_id');
+        if (select) {
+            select.value = currentSelectedSupplierId || '';
+            select.dispatchEvent(new Event('change'));
+        }
+
+        const displaySpan = document.getElementById('supplier-combobox-selected-text');
+        const clearBtn = document.getElementById('supplier-combobox-clear-btn');
+        const errSpan = document.getElementById('err-prod_supplier_id');
+        if (errSpan) errSpan.classList.add('hidden');
+
+        if (!currentSelectedSupplierId) {
+            if (displaySpan) {
+                displaySpan.innerHTML = '<i class="fas fa-search text-slate-300 mr-1.5"></i>Select or search supplier...';
+                displaySpan.className = 'text-slate-400 font-medium truncate';
+            }
+            if (clearBtn) clearBtn.classList.add('hidden');
+            return;
+        }
+
+        const s = suppliers.find(sup => String(sup.id) === String(currentSelectedSupplierId));
+        if (s && displaySpan) {
+            const suppName = s.supplier_name || s.name || 'Unnamed Supplier';
+            const suppMobile = s.mobile_number || s.mobile || s.phone || '';
+            const suppCode = s.barcode || s.supplier_code || ('SUP-' + s.id);
+
+            displaySpan.innerHTML = `
+                <div class="flex items-center gap-2 truncate">
+                    <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs shrink-0 font-bold">
+                        <i class="fas fa-truck text-[11px]"></i>
+                    </span>
+                    <span class="font-bold text-slate-900 text-xs truncate">${suppName}</span>
+                    ${suppMobile ? `<span class="text-[11px] text-slate-500 font-mono hidden sm:inline">• ${suppMobile}</span>` : ''}
+                    <span class="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 shrink-0">${suppCode}</span>
+                </div>
+            `;
+            displaySpan.className = 'text-slate-800 font-medium truncate';
+            if (clearBtn) clearBtn.classList.remove('hidden');
+        }
+    }
+
+    function clearSupplierComboboxSelection() {
+        selectSupplierCombobox(null);
+        closeSupplierCombobox();
+    }
+
+    function syncSupplierCombobox(selectedId = null) {
+        const select = document.getElementById('prod_supplier_id');
+        if (select) {
+            select.innerHTML = '<option value="">Select Supplier</option>';
+            suppliers.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.supplier_name || s.name;
+                if (selectedId && String(s.id) === String(selectedId)) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            });
+            if (selectedId) select.value = String(selectedId);
+        }
+
+        selectSupplierCombobox(selectedId);
+        filterSupplierCombobox('');
+    }
+
+    function openQuickAddSupplierModal() {
+        closeSupplierCombobox();
+        const modal = document.getElementById('quick-add-supplier-modal');
+        if (!modal) return;
+
+        const nameInput = document.getElementById('quick-supp-name');
+        if (nameInput) {
+            nameInput.value = supplierComboboxSearchTerm ? supplierComboboxSearchTerm.trim() : '';
+        }
+        const mobileInput = document.getElementById('quick-supp-mobile');
+        if (mobileInput) mobileInput.value = '';
+        const cityInput = document.getElementById('quick-supp-city');
+        if (cityInput) cityInput.value = 'Tamil Nadu';
+        const gstInput = document.getElementById('quick-supp-gst');
+        if (gstInput) gstInput.value = '';
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            if (nameInput && !nameInput.value) nameInput.focus();
+            else if (mobileInput) mobileInput.focus();
+        }, 100);
+    }
+
+    function closeQuickAddSupplierModal() {
+        const modal = document.getElementById('quick-add-supplier-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    }
+
+    async function handleQuickAddSupplier(e) {
+        e.preventDefault();
+        const btn = document.getElementById('quick-supp-save-btn');
+        const name = (document.getElementById('quick-supp-name')?.value || '').trim();
+        const mobile = (document.getElementById('quick-supp-mobile')?.value || '').trim();
+        const city = (document.getElementById('quick-supp-city')?.value || '').trim();
+        const gst = (document.getElementById('quick-supp-gst')?.value || '').trim();
+
+        if (!name || !mobile) {
+            showToast('error', 'Supplier name and mobile number are required.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+
+        try {
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('supplier_name', name);
+            formData.append('mobile', mobile);
+            formData.append('mobile_number', mobile);
+            formData.append('city', city || 'Tamil Nadu');
+            formData.append('state', 'Tamil Nadu');
+            if (gst) formData.append('gst_number', gst);
+
+            const res = await fetch(getAppUrl('suppliers/create'), {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const newSuppId = data.id || (data.data ? data.data.id : Date.now());
+                const newSupplierObj = {
+                    id: newSuppId,
+                    name: name,
+                    supplier_name: name,
+                    mobile: mobile,
+                    mobile_number: mobile,
+                    city: city || 'Tamil Nadu',
+                    state: 'Tamil Nadu',
+                    gst_number: gst || '',
+                    barcode: 'SUP-' + newSuppId,
+                    supplier_code: 'SUP-' + newSuppId,
+                    status: 'Active'
+                };
+
+                // Add to local array
+                suppliers.unshift(newSupplierObj);
+
+                // Re-render supplier table and barcode dropdowns
+                if (typeof renderSupplierTable === 'function') renderSupplierTable();
+                if (typeof populateBarcodeDropdowns === 'function') populateBarcodeDropdowns();
+
+                // Select in searchable combobox & native select
+                syncSupplierCombobox(newSuppId);
+
+                closeQuickAddSupplierModal();
+                showToast('success', `Supplier "${name}" registered & selected! You can now add products.`);
+            } else {
+                showToast('error', data.message || 'Failed to save supplier.');
+            }
+        } catch (err) {
+            console.error('Quick Add Supplier Error:', err);
+            showToast('error', 'Network error occurred while saving supplier.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Save & Select Supplier';
+        }
+    }
+
+    // =========================================================================
+    // UNIVERSAL CLICK-TO-COPY & TABLE NUMBER POINTER LOGIC
+    // =========================================================================
+    function copyTableText(text, targetEl = null) {
+        if (!text) return;
+        text = String(text).trim();
+        if (!text) return;
+
+        // Clipboard API write
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).catch(() => fallbackClipboardCopy(text));
+        } else {
+            fallbackClipboardCopy(text);
+        }
+
+        // Visual feedback on element
+        if (targetEl) {
+            targetEl.classList.remove('copy-pulse-success');
+            void targetEl.offsetWidth; // trigger reflow
+            targetEl.classList.add('copy-pulse-success');
+            setTimeout(() => targetEl.classList.remove('copy-pulse-success'), 500);
+        }
+
+        // Show micro toast
+        showTableCopyToast(text);
+    }
+
+    function fallbackClipboardCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        ta.style.top = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+
+    let copyToastTimerInstance = null;
+    function showTableCopyToast(text) {
+        let toast = document.getElementById('table-copy-micro-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'table-copy-micro-toast';
+            toast.className = 'fixed bottom-5 right-5 z-[10000] bg-slate-900/95 backdrop-blur-sm text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-semibold border border-slate-700 transition-all duration-300 pointer-events-none opacity-0 translate-y-3';
+            document.body.appendChild(toast);
+        }
+        const displayText = text.length > 35 ? text.substring(0, 32) + '...' : text;
+        toast.innerHTML = `
+            <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <i class="fas fa-check text-[10px]"></i>
+            </span>
+            <span class="text-slate-300">Copied:</span>
+            <span class="font-mono text-emerald-300 font-bold max-w-[220px] truncate">${displayText}</span>
+        `;
+        toast.classList.remove('opacity-0', 'translate-y-3');
+        toast.classList.add('opacity-100', 'translate-y-0');
+
+        clearTimeout(copyToastTimerInstance);
+        copyToastTimerInstance = setTimeout(() => {
+            toast.classList.remove('opacity-100', 'translate-y-0');
+            toast.classList.add('opacity-0', 'translate-y-3');
+        }, 1800);
+    }
+
+    // Global Click-to-Copy Listener on Tables
+    window.sheetDragHasMoved = false;
+    document.addEventListener('click', function(e) {
+        // If user was dragging sheet horizontally, do not copy
+        if (window.sheetDragHasMoved) {
+            window.sheetDragHasMoved = false;
+            return;
+        }
+
+        // Ignore interactive buttons, inputs, links, dropdowns
+        if (e.target.closest('button, input, select, a, textarea')) return;
+
+        const copyEl = e.target.closest('[data-copy]');
+        const cell = e.target.closest('td');
+        if (!copyEl && !cell) return;
+        if (cell && cell.querySelector('button, a') && !copyEl) return;
+
+        let val = '';
+        let target = null;
+        if (copyEl) {
+            val = copyEl.getAttribute('data-copy');
+            target = copyEl;
+        } else if (cell) {
+            val = cell.innerText.trim();
+            target = cell;
+        }
+
+        if (val) {
+            copyTableText(val, target);
+        }
+    });
+
     function openProductModal(forSupplierId = null) {
         document.getElementById('product-form').reset();
         clearProductErrors();
         currentProductEditId = null;
         document.getElementById('product-modal-title').innerHTML = '<i class="fas fa-box-open text-amber-600"></i> Add Products Detail';
         
-        // Populate supplier dropdown
-        const supplierSelect = document.getElementById('prod_supplier_id');
-        supplierSelect.innerHTML = '<option value="">Select Supplier</option>';
-        suppliers.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.id;
-            opt.textContent = s.supplier_name;
-            if (forSupplierId && String(s.id) === String(forSupplierId)) {
-                opt.selected = true;
-            }
-            supplierSelect.appendChild(opt);
-        });
-        if (forSupplierId) {
-            supplierSelect.value = String(forSupplierId);
-        }
+        // Sync searchable combobox & native select
+        syncSupplierCombobox(forSupplierId);
 
         const dateInp = document.getElementById('prod_supply_date');
         if (dateInp) {
@@ -3762,20 +4230,20 @@
 
             tr.innerHTML = `
                 <td class="py-3.5 px-4 min-w-[200px]">
-                    <div class="font-extrabold text-slate-800 text-sm leading-snug">${p.prod_name}</div>
-                    <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5"><i class="fas fa-barcode text-slate-400"></i> ${p.prod_sku || 'N/A'} <span class="text-slate-300">/</span> ${p.prod_barcode || 'N/A'}</div>
+                    <div class="font-extrabold text-slate-800 text-sm leading-snug hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${p.prod_name}" title="Click to copy product name">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5"><i class="fas fa-barcode text-slate-400"></i> <span class="hover:text-indigo-600 cursor-pointer" data-copy="${p.prod_sku || ''}" title="Click to copy SKU">${p.prod_sku || 'N/A'}</span> <span class="text-slate-300">/</span> <span class="hover:text-indigo-600 cursor-pointer" data-copy="${p.prod_barcode || ''}" title="Click to copy barcode">${p.prod_barcode || 'N/A'}</span></div>
                 </td>
                 <td class="py-3.5 px-4 whitespace-nowrap">
-                    <span class="text-[10px] text-amber-800 bg-amber-50 inline-block px-2.5 py-1 rounded-md border border-amber-200/80 font-bold">${p.prod_category || 'General'}</span>
+                    <span class="text-[10px] text-amber-800 bg-amber-50 inline-block px-2.5 py-1 rounded-md border border-amber-200/80 font-bold cursor-pointer hover:bg-amber-100" data-copy="${p.prod_category || 'General'}" title="Click to copy category">${p.prod_category || 'General'}</span>
                 </td>
-                <td class="py-3.5 px-4 font-semibold text-slate-700 text-xs whitespace-nowrap">${supplierName}</td>
+                <td class="py-3.5 px-4 font-semibold text-slate-700 text-xs whitespace-nowrap hover:text-indigo-600 transition-colors cursor-pointer" data-copy="${supplierName}" title="Click to copy supplier name">${supplierName}</td>
                 <td class="py-3.5 px-4 font-mono whitespace-nowrap">
-                    <div class="text-slate-900 font-bold text-xs flex items-center gap-1"><span class="text-[10px] font-semibold text-slate-400">P:</span> ₹${purchasePrice.toFixed(2)}</div>
-                    <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5"><span class="text-[10px] font-semibold text-emerald-500">S:</span> ₹${sellingPrice.toFixed(2)}</div>
+                    <div class="text-slate-900 font-bold text-xs flex items-center gap-1 hover:text-indigo-600 cursor-pointer" data-copy="${purchasePrice.toFixed(2)}" title="Click to copy purchase price"><span class="text-[10px] font-semibold text-slate-400">P:</span> ₹${purchasePrice.toFixed(2)}</div>
+                    <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5 hover:text-emerald-800 cursor-pointer" data-copy="${sellingPrice.toFixed(2)}" title="Click to copy selling price"><span class="text-[10px] font-semibold text-emerald-500">S:</span> ₹${sellingPrice.toFixed(2)}</div>
                 </td>
-                <td class="py-3.5 px-4 text-center font-mono text-[11px] text-slate-600 font-bold whitespace-nowrap">${gst}%</td>
+                <td class="py-3.5 px-4 text-center font-mono text-[11px] text-slate-600 font-bold whitespace-nowrap hover:text-indigo-600 cursor-pointer" data-copy="${gst}%" title="Click to copy GST %">${gst}%</td>
                 <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                    <div class="font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></div>
+                    <div class="font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs cursor-pointer" data-copy="${stock}" title="Click to copy stock units">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></div>
                     ${p.last_restocked_qty > 0 ? `
                         <div class="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Last restock: +${p.last_restocked_qty} (Total restocked: ${p.total_restocked_qty || p.last_restocked_qty})">
                             <i class="fas fa-arrow-up text-[8px]"></i> +${p.last_restocked_qty} restocked
@@ -3962,17 +4430,8 @@
         clearProductErrors();
         document.getElementById('product-modal-title').innerHTML = '<i class="fas fa-edit text-amber-500"></i> Edit Product';
         
-        const supplierSelect = document.getElementById('prod_supplier_id');
-        supplierSelect.innerHTML = '<option value="">Select Supplier</option>';
-        suppliers.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.id;
-            opt.textContent = s.supplier_name || s.name || ('Supplier #' + s.id);
-            supplierSelect.appendChild(opt);
-        });
-
         const form = document.getElementById('product-form');
-        if(form.elements['prod_supplier_id']) form.elements['prod_supplier_id'].value = p.prod_supplier_id || '';
+        syncSupplierCombobox(p.prod_supplier_id || '');
         if(form.elements['prod_tax_inclusive']) form.elements['prod_tax_inclusive'].value = p.prod_tax_inclusive || 'No';
         if(form.elements['prod_offer_available']) form.elements['prod_offer_available'].value = p.prod_offer_available || 'No';
         if(form.elements['prod_offer_type']) form.elements['prod_offer_type'].value = p.prod_offer_type || '%';
@@ -4664,4 +5123,40 @@
     #btn-invoice-section.active-tab { border-color: #fda4af !important; }
     #btn-invoice-section.active-tab .relative.w-16 { background-color: #f43f5e !important; border-color: #f43f5e !important; color: white !important; }
     #btn-invoice-section.active-tab h3 { color: #be123c !important; }
+
+    /* Universal Pointer Cursor and Styling for Text & Numbers in Tables for Copying */
+    #supplier-table-body td:not(:has(button, a)),
+    #barcode-table-body td:not(:has(button, a)),
+    #product-table-body td:not(:has(button, a)),
+    #sp-sheet-table-body td:not(:has(button, a)),
+    .copyable-cell,
+    [data-copy] {
+        cursor: pointer !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        transition: color 0.15s ease, background-color 0.15s ease;
+    }
+
+    #supplier-table-body td:not(:has(button, a)):hover,
+    #barcode-table-body td:not(:has(button, a)):hover,
+    #product-table-body td:not(:has(button, a)):hover,
+    #sp-sheet-table-body td:not(:has(button, a)):hover {
+        background-color: rgba(99, 102, 241, 0.04);
+    }
+
+    [data-copy]:hover {
+        cursor: pointer !important;
+        color: #4338ca !important;
+    }
+
+    @keyframes copyFlashAnim {
+        0% { outline: 2px solid #10b981; background-color: rgba(16, 185, 129, 0.25); }
+        50% { outline: 2px solid #10b981; background-color: rgba(16, 185, 129, 0.35); }
+        100% { outline: 2px solid transparent; background-color: transparent; }
+    }
+
+    .copy-pulse-success {
+        animation: copyFlashAnim 0.45s ease-out;
+        border-radius: 6px;
+    }
 </style>
