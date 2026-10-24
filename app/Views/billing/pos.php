@@ -220,13 +220,13 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile No *</label>
-                    <input type="tel" id="pos-customer-mobile" value="9999999999" placeholder="Enter 10-digit mobile" 
+                    <input type="tel" id="pos-customer-mobile" value="" placeholder="Mobile Number" 
                            oninput="onCustomerInputsChanged()"
                            class="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none transition-all">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Customer Name *</label>
-                    <input type="text" id="pos-customer-name" value="Walk-in Retail Customer" placeholder="Enter customer name" 
+                    <input type="text" id="pos-customer-name" value="" placeholder="Customer Name" 
                            oninput="onCustomerInputsChanged()"
                            class="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 outline-none transition-all">
                 </div>
@@ -413,44 +413,30 @@
                 <h2 id="modal-pay-grandtotal" class="text-3xl font-black font-mono text-slate-900 mt-1">₹0.00</h2>
             </div>
 
-            <!-- Select Payment Methods Checkboxes with Amount Inputs -->
+            <!-- Select Payment Method: Cash and UPI Only -->
             <div>
-                <label class="block font-bold text-slate-700 mb-2">Select Payment Methods</label>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <label class="block font-bold text-slate-700 mb-2">Select Payment Method</label>
+                <div class="grid grid-cols-2 gap-3">
                     <!-- Cash -->
-                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
+                    <div class="p-3.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
                         <label class="cursor-pointer flex items-center gap-2 select-none w-full">
                             <input type="checkbox" name="payment_methods[]" value="cash" id="pos_chk_cash" checked onchange="togglePosPaymentAmount(this, 'pos_payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
-                            <span class="text-xs font-bold text-slate-700">Cash</span>
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <i class="fas fa-money-bill-wave text-emerald-600"></i> Cash Payment
+                            </span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="pos_payment_amount_cash" id="pos_payment_amount_cash" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
+                        <input type="number" step="0.01" min="0" name="pos_payment_amount_cash" id="pos_payment_amount_cash" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
                     </div>
 
                     <!-- UPI -->
-                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
+                    <div class="p-3.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
                         <label class="cursor-pointer flex items-center gap-2 select-none w-full">
                             <input type="checkbox" name="payment_methods[]" value="upi" id="pos_chk_upi" onchange="togglePosPaymentAmount(this, 'pos_payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
-                            <span class="text-xs font-bold text-slate-700">UPI</span>
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <i class="fas fa-qrcode text-indigo-600"></i> UPI (Scan QR)
+                            </span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="pos_payment_amount_upi" id="pos_payment_amount_upi" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
-                    </div>
-
-                    <!-- Bank Transfer -->
-                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
-                        <label class="cursor-pointer flex items-center gap-2 select-none w-full">
-                            <input type="checkbox" name="payment_methods[]" value="bank_transfer" id="pos_chk_bank" onchange="togglePosPaymentAmount(this, 'pos_payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
-                            <span class="text-xs font-bold text-slate-700">Bank Transfer</span>
-                        </label>
-                        <input type="number" step="0.01" min="0" name="pos_payment_amount_bank" id="pos_payment_amount_bank" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
-                    </div>
-
-                    <!-- Credit -->
-                    <div class="p-3 bg-white border border-slate-200 hover:border-emerald-400 rounded-xl flex flex-col gap-2 text-slate-700 shadow-sm transition-all">
-                        <label class="cursor-pointer flex items-center gap-2 select-none w-full">
-                            <input type="checkbox" name="payment_methods[]" value="credit" id="pos_chk_credit" onchange="togglePosPaymentAmount(this, 'pos_payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
-                            <span class="text-xs font-bold text-slate-700">Credit</span>
-                        </label>
-                        <input type="number" step="0.01" min="0" name="pos_payment_amount_credit" id="pos_payment_amount_credit" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
+                        <input type="number" step="0.01" min="0" name="pos_payment_amount_upi" id="pos_payment_amount_upi" oninput="calculatePosTotalPaidFromMethods()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold text-slate-800">
                     </div>
                 </div>
             </div>
@@ -532,13 +518,16 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3 mt-6">
-            <button id="btn-print-thermal" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex flex-col items-center justify-center gap-1.5 transition-colors border border-slate-200">
-                <i class="fas fa-receipt text-lg text-amber-600"></i>
-                <span>Thermal 80mm</span>
+            <!-- Thermal 80mm Print -->
+            <button id="btn-print-thermal" class="py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex flex-col items-center justify-center gap-1.5 transition-all border border-slate-200 shadow-sm cursor-pointer hover:border-amber-400">
+                <i class="fas fa-receipt text-xl text-amber-600"></i>
+                <span>Thermal Print (80mm)</span>
             </button>
-            <button id="btn-print-a4" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex flex-col items-center justify-center gap-1.5 transition-colors border border-slate-200">
-                <i class="fas fa-file-invoice text-lg text-amber-600"></i>
-                <span>Tax Invoice A4</span>
+            
+            <!-- WhatsApp Share Bill -->
+            <button id="btn-share-whatsapp" class="py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex flex-col items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-600/20 cursor-pointer">
+                <i class="fab fa-whatsapp text-2xl text-white"></i>
+                <span>Share Bill on WhatsApp</span>
             </button>
         </div>
 

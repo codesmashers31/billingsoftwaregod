@@ -831,8 +831,13 @@ function selectCustomer(id, name, mobile, state) {
     // Update Live Input fields in POS Header
     const mobileInp = document.getElementById('pos-customer-mobile');
     const nameInp = document.getElementById('pos-customer-name');
-    if (mobileInp) mobileInp.value = selectedCustomer.mobile;
-    if (nameInp) nameInp.value = selectedCustomer.name;
+    if (selectedCustomer.id === 1) {
+        if (mobileInp) mobileInp.value = '';
+        if (nameInp) nameInp.value = '';
+    } else {
+        if (mobileInp) mobileInp.value = selectedCustomer.mobile;
+        if (nameInp) nameInp.value = selectedCustomer.name;
+    }
 
     // Backward compatibility for static banner elements if any
     const nameEl = document.getElementById('selected-customer-name');
@@ -1053,23 +1058,17 @@ function calculatePosBalance() {
     let paidVal = parseFloat(paidInput?.value || 0);
     if (isNaN(paidVal) || paidVal < 0) paidVal = 0;
 
-    // If exactly one payment method is checked, sync this paid value into that method's input
+    // If exactly one payment method is checked, sync this paid value into that method's input (Cash & UPI only)
     const checkedBoxes = Array.from(document.querySelectorAll('input[name="payment_methods[]"]:checked')).map(cb => cb.value);
     if (checkedBoxes.length === 1) {
         const methodMap = {
             'cash': 'pos_payment_amount_cash',
-            'upi': 'pos_payment_amount_upi',
-            'bank_transfer': 'pos_payment_amount_bank',
-            'credit': 'pos_payment_amount_credit'
+            'upi': 'pos_payment_amount_upi'
         };
         const activeInputId = methodMap[checkedBoxes[0]];
         const activeInput = document.getElementById(activeInputId);
         if (activeInput && document.activeElement !== activeInput) {
-            if (checkedBoxes[0] === 'credit') {
-                activeInput.value = grandVal > 0 ? grandVal.toFixed(2) : '0.00';
-            } else {
-                activeInput.value = paidVal > 0 ? paidVal.toFixed(2) : '';
-            }
+            activeInput.value = paidVal > 0 ? paidVal.toFixed(2) : '';
         }
     }
 
@@ -1077,15 +1076,6 @@ function calculatePosBalance() {
 
     if (balanceInput) {
         balanceInput.value = balance.toFixed(2);
-    }
-
-    // If credit checkbox is checked and there are other methods checked, sync remaining balance to credit input
-    const creditChk = document.getElementById('pos_chk_credit');
-    const creditInp = document.getElementById('pos_payment_amount_credit');
-    if (creditChk && creditChk.checked && creditInp && document.activeElement !== creditInp) {
-        if (checkedBoxes.length > 1) {
-            creditInp.value = balance > 0 ? balance.toFixed(2) : '0.00';
-        }
     }
 }
 window.calculatePosBalance = calculatePosBalance;
@@ -1121,7 +1111,7 @@ window.togglePosPaymentAmount = togglePosPaymentAmount;
 
 function getPosOtherMethodsPaid(excludeInputId) {
     let sum = 0;
-    const methodIds = ['pos_payment_amount_cash', 'pos_payment_amount_upi', 'pos_payment_amount_bank'];
+    const methodIds = ['pos_payment_amount_cash', 'pos_payment_amount_upi'];
     methodIds.forEach(id => {
         if (id !== excludeInputId) {
             const el = document.getElementById(id);
@@ -1136,21 +1126,17 @@ function getPosOtherMethodsPaid(excludeInputId) {
 function calculatePosTotalPaidFromMethods() {
     const cashInput = document.getElementById('pos_payment_amount_cash');
     const upiInput = document.getElementById('pos_payment_amount_upi');
-    const bankInput = document.getElementById('pos_payment_amount_bank');
-    const creditInput = document.getElementById('pos_payment_amount_credit');
 
     const cash = (cashInput && !cashInput.classList.contains('hidden')) ? (parseFloat(cashInput.value) || 0) : 0;
     const upi = (upiInput && !upiInput.classList.contains('hidden')) ? (parseFloat(upiInput.value) || 0) : 0;
-    const bank = (bankInput && !bankInput.classList.contains('hidden')) ? (parseFloat(bankInput.value) || 0) : 0;
-    const credit = (creditInput && !creditInput.classList.contains('hidden')) ? (parseFloat(creditInput.value) || 0) : 0;
 
-    // Total actual immediate payment
-    const totalPaid = cash + upi + bank;
+    // Total payment (Cash + UPI only)
+    const totalPaid = cash + upi;
     const paidInput = document.getElementById('modal-pay-amount');
     const checkedCount = document.querySelectorAll('input[name="payment_methods[]"]:checked').length;
 
     if (paidInput) {
-        if (checkedCount > 0 || (cash + upi + bank + credit) > 0) {
+        if (checkedCount > 0 || (cash + upi) > 0) {
             paidInput.value = totalPaid > 0 ? totalPaid.toFixed(2) : '0.00';
         } else {
             paidInput.value = '';
@@ -1218,12 +1204,10 @@ function openPaymentModal() {
     if (payModalCustName) payModalCustName.textContent = selectedCustomer.name || 'Walk-in Retail Customer';
     if (payModalCustMobile) payModalCustMobile.textContent = selectedCustomer.mobile || '9999999999';
     
-    // Reset payment methods checkboxes: Cash checked by default with full amount prefilled
+    // Reset payment methods: Cash and UPI only
     const methodConfigs = [
         { chk: 'pos_chk_cash', input: 'pos_payment_amount_cash', defaultChecked: true },
-        { chk: 'pos_chk_upi', input: 'pos_payment_amount_upi', defaultChecked: false },
-        { chk: 'pos_chk_bank', input: 'pos_payment_amount_bank', defaultChecked: false },
-        { chk: 'pos_chk_credit', input: 'pos_payment_amount_credit', defaultChecked: false }
+        { chk: 'pos_chk_upi', input: 'pos_payment_amount_upi', defaultChecked: false }
     ];
 
     methodConfigs.forEach(m => {
@@ -1315,9 +1299,7 @@ async function processCheckout() {
 
     const paymentAmounts = {
         cash: (!document.getElementById('pos_payment_amount_cash')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_cash')?.value || 0) || 0) : 0,
-        upi: (!document.getElementById('pos_payment_amount_upi')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_upi')?.value || 0) || 0) : 0,
-        bank_transfer: (!document.getElementById('pos_payment_amount_bank')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_bank')?.value || 0) || 0) : 0,
-        credit: (!document.getElementById('pos_payment_amount_credit')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_credit')?.value || 0) || 0) : 0
+        upi: (!document.getElementById('pos_payment_amount_upi')?.classList.contains('hidden')) ? (parseFloat(document.getElementById('pos_payment_amount_upi')?.value || 0) || 0) : 0
     };
 
     let billGstPercent = null;
@@ -1361,17 +1343,43 @@ async function processCheckout() {
             closeModal('pos-payment-modal');
             posCart = [];
             renderCart();
+
+            // Clear direct customer input fields to restore clean placeholders for next sale
+            const cNameInp = document.getElementById('pos-customer-name');
+            const cMobInp = document.getElementById('pos-customer-mobile');
+            if (cNameInp) cNameInp.value = '';
+            if (cMobInp) cMobInp.value = '';
+            selectedCustomer = { id: 1, name: 'Walk-in Retail Customer', mobile: '9999999999', state: 'Tamil Nadu' };
+
             showToast('success', `Invoice ${result.data.invoice_no} generated successfully!`);
 
             // Open Print Prompt Modal
             document.getElementById('completed-invoice-no').textContent = result.data.invoice_no;
             const cNameEl = document.getElementById('completed-customer-name');
             const cMobEl = document.getElementById('completed-customer-mobile');
-            if (cNameEl) cNameEl.textContent = result.data.customer_name || selectedCustomer.name || 'Walk-in';
-            if (cMobEl) cMobEl.textContent = result.data.customer_mobile || selectedCustomer.mobile || 'N/A';
-            document.getElementById('btn-print-a4').onclick = () => window.open(result.data.print_a4_url, '_blank');
-            document.getElementById('btn-print-thermal').onclick = () => window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
-            document.getElementById('btn-view-invoice').onclick = () => window.location.href = result.data.view_url;
+            const finalCustName = result.data.customer_name || 'Walk-in Retail Customer';
+            const finalCustMob = result.data.customer_mobile || '';
+            if (cNameEl) cNameEl.textContent = finalCustName;
+            if (cMobEl) cMobEl.textContent = finalCustMob || 'Counter Sale';
+
+            // Thermal 80mm Print
+            const thermalBtn = document.getElementById('btn-print-thermal');
+            if (thermalBtn) {
+                thermalBtn.onclick = () => window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
+            }
+
+            // WhatsApp Share Bill
+            const waBtn = document.getElementById('btn-share-whatsapp');
+            if (waBtn) {
+                waBtn.onclick = () => sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
+            }
+
+            // View Bill
+            const viewBtn = document.getElementById('btn-view-invoice');
+            if (viewBtn) {
+                viewBtn.onclick = () => window.location.href = result.data.view_url;
+            }
+
             openModal('pos-complete-modal');
         } else {
             showToast('error', result.message || 'Checkout failed.');
@@ -1404,3 +1412,49 @@ function escapeHtml(str) {
 
 
 
+
+/**
+ * Send / Share Bill Receipt to Customer WhatsApp
+ */
+function sendInvoiceToWhatsApp(invoiceData, customerName, customerMobile) {
+    let mobile = (customerMobile || '').replace(/\D/g, '');
+
+    // If mobile is dummy or not 10 digits, prompt operator for actual WhatsApp number
+    if (!mobile || mobile === '9999999999' || mobile.length < 10) {
+        const entered = prompt('Please enter the customer\'s 10-digit WhatsApp Mobile Number:');
+        if (!entered) return;
+        mobile = entered.replace(/\D/g, '');
+        if (mobile.length < 10) {
+            showToast('error', 'Please enter a valid 10-digit WhatsApp mobile number.');
+            return;
+        }
+    }
+
+    // Prefix with India country code 91 if 10 digits
+    if (mobile.length === 10) {
+        mobile = '91' + mobile;
+    }
+
+    const companyName = (typeof SYSTEM_COMPANY_NAME !== 'undefined' && SYSTEM_COMPANY_NAME) ? SYSTEM_COMPANY_NAME : 'Store';
+    const invoiceNo = invoiceData.invoice_no || 'Bill';
+    const grandTotal = parseFloat(invoiceData.grand_total || 0).toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const viewUrl = invoiceData.view_url || `${window.APP_URL}/billing/invoice/${invoiceData.invoice_id}`;
+
+    const text = 
+        `*🙏 ${companyName} 🙏*\n` +
+        `*E-Invoice / Bill Receipt*\n` +
+        `--------------------------------\n` +
+        `🧾 *Invoice No:* ${invoiceNo}\n` +
+        `👤 *Customer:* ${customerName}\n` +
+        `📱 *Mobile:* ${mobile.replace(/^91/, '')}\n` +
+        `💰 *Total Amount:* ₹${grandTotal}\n` +
+        `✅ *Payment Status:* Paid\n` +
+        `--------------------------------\n` +
+        `📄 *View / Download E-Bill:* \n${viewUrl}\n\n` +
+        `Thank you for shopping with us! Visit again! 🌸`;
+
+    const waUrl = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+    showToast('success', `Opening WhatsApp for ${customerName} (+${mobile})...`);
+}
+window.sendInvoiceToWhatsApp = sendInvoiceToWhatsApp;
