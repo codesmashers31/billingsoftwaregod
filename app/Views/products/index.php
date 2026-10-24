@@ -528,44 +528,51 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Supplier Name <span class="text-rose-500">*</span></label>
-                        <input type="text" name="supplier_name" id="supplier_name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <input type="text" name="supplier_name" id="supplier_name" placeholder="Enter supplier name (e.g. Swamimalai Bronze Heritage Works)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                         <span class="text-[10px] text-rose-500 hidden mt-1" id="err-supplier_name">This field is required</span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Number <span class="text-rose-500">*</span></label>
-                        <input type="text" name="mobile_number" id="mobile_number" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <input type="text" name="mobile_number" id="mobile_number" placeholder="Enter mobile number (e.g. 9876543210)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                         <span class="text-[10px] text-rose-500 hidden mt-1" id="err-mobile_number">Valid mobile number is required</span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Purchase Date</label>
-                        <input type="date" name="purchase_date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <input type="date" name="purchase_date" value="<?= date('Y-m-d') ?>" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Address</label>
-                        <input type="text" name="address" id="address" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <input type="text" name="address" id="address" placeholder="Enter street address / workshop location" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                         <span class="text-[10px] text-rose-500 hidden mt-1" id="err-address">Address is required</span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">City</label>
-                        <input type="text" name="city" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <input type="text" name="city" placeholder="e.g. Kumbakonam / Thanjavur / Madurai" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">State</label>
-                        <input type="text" name="state" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        <input type="text" name="state" value="Tamil Nadu" placeholder="e.g. Tamil Nadu" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">GST Number</label>
-                        <input type="text" name="gst_number" id="gst_number" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 uppercase transition-all">
+                        <input type="text" name="gst_number" id="gst_number" placeholder="e.g. 33AABCF9876K1Z2 (Optional)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 uppercase transition-all">
                         <span class="text-[10px] text-rose-500 hidden mt-1" id="err-gst_number">Invalid GST format</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Supplier Status</label>
+                        <select name="status" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
                     </div>
 
                 </div>
             </div>
 
             <!-- 2. Product Information -->
-            <div class="bg-amber-50/30 p-5 rounded-xl border border-amber-100">
+            <div class="hidden">
                 <div class="flex items-center justify-between border-b border-amber-200 pb-2 mb-4">
                     <h4 class="text-sm font-bold text-slate-800"><i class="fas fa-box-open text-amber-500 mr-2"></i>2. Products Supplied</h4>
                     <button type="button" onclick="addSupplierProductField()" class="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg font-bold hover:bg-amber-200 transition-colors">
@@ -581,13 +588,13 @@
             <!-- 3. Payment Information -->
             <div class="bg-emerald-50/30 p-5 rounded-xl border border-emerald-100">
                 <div class="flex items-center justify-between border-b border-emerald-200 pb-2 mb-4">
-                    <h4 class="text-sm font-bold text-slate-800"><i class="fas fa-credit-card text-emerald-500 mr-2"></i>3. Payment Information</h4>
+                    <h4 class="text-sm font-bold text-slate-800"><i class="fas fa-credit-card text-emerald-500 mr-2"></i>2. Payment Information</h4>
                     <span id="supplier_status_badge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200">Status: Unpaid</span>
                 </div>
                 
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Total Amount Purchased (₹)</label>
-                    <input type="number" step="0.01" min="0" name="total_amount_purchased" id="total_amount_purchased" class="w-full md:w-1/3 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed" readonly value="0.00">
+                    <input type="number" step="0.01" min="0" name="total_amount_purchased" id="total_amount_purchased" oninput="onTotalPurchasedInput()" placeholder="0.00 (e.g. 50000.00)" class="w-full md:w-1/2 bg-white border border-slate-300 text-slate-900 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all" value="0.00">
                     <span class="text-[10px] text-rose-500 hidden mt-1" id="err-total_amount_purchased">Cannot be negative</span>
                 </div>
 
@@ -599,7 +606,7 @@
                             <input type="checkbox" value="Cash" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Cash</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_cash" id="payment_amount_cash" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_cash" id="payment_amount_cash" oninput="calculateSupplierTotalPaid()" placeholder="Cash Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
 
                     <!-- UPI -->
@@ -608,7 +615,7 @@
                             <input type="checkbox" value="UPI" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">UPI</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_upi" id="payment_amount_upi" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_upi" id="payment_amount_upi" oninput="calculateSupplierTotalPaid()" placeholder="UPI Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
 
                     <!-- Bank Transfer -->
@@ -617,7 +624,7 @@
                             <input type="checkbox" value="Bank Transfer" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Bank Transfer</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_bank" id="payment_amount_bank" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_bank" id="payment_amount_bank" oninput="calculateSupplierTotalPaid()" placeholder="Bank Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
 
                     <!-- Credit -->
@@ -626,19 +633,19 @@
                             <input type="checkbox" value="Credit" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Credit</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_credit" id="payment_amount_credit" oninput="calculateSupplierTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_credit" id="payment_amount_credit" oninput="calculateSupplierTotalPaid()" placeholder="Credit Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     </div>
                 </div>
 
                 <div class="mt-4 pt-4 border-t border-emerald-200 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Total Amount Paid (₹)</label>
-                        <input type="number" step="0.01" min="0" name="total_amount_paid" id="total_payment_entered" oninput="onTotalPaidInput()" placeholder="0.00" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-900 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="total_amount_paid" id="total_payment_entered" oninput="onTotalPaidInput()" placeholder="0.00 (e.g. 25000.00)" class="w-full bg-emerald-50 border border-emerald-300 text-emerald-900 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 transition-all">
                         <span class="text-[11px] text-rose-500 hidden mt-1" id="err-total_paid"></span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Balance to Pay (₹)</label>
-                        <input type="number" step="0.01" name="balance_amount" id="balance_amount" class="w-full bg-rose-50 border border-rose-200 text-rose-800 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed" readonly value="0.00">
+                        <input type="number" step="0.01" name="balance_amount" id="balance_amount" placeholder="0.00" class="w-full bg-rose-50 border border-rose-200 text-rose-800 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed" readonly value="0.00">
                         <span class="text-[10px] text-slate-400 mt-1 block">Formula: Balance = Total Amount Purchased - Total Amount Paid</span>
                     </div>
                 </div>
@@ -647,7 +654,7 @@
             </div>
 
             <!-- 4. Additional Information -->
-            <div class="bg-rose-50/30 p-5 rounded-xl border border-rose-100">
+            <div class="hidden">
                 <h4 class="text-sm font-bold text-slate-800 border-b border-rose-200 pb-2 mb-4"><i class="fas fa-info-circle text-rose-500 mr-2"></i>4. Additional Information</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -1561,7 +1568,7 @@
         clearErrors();
         currentEditId = null;
         document.getElementById('supplier-products-container').innerHTML = '';
-        addSupplierProductField(); // Add at least one empty product field
+        // Standalone supplier mode: no product required
         
         // Hide payment amount inputs
         ['payment_amount_cash', 'payment_amount_upi', 'payment_amount_bank', 'payment_amount_credit'].forEach(id => {
@@ -1763,7 +1770,28 @@
         // Auto-calculate selling price using dynamic margin percentage
         calculateSupplierSellingPrice(element);
         
-        calculateTotalSupplierPurchase();
+        const totalPurchasedInput = document.getElementById('total_amount_purchased');
+        if (totalPurchasedInput) {
+            let totalVal = (typeof s !== 'undefined' && s) ? (parseFloat(s.total_amount_purchased !== undefined ? s.total_amount_purchased : (s.total_amount || 0)) || 0) : 0;
+            const pInputs = document.querySelectorAll('input[name="sp_purchase_price[]"]');
+            if (pInputs.length > 0) {
+                let pSum = 0;
+                pInputs.forEach(inp => pSum += (parseFloat(inp.value) || 0));
+                if (pSum > 0) totalVal = pSum;
+            }
+            if (totalVal <= 0 && typeof supplierProducts !== 'undefined' && supplierProducts && supplierProducts.length > 0) {
+                let calcSum = 0;
+                supplierProducts.forEach(p => {
+                    const u = parseFloat(p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)) || 0;
+                    const r = parseFloat(p.prod_piece_rate || 0) || 0;
+                    const stored = parseFloat(p.prod_purchase_price || 0) || 0;
+                    calcSum += (stored > 0 ? stored : (u * r));
+                });
+                if (calcSum > 0) totalVal = calcSum;
+            }
+            totalPurchasedInput.value = totalVal > 0 ? totalVal.toFixed(2) : '0.00';
+            calculateSupplierPaymentStatus();
+        }
     }
 
     function calculateTotalSupplierPurchase() {
@@ -1783,7 +1811,28 @@
 
     function removeSupplierProductField(btn) {
         btn.parentElement.remove();
-        calculateTotalSupplierPurchase();
+        const totalPurchasedInput = document.getElementById('total_amount_purchased');
+        if (totalPurchasedInput) {
+            let totalVal = (typeof s !== 'undefined' && s) ? (parseFloat(s.total_amount_purchased !== undefined ? s.total_amount_purchased : (s.total_amount || 0)) || 0) : 0;
+            const pInputs = document.querySelectorAll('input[name="sp_purchase_price[]"]');
+            if (pInputs.length > 0) {
+                let pSum = 0;
+                pInputs.forEach(inp => pSum += (parseFloat(inp.value) || 0));
+                if (pSum > 0) totalVal = pSum;
+            }
+            if (totalVal <= 0 && typeof supplierProducts !== 'undefined' && supplierProducts && supplierProducts.length > 0) {
+                let calcSum = 0;
+                supplierProducts.forEach(p => {
+                    const u = parseFloat(p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)) || 0;
+                    const r = parseFloat(p.prod_piece_rate || 0) || 0;
+                    const stored = parseFloat(p.prod_purchase_price || 0) || 0;
+                    calcSum += (stored > 0 ? stored : (u * r));
+                });
+                if (calcSum > 0) totalVal = calcSum;
+            }
+            totalPurchasedInput.value = totalVal > 0 ? totalVal.toFixed(2) : '0.00';
+            calculateSupplierPaymentStatus();
+        }
     }
 
     function toggleSupplierPaymentAmount(checkbox, inputId) {
@@ -1858,6 +1907,10 @@
             }
         }
 
+        calculateSupplierPaymentStatus();
+    }
+
+    function onTotalPurchasedInput() {
         calculateSupplierPaymentStatus();
     }
 
@@ -2494,7 +2547,28 @@
         }
         
         // Recalculate purchase amounts
-        calculateTotalSupplierPurchase();
+        const totalPurchasedInput = document.getElementById('total_amount_purchased');
+        if (totalPurchasedInput) {
+            let totalVal = (typeof s !== 'undefined' && s) ? (parseFloat(s.total_amount_purchased !== undefined ? s.total_amount_purchased : (s.total_amount || 0)) || 0) : 0;
+            const pInputs = document.querySelectorAll('input[name="sp_purchase_price[]"]');
+            if (pInputs.length > 0) {
+                let pSum = 0;
+                pInputs.forEach(inp => pSum += (parseFloat(inp.value) || 0));
+                if (pSum > 0) totalVal = pSum;
+            }
+            if (totalVal <= 0 && typeof supplierProducts !== 'undefined' && supplierProducts && supplierProducts.length > 0) {
+                let calcSum = 0;
+                supplierProducts.forEach(p => {
+                    const u = parseFloat(p.prod_current_stock !== undefined ? p.prod_current_stock : (p.prod_unit || 0)) || 0;
+                    const r = parseFloat(p.prod_piece_rate || 0) || 0;
+                    const stored = parseFloat(p.prod_purchase_price || 0) || 0;
+                    calcSum += (stored > 0 ? stored : (u * r));
+                });
+                if (calcSum > 0) totalVal = calcSum;
+            }
+            totalPurchasedInput.value = totalVal > 0 ? totalVal.toFixed(2) : '0.00';
+            calculateSupplierPaymentStatus();
+        }
 
         // Populate paid amount into method input if single method checked
         if (checkedMethodInputs.length === 1 && pVal > 0) {

@@ -74,6 +74,12 @@ class Supplier extends Model {
             }
 
             $totalPurchaseAmount = round($totalPurchaseAmount, 2);
+            if ($totalPurchaseAmount <= 0) {
+                $lastHist = $this->db->query("SELECT total_amount FROM `supplier_payment_history` WHERE supplier_id = ? ORDER BY id DESC LIMIT 1", [$suppId]);
+                if (!empty($lastHist) && isset($lastHist[0]['total_amount']) && (float)$lastHist[0]['total_amount'] > 0) {
+                    $totalPurchaseAmount = (float)$lastHist[0]['total_amount'];
+                }
+            }
             $rawPaid = isset($supp['paid_amount']) && $supp['paid_amount'] !== null ? (float)$supp['paid_amount'] : 0.00;
             $paidAmount = min($totalPurchaseAmount, max(0.00, round($rawPaid, 2)));
             $balanceAmount = max(0.00, round($totalPurchaseAmount - $paidAmount, 2));

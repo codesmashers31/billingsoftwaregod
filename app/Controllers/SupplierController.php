@@ -334,6 +334,9 @@ class SupplierController extends Controller {
                 $totalPurchaseAmount += ($stored > 0 ? $stored : ($u * $r));
             }
             $totalPurchaseAmount = round($totalPurchaseAmount, 2);
+            if ($totalPurchaseAmount <= 0 && $request->input('total_amount_purchased') !== null) {
+                $totalPurchaseAmount = max(0.00, round((float)$request->input('total_amount_purchased'), 2));
+            }
 
             // Read payment information from Section 3
             $cashAmt = max(0, (float)$request->input('payment_amount_cash', 0));
