@@ -133,6 +133,7 @@ Router::get('/billing/invoice/{id}/print', [BillingController::class, 'printInvo
 Router::get('/billing/invoice/{id}/pdf', [BillingController::class, 'downloadPdf']);
 Router::post('/billing/invoice/{id}/payment', [BillingController::class, 'addPayment']);
 Router::post('/billing/invoice/{id}/cancel', [BillingController::class, 'cancel']);
+Router::post('/billing/invoice/{id}/whatsapp', [BillingController::class, 'sendWhatsApp']);
 
 // Invoices shortcuts
 Router::get('/invoices', [BillingController::class, 'invoices']);

@@ -15,6 +15,7 @@ use App\Models\Inventory;
 use App\Models\Account;
 use App\Models\Payment;
 use App\Models\Supplier;
+use App\Services\WhatsAppService;
 
 class BillingController extends Controller {
     public function pos(Request $request): void {
@@ -507,15 +508,53 @@ class BillingController extends Controller {
             $db->commit();
             $this->logActivity('create', 'billing', (int)$invoiceId, $invoiceNo, "Generated invoice {$invoiceNo} for " . formatCurrency($grandTotal));
 
+            // Construct direct itemized bill text (NO PDF link)
+            $storeName = getSetting('company_name', 'Sastha Sasti - Divine Heritage');
+            $directBillText = "*{$storeName}*\n"
+                . "*CASH BILL / SALES INVOICE*\n"
+                . "--------------------------------\n"
+                . "🧾 *Bill No:* {$invoiceNo}\n"
+                . "📅 *Date:* " . date('d-m-Y h:i A') . "\n"
+                . "👤 *Customer:* {$customer['name']}\n"
+                . "📱 *Mobile:* {$customer['mobile']}\n"
+                . "--------------------------------\n"
+                . "*ITEMS PURCHASED:*\n";
+
+            foreach ($validatedItems as $v) {
+                $directBillText .= "• {$v['product_name']} ({$v['quantity']} x ₹" . number_format($v['unit_price'], 2) . ") = ₹" . number_format($v['total_amount'], 2) . "\n";
+            }
+
+            $directBillText .= "--------------------------------\n"
+                . "Subtotal: ₹" . number_format($subtotal, 2) . "\n";
+            if ($itemDiscountTotal + $overallDiscountAmount > 0) {
+                $directBillText .= "Discount: -₹" . number_format($itemDiscountTotal + $overallDiscountAmount, 2) . "\n";
+            }
+            $directBillText .= "GST Tax: ₹" . number_format($taxTotal, 2) . "\n"
+                . "*Total Amount: ₹" . number_format($grandTotal, 2) . "*\n"
+                . "Paid: ₹" . number_format($paidAmount, 2) . " (" . ucfirst($primaryMethod) . ")\n"
+                . "--------------------------------\n"
+                . "Thank you for shopping with us! 🌸\n"
+                . "Visit again!";
+
+            // Direct background WhatsApp dispatch if requested
+            $receiptDelivery = $request->input('receipt_delivery', 'thermal');
+            $waStatus = null;
+            if ($receiptDelivery === 'whatsapp' || $receiptDelivery === 'both') {
+                $waStatus = WhatsAppService::sendDirectMessage($cleanDigits, $directBillText);
+            }
+
             Response::success('Invoice completed successfully!', [
                 'invoice_id' => $invoiceId,
                 'invoice_no' => $invoiceNo,
-                'customer_name' => $customer['name'] ?? 'Walk-in Retail Customer',
+                'customer_name' => $customer['name'] ?? 'Customer',
                 'customer_mobile' => $customer['mobile'] ?? '',
                 'grand_total' => $grandTotal,
-                'print_a4_url' => url("billing/invoice/{$invoiceId}/print?type=a4"),
                 'print_thermal_url' => url("billing/invoice/{$invoiceId}/print?type=thermal"),
-                'view_url' => url("billing/invoice/{$invoiceId}")
+                'view_url' => url("billing/invoice/{$invoiceId}"),
+                'whatsapp_status' => $waStatus,
+                'whatsapp_sent' => !empty($waStatus['success']),
+                'whatsapp_message' => $waStatus['message'] ?? null,
+                'direct_bill_text' => $directBillText
             ]);
         } catch (\Throwable $e) {
             $db->rollback();
@@ -1157,6 +1196,56 @@ class BillingController extends Controller {
         } catch (\Throwable $e) {
             $db->rollback();
             Response::error($e->getMessage());
+        }
+    }
+
+    public function sendWhatsApp(Request $request, array $params): void {
+        $id = (int)($params['id'] ?? 0);
+        $invModel = new Invoice();
+        $invoice = $invModel->getWithDetails($id);
+        if (!$invoice) {
+            Response::error('Invoice not found.');
+        }
+
+        $items = $invModel->getItems($id);
+        $storeName = getSetting('company_name', 'Sastha Sasti - Divine Heritage');
+        $cleanPhone = preg_replace('/\D/', '', (string)($request->input('mobile') ?: $invoice['customer_mobile']));
+
+        if (empty($cleanPhone) || strlen($cleanPhone) < 10) {
+            Response::error('Valid 10-digit customer mobile number is required.');
+        }
+
+        $directBillText = "*{$storeName}*\n"
+            . "*CASH BILL / SALES INVOICE*\n"
+            . "--------------------------------\n"
+            . "🧾 *Bill No:* {$invoice['invoice_no']}\n"
+            . "📅 *Date:* " . date('d-m-Y h:i A', strtotime($invoice['invoice_date'] . ' ' . $invoice['invoice_time'])) . "\n"
+            . "👤 *Customer:* {$invoice['customer_name']}\n"
+            . "📱 *Mobile:* {$cleanPhone}\n"
+            . "--------------------------------\n"
+            . "*ITEMS PURCHASED:*\n";
+
+        foreach ($items as $item) {
+            $directBillText .= "• {$item['product_name']} ({$item['quantity']} x ₹" . number_format($item['unit_price'], 2) . ") = ₹" . number_format($item['total_amount'], 2) . "\n";
+        }
+
+        $directBillText .= "--------------------------------\n"
+            . "Subtotal: ₹" . number_format($invoice['subtotal'], 2) . "\n";
+        if ((float)$invoice['overall_discount_amount'] + (float)$invoice['item_discount_total'] > 0) {
+            $directBillText .= "Discount: -₹" . number_format($invoice['overall_discount_amount'] + $invoice['item_discount_total'], 2) . "\n";
+        }
+        $directBillText .= "GST Tax: ₹" . number_format($invoice['tax_amount'], 2) . "\n"
+            . "*Total Amount: ₹" . number_format($invoice['grand_total'], 2) . "*\n"
+            . "Status: Paid\n"
+            . "--------------------------------\n"
+            . "Thank you for shopping with us! 🌸\n"
+            . "Visit again!";
+
+        $res = WhatsAppService::sendDirectMessage($cleanPhone, $directBillText);
+        if ($res['success']) {
+            Response::success('Direct WhatsApp bill sent to customer successfully!', $res);
+        } else {
+            Response::error($res['message'] ?? 'Direct WhatsApp API not configured yet.', $res);
         }
     }
 }

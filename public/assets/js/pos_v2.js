@@ -1397,6 +1397,7 @@ async function processCheckout() {
         bill_gst_percent: billGstPercent,
         paid_amount: paidAmt,
         notes: notes,
+        receipt_delivery: receiptPreference,
         items: posCart
     };
 
@@ -1414,7 +1415,11 @@ async function processCheckout() {
         const result = await res.json();
 
         if (result.success) {
+            // Close all billing and payment modals immediately
             closeModal('pos-payment-modal');
+            closeModal('pos-complete-modal');
+
+            // Reset cart
             posCart = [];
             renderCart();
 
@@ -1425,48 +1430,45 @@ async function processCheckout() {
             if (cMobInp) cMobInp.value = '';
             selectedCustomer = { id: 1, name: 'Walk-in Retail Customer', mobile: '9999999999', state: 'Tamil Nadu' };
 
-            showToast('success', `Invoice ${result.data.invoice_no} generated successfully!`);
+            // Reset overall discount & payment amounts
+            const discInp = document.getElementById('pos-overall-discount');
+            if (discInp) discInp.value = '';
+            const cashInp = document.getElementById('pos_payment_amount_cash');
+            const upiInp = document.getElementById('pos_payment_amount_upi');
+            if (cashInp) cashInp.value = '';
+            if (upiInp) upiInp.value = '';
 
-            // Open Print Prompt Modal
-            document.getElementById('completed-invoice-no').textContent = result.data.invoice_no;
-            const cNameEl = document.getElementById('completed-customer-name');
-            const cMobEl = document.getElementById('completed-customer-mobile');
             const finalCustName = result.data.customer_name || rawCustName || 'Customer';
             const finalCustMob = result.data.customer_mobile || cleanCustMobile || '';
-            if (cNameEl) cNameEl.textContent = finalCustName;
-            if (cMobEl) cMobEl.textContent = finalCustMob;
 
-            // Thermal 80mm Print handler
-            const thermalBtn = document.getElementById('btn-print-thermal');
-            if (thermalBtn) {
-                thermalBtn.onclick = () => window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
+            // Status notification
+            if (receiptPreference === 'whatsapp' || receiptPreference === 'both') {
+                if (result.data.whatsapp_sent) {
+                    showToast('success', `✓ Bill #${result.data.invoice_no} completed! Direct WhatsApp sent to +${finalCustMob}.`);
+                } else if (result.data.whatsapp_message) {
+                    showToast('info', `✓ Bill #${result.data.invoice_no} completed! (WhatsApp: ${result.data.whatsapp_message})`);
+                } else {
+                    showToast('success', `✓ Bill #${result.data.invoice_no} completed! Direct WhatsApp initiated.`);
+                }
+            } else {
+                showToast('success', `✓ Bill #${result.data.invoice_no} completed! Terminal ready for next sale.`);
             }
 
-            // WhatsApp Share Bill handler
-            const waBtn = document.getElementById('btn-share-whatsapp');
-            if (waBtn) {
-                waBtn.onclick = () => sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
+            // Thermal 80mm Print handler (direct print popup if selected)
+            if (receiptPreference === 'thermal' || receiptPreference === 'both') {
+                if (result.data.print_thermal_url) {
+                    window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
+                }
             }
 
-            // View Bill handler
-            const viewBtn = document.getElementById('btn-view-invoice');
-            if (viewBtn) {
-                viewBtn.onclick = () => window.location.href = result.data.view_url;
-            }
-
-            // Automatically execute customer's receipt delivery choice
-            if (receiptPreference === 'whatsapp') {
-                sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
-            } else if (receiptPreference === 'thermal') {
-                window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
-            } else if (receiptPreference === 'both') {
-                window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
-                setTimeout(() => {
-                    sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
-                }, 400);
-            }
-
-            openModal('pos-complete-modal');
+            // Immediately focus product search bar for next customer transaction without any blocking modal
+            setTimeout(() => {
+                const searchInp = document.getElementById('pos-search-input');
+                if (searchInp) {
+                    searchInp.focus();
+                    searchInp.select();
+                }
+            }, 100);
         } else {
             showToast('error', result.message || 'Checkout failed.');
         }
@@ -1502,7 +1504,7 @@ function escapeHtml(str) {
 /**
  * Send / Share Bill Receipt to Customer WhatsApp
  */
-function sendInvoiceToWhatsApp(invoiceData, customerName, customerMobile) {
+async function sendInvoiceToWhatsApp(invoiceData, customerName, customerMobile) {
     let mobile = (customerMobile || '').replace(/\D/g, '');
 
     // Fallback prompt only if mobile is missing
@@ -1516,33 +1518,33 @@ function sendInvoiceToWhatsApp(invoiceData, customerName, customerMobile) {
         }
     }
 
-    // Handle 12-digit numbers starting with 91 or format 10-digit to 91XXXXXXXXXX
-    if (mobile.length === 12 && mobile.startsWith('91')) {
-        // already has 91
-    } else if (mobile.length === 10) {
-        mobile = '91' + mobile;
+    showToast('info', `Sending direct WhatsApp bill to +${mobile}...`);
+
+    try {
+        const invoiceId = invoiceData.invoice_id || invoiceData.id;
+        const res = await fetch(`${window.APP_URL}/billing/invoice/${invoiceId}/whatsapp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': window.CSRF_TOKEN
+            },
+            body: JSON.stringify({
+                _csrf_token: window.CSRF_TOKEN,
+                customer_name: customerName,
+                customer_mobile: mobile
+            })
+        });
+
+        const resp = await res.json();
+        if (resp.success) {
+            showToast('success', `✓ Direct WhatsApp bill sent to +${mobile} successfully!`);
+        } else {
+            showToast('warning', resp.message || 'WhatsApp dispatch: Please configure WhatsApp API Gateway in Store Settings.');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('error', 'Unable to connect to WhatsApp dispatch service.');
     }
-
-    const companyName = (typeof SYSTEM_COMPANY_NAME !== 'undefined' && SYSTEM_COMPANY_NAME) ? SYSTEM_COMPANY_NAME : 'Store';
-    const invoiceNo = invoiceData.invoice_no || 'Bill';
-    const grandTotal = parseFloat(invoiceData.grand_total || 0).toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const viewUrl = invoiceData.view_url || `${window.APP_URL}/billing/invoice/${invoiceData.invoice_id}`;
-
-    const text = 
-        `*🙏 ${companyName} 🙏*\n` +
-        `*E-Invoice / Bill Receipt*\n` +
-        `--------------------------------\n` +
-        `🧾 *Invoice No:* ${invoiceNo}\n` +
-        `👤 *Customer:* ${customerName}\n` +
-        `📱 *Mobile:* ${mobile.replace(/^91/, '')}\n` +
-        `💰 *Total Amount:* ₹${grandTotal}\n` +
-        `✅ *Payment Status:* Paid\n` +
-        `--------------------------------\n` +
-        `📄 *View / Download E-Bill:* \n${viewUrl}\n\n` +
-        `Thank you for shopping with us! Visit again! 🌸`;
-
-    const waUrl = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank');
-    showToast('success', `Opening WhatsApp for ${customerName} (+${mobile})...`);
 }
 window.sendInvoiceToWhatsApp = sendInvoiceToWhatsApp;
