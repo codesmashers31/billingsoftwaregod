@@ -25,25 +25,24 @@ class WhatsAppService {
             $fullPhone = $cleanPhone;
         }
 
-        $instanceId = trim((string)getSetting('whatsapp_instance_id', ''));
-        $token = trim((string)getSetting('whatsapp_token', ''));
-
-        // 1. UltraMsg Gateway (Direct background sending without WhatsApp Web)
-        if (!empty($instanceId) && !empty($token)) {
-            return self::sendViaUltraMsg($instanceId, $token, $fullPhone, $textMessage);
-        }
-
-        // 2. Meta WhatsApp Cloud API
+        // 1. Meta WhatsApp Cloud API (Free Official API directly from WhatsApp / Meta - 1,000 free msgs/mo)
         $metaToken = trim((string)getSetting('whatsapp_meta_token', ''));
         $metaPhoneId = trim((string)getSetting('whatsapp_phone_number_id', ''));
         if (!empty($metaToken) && !empty($metaPhoneId)) {
             return self::sendViaMeta($metaPhoneId, $metaToken, $fullPhone, $textMessage);
         }
 
-        // 3. Custom Webhook Gateway
+        // 2. Custom Webhook Gateway / Local WhatsApp Bridge (100% Free self-hosted)
         $webhookUrl = trim((string)getSetting('whatsapp_custom_webhook', ''));
         if (!empty($webhookUrl)) {
             return self::sendViaWebhook($webhookUrl, $fullPhone, $textMessage);
+        }
+
+        // 3. UltraMsg Gateway
+        $instanceId = trim((string)getSetting('whatsapp_instance_id', ''));
+        $token = trim((string)getSetting('whatsapp_token', ''));
+        if (!empty($instanceId) && !empty($token)) {
+            return self::sendViaUltraMsg($instanceId, $token, $fullPhone, $textMessage);
         }
 
         // Gateway not configured yet

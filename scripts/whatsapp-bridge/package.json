@@ -1,0 +1,14 @@
+{
+  "name": "local-whatsapp-bridge",
+  "version": "1.0.0",
+  "description": "100% Free Local WhatsApp Server Bridge for Billing ERP (Sends bills directly from your shop WhatsApp without paid APIs)",
+  "main": "bridge.js",
+  "scripts": {
+    "start": "node bridge.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "qrcode-terminal": "^0.12.0",
+    "pino": "^9.0.0"
+  }
+}
