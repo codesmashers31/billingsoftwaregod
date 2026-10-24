@@ -11,7 +11,7 @@ class Product extends Model {
         'weight', 'size', 'finish_type', 'purchase_price', 'piece_rate', 'margin_percentage', 'selling_price',
         'wholesale_price', 'discount_percent', 'gst_percent', 'hsn_code',
         'current_stock', 'min_stock', 'max_stock', 'stock_location', 'image', 'status',
-        'created_by', 'updated_by'
+        'created_by', 'updated_by', 'created_at'
     ];
 
     public function getWithDetails(int $id): ?array {

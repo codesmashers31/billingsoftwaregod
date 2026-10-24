@@ -43,7 +43,8 @@ class ProductController extends Controller {
         $allProducts = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name,
                                   (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
                                   (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
-                                  (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty 
+                                  (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty,
+                                  (SELECT COALESCE(SUM(ii.quantity), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sold_qty 
                                   FROM `products` p 
                                   LEFT JOIN `categories` c ON p.category_id = c.id 
                                   LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
@@ -85,7 +86,8 @@ class ProductController extends Controller {
         $products = $db->query("SELECT p.*, c.name as category_name, s.name as subcategory_name, sup.name as supplier_name,
                                 (SELECT quantity FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_qty,
                                 (SELECT created_at FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock' ORDER BY id DESC LIMIT 1) as last_restocked_at,
-                                (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty 
+                                (SELECT COALESCE(SUM(quantity), 0) FROM inventory_transactions WHERE product_id = p.id AND reference_type = 'restock') as total_restocked_qty,
+                                (SELECT COALESCE(SUM(ii.quantity), 0) FROM invoice_items ii JOIN invoices inv ON ii.invoice_id = inv.id WHERE ii.product_id = p.id AND inv.status != 'cancelled') as total_sold_qty 
                                 FROM `products` p 
                                 LEFT JOIN `categories` c ON p.category_id = c.id 
                                 LEFT JOIN `subcategories` s ON p.subcategory_id = s.id 
@@ -279,6 +281,8 @@ class ProductController extends Controller {
                     }
                 } else {
                     $sku = $prodModel->generateUniqueSku();
+                    $supplyDateInput = $request->input('prod_supply_date');
+                    $supplyTimestamp = !empty($supplyDateInput) ? date('Y-m-d H:i:s', strtotime($supplyDateInput)) : date('Y-m-d H:i:s');
                     $savedProdId = (int)$prodModel->create([
                         'supplier_id' => $supplierId,
                         'name' => $pName,
@@ -295,7 +299,8 @@ class ProductController extends Controller {
                         'gst_percent' => $gst,
                         'current_stock' => $units,
                         'status' => $units > 0 ? $statusVal : 'out_of_stock',
-                        'created_by' => Auth::id() ?: 1
+                        'created_by' => Auth::id() ?: 1,
+                        'created_at' => $supplyTimestamp
                     ]);
 
                     if ($units > 0) {

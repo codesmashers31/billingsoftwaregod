@@ -65,6 +65,49 @@
                 </button>
             </div>
 
+            <!-- Supplier Search & Filter Controls -->
+            <div class="mb-5 bg-slate-50/80 p-4 rounded-xl border border-slate-200/90 shadow-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+                    <!-- Search Input -->
+                    <div class="lg:col-span-5 relative">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="supplier-search-input" oninput="filterSupplierTable()" placeholder="Search by supplier name, mobile, barcode, city, GST..." class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium">
+                        <button type="button" onclick="clearSupplierSearch()" id="supplier-search-clear" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="lg:col-span-2">
+                        <select id="supplier-status-filter" onchange="filterSupplierTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active Only</option>
+                            <option value="Inactive">Inactive Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Products Association Filter -->
+                    <div class="lg:col-span-3">
+                        <select id="supplier-products-filter" onchange="filterSupplierTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium">
+                            <option value="">All Suppliers</option>
+                            <option value="with_products">Has Products (&gt; 0)</option>
+                            <option value="no_products">No Products Associated (0)</option>
+                            <option value="has_sales">Has Sales Activity</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset & Summary -->
+                    <div class="lg:col-span-2 flex items-center justify-between sm:justify-end gap-2">
+                        <button type="button" onclick="resetSupplierFilters()" title="Reset Filters" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-all shadow-xs flex items-center gap-1.5">
+                            <i class="fas fa-undo text-[10px]"></i> Reset
+                        </button>
+                        <span id="supplier-filter-count-badge" class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1.5 rounded-lg border border-indigo-100 whitespace-nowrap">
+                            0 Suppliers
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Supplier Table -->
             <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="w-full text-left text-xs text-slate-600">
@@ -707,7 +750,7 @@
                 <!-- 1. Supplier Information -->
                 <div class="bg-indigo-50/30 p-5 rounded-xl border border-indigo-100">
                     <h4 class="text-sm font-bold text-slate-800 border-b border-indigo-200 pb-2 mb-4"><i class="fas fa-truck text-indigo-500 mr-2"></i>1. Supplier Information</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Supplier Name <span class="text-rose-500">*</span></label>
                             <select name="prod_supplier_id" id="prod_supplier_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
@@ -716,8 +759,10 @@
                             </select>
                             <span class="text-[10px] text-rose-500 hidden mt-1" id="err-prod_supplier_id">Supplier is required</span>
                         </div>
-
-
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Supply / Purchase Date <span class="text-rose-500">*</span></label>
+                            <input type="date" name="prod_supply_date" id="prod_supply_date" value="<?= date('Y-m-d') ?>" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                        </div>
                     </div>
                 </div>
 
@@ -1488,7 +1533,9 @@
             prod_status: (p.status && (p.status.toLowerCase() === 'inactive' || p.status.toLowerCase() === 'out_of_stock')) ? (p.status.toLowerCase() === 'out_of_stock' ? 'Out of Stock' : 'Inactive') : 'Active',
             last_restocked_qty: p.last_restocked_qty ? parseInt(p.last_restocked_qty) : 0,
             last_restocked_at: p.last_restocked_at || '',
-            total_restocked_qty: p.total_restocked_qty ? parseInt(p.total_restocked_qty) : 0
+            total_restocked_qty: p.total_restocked_qty ? parseInt(p.total_restocked_qty) : 0,
+            total_sold_qty: parseInt(p.total_sold_qty || 0),
+            created_at: p.created_at || ''
         };
     }
 
@@ -2237,16 +2284,94 @@
         });
     }
 
-    function renderSupplierTable() {
+    function filterSupplierTable() {
+        const search = (document.getElementById('supplier-search-input')?.value || '').toLowerCase().trim();
+        const statusFilter = (document.getElementById('supplier-status-filter')?.value || '').trim();
+        const prodFilter = (document.getElementById('supplier-products-filter')?.value || '').trim();
+
+        const clearBtn = document.getElementById('supplier-search-clear');
+        if (clearBtn) {
+            if (search.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+
+        renderSupplierTable(search, statusFilter, prodFilter);
+    }
+
+    function clearSupplierSearch() {
+        const inp = document.getElementById('supplier-search-input');
+        if (inp) inp.value = '';
+        filterSupplierTable();
+    }
+
+    function resetSupplierFilters() {
+        const sInp = document.getElementById('supplier-search-input');
+        if (sInp) sInp.value = '';
+        const sStat = document.getElementById('supplier-status-filter');
+        if (sStat) sStat.value = '';
+        const sProd = document.getElementById('supplier-products-filter');
+        if (sProd) sProd.value = '';
+        filterSupplierTable();
+    }
+
+    function renderSupplierTable(search = '', statusFilter = '', prodFilter = '') {
         const tbody = document.getElementById('supplier-table-body');
         if (!tbody) return;
-        if (suppliers.length === 0) {
+
+        // Group/deduplicate suppliers uniquely if any repeat
+        const uniqueSuppliersMap = new Map();
+        suppliers.forEach(s => {
+            const key = String(s.id);
+            if (!uniqueSuppliersMap.has(key)) {
+                uniqueSuppliersMap.set(key, s);
+            }
+        });
+        const supplierList = Array.from(uniqueSuppliersMap.values());
+
+        // Apply filters
+        const filtered = supplierList.filter(s => {
+            const suppName = (s.supplier_name || s.name || '').toLowerCase();
+            const suppMobile = (s.mobile_number || s.mobile || s.phone || '').toLowerCase();
+            const suppCode = (s.barcode || s.supplier_code || '').toLowerCase();
+            const suppCity = (s.city || '').toLowerCase();
+            const suppGst = (s.gst_number || '').toLowerCase();
+            const suppStatus = (s.status || 'Active');
+
+            if (search) {
+                const matches = suppName.includes(search) || 
+                                suppMobile.includes(search) || 
+                                suppCode.includes(search) || 
+                                suppCity.includes(search) || 
+                                suppGst.includes(search);
+                if (!matches) return false;
+            }
+
+            if (statusFilter) {
+                if (suppStatus.toLowerCase() !== statusFilter.toLowerCase()) return false;
+            }
+
+            const suppProds = products.filter(p => String(p.prod_supplier_id) === String(s.id));
+            const hasSales = suppProds.some(p => (p.total_sold_qty || 0) > 0);
+
+            if (prodFilter === 'with_products' && suppProds.length === 0) return false;
+            if (prodFilter === 'no_products' && suppProds.length > 0) return false;
+            if (prodFilter === 'has_sales' && !hasSales) return false;
+
+            return true;
+        });
+
+        const badge = document.getElementById('supplier-filter-count-badge');
+        if (badge) {
+            badge.textContent = `${filtered.length} of ${supplierList.length} Suppliers`;
+        }
+
+        if (filtered.length === 0) {
             tbody.innerHTML = `
                 <tr id="empty-state-row">
                     <td colspan="7" class="py-12 text-center text-slate-400">
-                        <i class="fas fa-box-open text-3xl mb-3 block text-slate-300"></i>
-                        <p class="font-bold text-slate-600 text-sm">No suppliers found</p>
-                        <p class="text-xs mt-1">Click "Add Supplier" to create your first entry.</p>
+                        <i class="fas fa-search text-3xl mb-3 block text-slate-300"></i>
+                        <p class="font-bold text-slate-600 text-sm">No matching suppliers found</p>
+                        <p class="text-xs mt-1">Try adjusting your search query or filters above.</p>
                     </td>
                 </tr>`;
             return;
@@ -2254,7 +2379,7 @@
         
         tbody.innerHTML = '';
         
-        suppliers.forEach(s => {
+        filtered.forEach(s => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50 transition-colors';
             
@@ -2266,10 +2391,31 @@
             const suppGst = s.gst_number || s.tax_number || 'N/A';
             const suppStatus = s.status || 'Active';
             
+            let productButtonHtml = '';
+            if (supplierProducts.length > 0) {
+                productButtonHtml = `
+                    <button type="button" onclick="openSupplierProductsModal('${s.id}')" title="Click to view all ${supplierProducts.length} products & detailed sales sheet" class="group inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white transition-all font-bold text-xs shadow-xs border border-indigo-200 hover:border-indigo-600">
+                        <i class="fas fa-boxes text-indigo-500 group-hover:text-white transition-colors"></i>
+                        <span>${supplierProducts.length} Products</span>
+                        <span class="text-[9px] bg-white text-indigo-700 group-hover:bg-indigo-500 group-hover:text-white px-1.5 py-0.5 rounded-md border border-indigo-200 group-hover:border-indigo-400 font-extrabold uppercase tracking-wider transition-colors">View Sheet</span>
+                    </button>
+                `;
+            } else {
+                productButtonHtml = `
+                    <button type="button" onclick="openAddProductForSupplier('${s.id}')" title="No products associated yet. Click to add products" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-amber-100 text-slate-500 hover:text-amber-800 transition-all font-semibold text-xs border border-slate-200">
+                        <i class="fas fa-plus text-[10px]"></i>
+                        <span>0 Products</span>
+                    </button>
+                `;
+            }
+
             tr.innerHTML = `
                 <td class="py-3 px-4">
                     <div class="font-bold text-slate-800">${suppName}</div>
-                    <div class="text-[10px] text-slate-500 mt-0.5"><i class="fas fa-envelope text-slate-400 mr-1"></i>${s.email || 'N/A'}</div>
+                    <div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-2">
+                        <span><i class="fas fa-map-marker-alt text-slate-400 mr-1"></i>${s.city || 'Tamil Nadu'}</span>
+                        ${s.email ? `<span>• <i class="fas fa-envelope text-slate-400 mx-1"></i>${s.email}</span>` : ''}
+                    </div>
                 </td>
                 <td class="py-3 px-4">
                     <div class="font-bold text-slate-700">${suppMobile}</div>
@@ -2278,7 +2424,7 @@
                     ${suppCode}
                 </td>
                 <td class="py-3 px-4">
-                    <div class="font-bold text-indigo-700 text-xs">${supplierProducts.length} Products</div>
+                    ${productButtonHtml}
                 </td>
                 <td class="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">${suppGst}</td>
                 <td class="py-3 px-4">
@@ -2288,14 +2434,261 @@
                 </td>
                 <td class="py-3 px-4 text-right whitespace-nowrap">
                     <div class="inline-flex items-center justify-end gap-1.5">
-                        <button onclick="viewSupplier('${s.id}')" title="View Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-eye"></i></button>
-                        <button onclick="editSupplier('${s.id}')" title="Edit Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-edit"></i></button>
-                        <button onclick="deleteSupplier('${s.id}')" title="Delete Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-trash-alt"></i></button>
+                        <button type="button" onclick="openSupplierProductsModal('${s.id}')" title="View Products & Sales Sheet" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-indigo-600 hover:text-white text-indigo-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-table"></i></button>
+                        <button type="button" onclick="viewSupplier('${s.id}')" title="View Supplier Profile" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-indigo-50 text-indigo-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-eye"></i></button>
+                        <button type="button" onclick="editSupplier('${s.id}')" title="Edit Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-amber-50 text-amber-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-edit"></i></button>
+                        <button type="button" onclick="deleteSupplier('${s.id}')" title="Delete Supplier" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 text-xs flex items-center justify-center transition-colors shadow-xs"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 </td>
             `;
             tbody.appendChild(tr);
         });
+    }
+
+    let currentSheetSupplierId = null;
+
+    function openSupplierProductsModal(supplierId) {
+        currentSheetSupplierId = supplierId;
+        const s = suppliers.find(sup => String(sup.id) === String(supplierId));
+        if (!s) {
+            showToast('error', 'Supplier not found.');
+            return;
+        }
+
+        const suppName = s.supplier_name || s.name || 'Unnamed Supplier';
+        const suppMobile = s.mobile_number || s.mobile || s.phone || 'N/A';
+        const suppCode = s.barcode || s.supplier_code || ('SUP-' + s.id);
+        const suppCity = s.city ? `${s.city}, ${s.state || 'Tamil Nadu'}` : (s.state || 'Tamil Nadu');
+
+        const nameEl = document.getElementById('sp-modal-supplier-name');
+        if (nameEl) nameEl.textContent = suppName;
+        const codeEl = document.getElementById('sp-modal-supplier-code');
+        if (codeEl) codeEl.textContent = suppCode;
+        const infoEl = document.getElementById('sp-modal-supplier-info');
+        if (infoEl) infoEl.textContent = `${suppMobile} • ${suppCity} • ${s.gst_number ? 'GST: ' + s.gst_number : 'GST: N/A'}`;
+
+        // Reset search and filter inputs
+        const sInp = document.getElementById('sp-sheet-search');
+        if (sInp) sInp.value = '';
+        const sFilter = document.getElementById('sp-sheet-status-filter');
+        if (sFilter) sFilter.value = '';
+
+        renderSupplierProductsSheet();
+
+        const modal = document.getElementById('supplier-products-modal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeSupplierProductsModal() {
+        currentSheetSupplierId = null;
+        const modal = document.getElementById('supplier-products-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function openAddProductForSupplier(supplierId) {
+        closeSupplierProductsModal();
+        openProductModal(supplierId);
+    }
+
+    function renderSupplierProductsSheet() {
+        if (!currentSheetSupplierId) return;
+        const supplierId = currentSheetSupplierId;
+        const suppProds = products.filter(p => String(p.prod_supplier_id) === String(supplierId));
+
+        const search = (document.getElementById('sp-sheet-search')?.value || '').toLowerCase().trim();
+        const statusFilter = (document.getElementById('sp-sheet-status-filter')?.value || '').trim();
+
+        // Overarching calculations
+        let totalItemsSold = 0;
+        let totalStockRemaining = 0;
+        let totalSalesRevenue = 0;
+
+        suppProds.forEach(p => {
+            const sold = p.total_sold_qty || 0;
+            const stock = p.prod_current_stock || 0;
+            const sp = p.prod_selling_price || 0;
+
+            totalItemsSold += sold;
+            totalStockRemaining += stock;
+            totalSalesRevenue += (sold * sp);
+        });
+
+        const kpiProds = document.getElementById('sp-kpi-total-products');
+        if (kpiProds) kpiProds.textContent = suppProds.length;
+        const kpiSold = document.getElementById('sp-kpi-units-sold');
+        if (kpiSold) kpiSold.textContent = `${totalItemsSold} Units`;
+        const kpiStock = document.getElementById('sp-kpi-stock-remaining');
+        if (kpiStock) kpiStock.textContent = `${totalStockRemaining} Units`;
+        const kpiRev = document.getElementById('sp-kpi-sales-revenue');
+        if (kpiRev) kpiRev.textContent = `₹${totalSalesRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        // Filter products for the table
+        const filteredProds = suppProds.filter(p => {
+            const pName = (p.prod_name || '').toLowerCase();
+            const pSku = (p.prod_sku || '').toLowerCase();
+            const pCat = (p.prod_category || '').toLowerCase();
+            const pSub = (p.prod_subcategory || '').toLowerCase();
+
+            if (search) {
+                if (!pName.includes(search) && !pSku.includes(search) && !pCat.includes(search) && !pSub.includes(search)) {
+                    return false;
+                }
+            }
+
+            const sold = p.total_sold_qty || 0;
+            const stock = p.prod_current_stock || 0;
+
+            let saleStatus = 'in_stock';
+            if (sold > 0 && stock === 0) saleStatus = 'sold_out';
+            else if (sold > 0 && stock > 0) saleStatus = 'partially_sold';
+            else if (sold === 0 && stock > 0) saleStatus = 'in_stock';
+            else if (sold === 0 && stock === 0) saleStatus = 'out_of_stock';
+
+            if (statusFilter && saleStatus !== statusFilter) {
+                return false;
+            }
+
+            return true;
+        });
+
+        const tbody = document.getElementById('sp-sheet-table-body');
+        const footerRow = document.getElementById('sp-sheet-footer-row');
+        if (!tbody) return;
+
+        if (filteredProds.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="11" class="py-12 text-center text-slate-400">
+                        <i class="fas fa-boxes text-3xl mb-3 block text-slate-300"></i>
+                        <p class="font-bold text-slate-600 text-sm">No products found</p>
+                        <p class="text-xs mt-1 text-slate-400">No products match your filter criteria or none added yet.</p>
+                        <button type="button" onclick="openAddProductForSupplier('${supplierId}')" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
+                            <i class="fas fa-plus mr-1.5"></i> Add Products For This Supplier
+                        </button>
+                    </td>
+                </tr>`;
+            if (footerRow) footerRow.innerHTML = '';
+            return;
+        }
+
+        let filteredSoldUnits = 0;
+        let filteredStockUnits = 0;
+        let filteredRevenue = 0;
+
+        tbody.innerHTML = '';
+        filteredProds.forEach((p, index) => {
+            const sold = p.total_sold_qty || 0;
+            const stock = p.prod_current_stock || 0;
+            const pieceRate = p.prod_piece_rate > 0 ? p.prod_piece_rate : (p.prod_purchase_price || 0);
+            const margin = (p.prod_margin_percentage !== undefined && p.prod_margin_percentage !== null) ? p.prod_margin_percentage : '60.00';
+            const sellingPrice = p.prod_selling_price || 0;
+            const productSalesVal = sold * sellingPrice;
+
+            filteredSoldUnits += sold;
+            filteredStockUnits += stock;
+            filteredRevenue += productSalesVal;
+
+            // Determine status badge
+            let statusBadge = '';
+            if (sold > 0 && stock === 0) {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap"><i class="fas fa-check-double mr-1"></i>Sold Out</span>';
+            } else if (sold > 0 && stock > 0) {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 whitespace-nowrap"><i class="fas fa-chart-pie mr-1"></i>Partially Sold</span>';
+            } else if (sold === 0 && stock > 0) {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap"><i class="fas fa-box mr-1"></i>In Stock</span>';
+            } else {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">Out of Stock</span>';
+            }
+
+            const supplyDate = p.created_at ? p.created_at.split(' ')[0] : 'N/A';
+
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-indigo-50/30 transition-colors text-xs border-b border-slate-100';
+            tr.innerHTML = `
+                <td class="py-3 px-3 text-slate-400 font-mono text-center font-bold">${index + 1}</td>
+                <td class="py-3 px-3 font-semibold text-slate-800">
+                    <div class="font-bold text-slate-900">${p.prod_name}</div>
+                    <div class="text-[10px] text-slate-500 font-mono mt-0.5">${p.prod_sku || p.prod_barcode || 'SKU-N/A'}</div>
+                </td>
+                <td class="py-3 px-3">
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                        ${p.prod_category || 'General'}
+                    </span>
+                    ${p.prod_subcategory ? `<div class="text-[9px] text-slate-400 mt-0.5 font-medium">${p.prod_subcategory}</div>` : ''}
+                </td>
+                <td class="py-3 px-3 font-mono text-slate-600 whitespace-nowrap">
+                    <i class="far fa-calendar-alt text-slate-400 mr-1 text-[11px]"></i>${supplyDate}
+                </td>
+                <td class="py-3 px-3 font-mono font-bold text-slate-800 text-right">
+                    ₹${pieceRate.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </td>
+                <td class="py-3 px-3 font-mono text-center font-bold text-indigo-700 bg-indigo-50/50 rounded-lg">
+                    ${margin}%
+                </td>
+                <td class="py-3 px-3 font-mono font-bold text-emerald-700 text-right">
+                    ₹${sellingPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </td>
+                <td class="py-3 px-3 text-center">
+                    <span class="font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${sold > 0 ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400'}">
+                        ${sold}
+                    </span>
+                </td>
+                <td class="py-3 px-3 text-center">
+                    <span class="font-mono font-extrabold px-2.5 py-0.5 rounded-lg text-xs ${stock > 0 ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-800'}">
+                        ${stock}
+                    </span>
+                </td>
+                <td class="py-3 px-3 text-center whitespace-nowrap">
+                    ${statusBadge}
+                </td>
+                <td class="py-3 px-3 font-mono font-extrabold text-slate-900 text-right">
+                    ₹${productSalesVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (footerRow) {
+            footerRow.innerHTML = `
+                <td colspan="7" class="py-3 px-3 font-bold text-slate-700 uppercase tracking-wider text-right text-xs">Sheet Summary:</td>
+                <td class="py-3 px-3 text-center font-mono font-black text-emerald-800 text-xs bg-emerald-50">${filteredSoldUnits} Sold</td>
+                <td class="py-3 px-3 text-center font-mono font-black text-amber-900 text-xs bg-amber-50">${filteredStockUnits} In Stock</td>
+                <td class="py-3 px-3"></td>
+                <td class="py-3 px-3 text-right font-mono font-black text-indigo-900 text-xs bg-indigo-50">₹${filteredRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            `;
+        }
+    }
+
+    function printSupplierProductsSheet() {
+        if (!currentSheetSupplierId) return;
+        const s = suppliers.find(sup => String(sup.id) === String(currentSheetSupplierId));
+        const suppName = s ? (s.supplier_name || s.name) : 'Supplier';
+        const printContent = document.getElementById('supplier-sheet-printable-area').innerHTML;
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html>
+                <head>
+                    <title>${suppName} - Products & Sales Sheet</title>
+                    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+                        th { background-color: #f8fafc; font-size: 11px; }
+                        td { font-size: 11px; }
+                        @media print { button { display: none !important; } }
+                    </style>
+                </head>
+                <body>
+                    <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 4px;">${suppName} - Products & Sales Sheet</h2>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 16px;">Generated on ${new Date().toLocaleDateString('en-GB')}</p>
+                    ${printContent}
+                </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
     async function deleteSupplier(id) {
@@ -2594,7 +2987,7 @@
     }
 
     // --- PRODUCT MANAGEMENT LOGIC ---
-    function openProductModal() {
+    function openProductModal(forSupplierId = null) {
         document.getElementById('product-form').reset();
         clearProductErrors();
         currentProductEditId = null;
@@ -2607,8 +3000,19 @@
             const opt = document.createElement('option');
             opt.value = s.id;
             opt.textContent = s.supplier_name;
+            if (forSupplierId && String(s.id) === String(forSupplierId)) {
+                opt.selected = true;
+            }
             supplierSelect.appendChild(opt);
         });
+        if (forSupplierId) {
+            supplierSelect.value = String(forSupplierId);
+        }
+
+        const dateInp = document.getElementById('prod_supply_date');
+        if (dateInp) {
+            dateInp.value = new Date().toISOString().split('T')[0];
+        }
 
         document.getElementById('product-products-container').innerHTML = '';
         addProductProductField();

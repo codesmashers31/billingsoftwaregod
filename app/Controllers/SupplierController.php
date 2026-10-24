@@ -114,6 +114,12 @@ class SupplierController extends Controller {
         $subModel = new \App\Models\SubCategory();
 
         $supplierId = (int)$request->input('supplier_id', 0);
+        if ($supplierId <= 0) {
+            $existingSupp = $suppModel->where("LOWER(TRIM(name)) = ? OR (mobile != '' AND mobile = ?)", [strtolower($name), $mobile]);
+            if (!empty($existingSupp)) {
+                $supplierId = (int)$existingSupp[0]['id'];
+            }
+        }
         $isEdit = false;
 
         $db->beginTransaction();
