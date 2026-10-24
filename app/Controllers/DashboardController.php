@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Request;
+use App\Core\Response;
 use App\Core\Auth;
 use App\Core\Database;
 use App\Models\Product;
@@ -15,123 +16,208 @@ class DashboardController extends Controller {
 
         $user = Auth::user();
         if ($user && ($user['username'] === 'priya' || strpos($user['role_slug'] ?? '', 'cashier') !== false)) {
-            \App\Core\Response::redirect('/pos');
+            Response::redirect('/pos');
         }
 
         $db = Database::getInstance();
 
-        // 1. Core KPIs
+        // 1. Determine Selected Filter Period (Default: today)
+        $period = (string)$request->input('period', 'today');
         $today = date('Y-m-d');
         $thisMonth = date('Y-m');
 
-        // Today's Sales
-        $resTodaySales = $db->query("SELECT COALESCE(SUM(grand_total), 0) as total, COUNT(*) as count FROM `invoices` WHERE invoice_date = ? AND status != 'cancelled'", [$today]);
-        $todaySales = (float)($resTodaySales[0]['total'] ?? 0);
-        $todayInvoicesCount = (int)($resTodaySales[0]['count'] ?? 0);
+        if ($period === 'week') {
+            $startDate = date('Y-m-d', strtotime('-6 days'));
+            $endDate = $today;
+            $periodTitle = "This Week's Sales";
+            $periodSubtitle = date('d M', strtotime($startDate)) . " - " . date('d M Y', strtotime($endDate));
+        } elseif ($period === 'month') {
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+            $periodTitle = "This Month's Sales";
+            $periodSubtitle = date('F Y');
+        } elseif ($period === 'custom') {
+            $startDate = (string)$request->input('from_date', $today);
+            $endDate = (string)$request->input('to_date', $startDate);
+            if ($startDate > $endDate) {
+                $tmp = $startDate; $startDate = $endDate; $endDate = $tmp;
+            }
+            $periodTitle = ($startDate === $endDate) ? "Sales for " . date('d M Y', strtotime($startDate)) : "Custom Period Sales";
+            $periodSubtitle = date('d M Y', strtotime($startDate)) . ($startDate !== $endDate ? ' - ' . date('d M Y', strtotime($endDate)) : '');
+        } else {
+            // Default: Today
+            $period = 'today';
+            $startDate = $today;
+            $endDate = $today;
+            $periodTitle = "Today's Sales";
+            $periodSubtitle = date('l, d M Y');
+        }
 
-        // Monthly Sales
-        $resMonthSales = $db->query("SELECT COALESCE(SUM(grand_total), 0) as total, COUNT(*) as count FROM `invoices` WHERE DATE_FORMAT(invoice_date, '%Y-%m') = ? AND status != 'cancelled'", [$thisMonth]);
+        // 2. Selected Period Sales
+        $resPeriodSales = $db->query(
+            "SELECT COALESCE(SUM(grand_total), 0) as total, COUNT(*) as count 
+             FROM `invoices` 
+             WHERE invoice_date BETWEEN ? AND ? AND status != 'cancelled'",
+            [$startDate, $endDate]
+        );
+        $periodSales = (float)($resPeriodSales[0]['total'] ?? 0);
+        $periodInvoicesCount = (int)($resPeriodSales[0]['count'] ?? 0);
+
+        // 3. This Month Sales
+        $resMonthSales = $db->query(
+            "SELECT COALESCE(SUM(grand_total), 0) as total, COUNT(*) as count 
+             FROM `invoices` 
+             WHERE DATE_FORMAT(invoice_date, '%Y-%m') = ? AND status != 'cancelled'",
+            [$thisMonth]
+        );
         $monthSales = (float)($resMonthSales[0]['total'] ?? 0);
         $monthInvoicesCount = (int)($resMonthSales[0]['count'] ?? 0);
 
-        // Total Lifetime Revenue
-        $resRevenue = $db->query("SELECT COALESCE(SUM(grand_total), 0) as total FROM `invoices` WHERE status != 'cancelled'");
-        $totalRevenue = (float)($resRevenue[0]['total'] ?? 0);
+        // 4. Overall Lifetime Sales ("Over all salaeres")
+        $resOverallSales = $db->query(
+            "SELECT COALESCE(SUM(grand_total), 0) as total, COUNT(*) as count 
+             FROM `invoices` 
+             WHERE status != 'cancelled'"
+        );
+        $overallSales = (float)($resOverallSales[0]['total'] ?? 0);
+        $overallInvoicesCount = (int)($resOverallSales[0]['count'] ?? 0);
 
-        // Customer Count & Outstanding
-        $resCust = $db->query("SELECT COUNT(*) as total_cust, COALESCE(SUM(outstanding_balance), 0) as total_outstanding FROM `customers` WHERE status = 'active'");
-        $totalCustomers = (int)($resCust[0]['total_cust'] ?? 0);
-        $customerOutstanding = (float)($resCust[0]['total_outstanding'] ?? 0);
+        // 5. Stock Valuation & Sourcing Investment ("how invert to buy the product from product originl price")
+        $resStock = $db->query(
+            "SELECT 
+                COUNT(*) as total_prod, 
+                COALESCE(SUM(current_stock), 0) as total_pieces,
+                COALESCE(SUM(current_stock * selling_price), 0) as retail_valuation,
+                COALESCE(SUM(current_stock * purchase_price), 0) as total_investment
+             FROM `products` 
+             WHERE status != 'inactive'"
+        );
+        $totalProducts = (int)($resStock[0]['total_prod'] ?? 0);
+        $totalStockPieces = (int)($resStock[0]['total_pieces'] ?? 0);
+        $stockValuation = (float)($resStock[0]['retail_valuation'] ?? 0);
+        $totalProductInvestment = (float)($resStock[0]['total_investment'] ?? 0);
 
-        // Product Count, Stock Valuation & Total Pieces
-        $resProd = $db->query("SELECT COUNT(*) as total_prod, COALESCE(SUM(current_stock * purchase_price), 0) as stock_valuation, COALESCE(SUM(current_stock), 0) as total_pieces FROM `products` WHERE status != 'inactive'");
-        $totalProducts = (int)($resProd[0]['total_prod'] ?? 0);
-        $stockValuation = (float)($resProd[0]['stock_valuation'] ?? 0);
-        $totalStockPieces = (int)($resProd[0]['total_pieces'] ?? 0);
+        // 6. Margin Calculation ("how i get for the marign with that that also i want")
+        // Expected gross profit on current inventory
+        $stockExpectedMargin = max(0, $stockValuation - $totalProductInvestment);
+        $stockMarginPercent = $stockValuation > 0 ? round(($stockExpectedMargin / $stockValuation) * 100, 1) : 0;
 
-        // Cash & Bank Balances
-        $resCash = $db->query("SELECT COALESCE(current_balance, 0) as cash FROM `accounts` WHERE type = 'cash' LIMIT 1");
-        $cashInHand = (float)($resCash[0]['cash'] ?? 0);
+        // Realized Sales Margin in the selected period (Revenue minus Purchase Cost of items sold)
+        $resSalesMargin = $db->query(
+            "SELECT 
+                COALESCE(SUM(ii.total_amount), 0) as period_rev,
+                COALESCE(SUM(ii.quantity * p.purchase_price), 0) as period_cogs
+             FROM `invoice_items` ii
+             JOIN `invoices` i ON ii.invoice_id = i.id
+             LEFT JOIN `products` p ON ii.product_id = p.id
+             WHERE i.status != 'cancelled' AND i.invoice_date BETWEEN ? AND ?",
+            [$startDate, $endDate]
+        );
+        $periodRevenue = (float)($resSalesMargin[0]['period_rev'] ?? 0);
+        $periodCogs = (float)($resSalesMargin[0]['period_cogs'] ?? 0);
+        $periodGrossMargin = $periodRevenue - $periodCogs;
+        $periodMarginPercent = $periodRevenue > 0 ? round(($periodGrossMargin / $periodRevenue) * 100, 1) : 0;
 
-        $resBank = $db->query("SELECT COALESCE(SUM(current_balance), 0) as bank FROM `accounts` WHERE type = 'bank'");
-        $bankBalance = (float)($resBank[0]['bank'] ?? 0);
-
-        // Supplier Payables
-        $resSupp = $db->query("SELECT COALESCE(SUM(outstanding_balance), 0) as payables FROM `suppliers`");
-        $supplierPayables = (float)($resSupp[0]['payables'] ?? 0);
-
-        // Low stock count & list
-        $lowStockProducts = (new Product())->getLowStockProducts(6);
-        $lowStockCount = count($lowStockProducts);
-
-        // Today's Expenses
-        $resTodayExp = $db->query("SELECT COALESCE(SUM(amount), 0) as total FROM `expenses` WHERE expense_date = ? AND status = 'approved'", [$today]);
-        $todayExpenses = (float)($resTodayExp[0]['total'] ?? 0);
-
-        // 2. Chart Data: Last 7 Days Sales Trend
+        // 7. Dynamic Sales Trend Chart Data (Adapts to Selected Period)
         $salesTrend = ['labels' => [], 'data' => []];
-        for ($i = 6; $i >= 0; $i--) {
-            $d = date('Y-m-d', strtotime("-{$i} days"));
-            $dayLabel = date('D, d M', strtotime($d));
-            $resD = $db->query("SELECT COALESCE(SUM(grand_total), 0) as total FROM `invoices` WHERE invoice_date = ? AND status != 'cancelled'", [$d]);
-            $salesTrend['labels'][] = $dayLabel;
-            $salesTrend['data'][] = (float)($resD[0]['total'] ?? 0);
+        if ($period === 'today') {
+            for ($i = 6; $i >= 0; $i--) {
+                $d = date('Y-m-d', strtotime("-{$i} days"));
+                $salesTrend['labels'][] = date('D, d M', strtotime($d));
+                $r = $db->query("SELECT COALESCE(SUM(grand_total), 0) as t FROM `invoices` WHERE invoice_date = ? AND status != 'cancelled'", [$d]);
+                $salesTrend['data'][] = (float)($r[0]['t'] ?? 0);
+            }
+        } elseif ($period === 'week') {
+            for ($d = $startDate; $d <= $endDate; $d = date('Y-m-d', strtotime($d . ' +1 day'))) {
+                $salesTrend['labels'][] = date('D, d M', strtotime($d));
+                $r = $db->query("SELECT COALESCE(SUM(grand_total), 0) as t FROM `invoices` WHERE invoice_date = ? AND status != 'cancelled'", [$d]);
+                $salesTrend['data'][] = (float)($r[0]['t'] ?? 0);
+            }
+        } elseif ($period === 'month') {
+            for ($d = $startDate; $d <= $endDate; $d = date('Y-m-d', strtotime($d . ' +2 days'))) {
+                $nextD = date('Y-m-d', min(strtotime($endDate), strtotime($d . ' +1 day')));
+                $salesTrend['labels'][] = date('d M', strtotime($d));
+                $r = $db->query("SELECT COALESCE(SUM(grand_total), 0) as t FROM `invoices` WHERE invoice_date BETWEEN ? AND ? AND status != 'cancelled'", [$d, $nextD]);
+                $salesTrend['data'][] = (float)($r[0]['t'] ?? 0);
+            }
+        } else {
+            $dayCount = max(1, (int)round((strtotime($endDate) - strtotime($startDate)) / 86400));
+            $step = max(1, (int)ceil($dayCount / 10));
+            for ($d = $startDate; $d <= $endDate; $d = date('Y-m-d', strtotime($d . " +{$step} days"))) {
+                $salesTrend['labels'][] = date('d M', strtotime($d));
+                $rangeEnd = date('Y-m-d', min(strtotime($endDate), strtotime($d . " +" . ($step - 1) . " days")));
+                $r = $db->query("SELECT COALESCE(SUM(grand_total), 0) as t FROM `invoices` WHERE invoice_date BETWEEN ? AND ? AND status != 'cancelled'", [$d, $rangeEnd]);
+                $salesTrend['data'][] = (float)($r[0]['t'] ?? 0);
+            }
         }
 
-        // 3. Chart Data: Top Selling Statues by Material
-        $matRows = $db->query("SELECT p.material, COALESCE(SUM(ii.quantity), 0) as qty 
-                               FROM `invoice_items` ii 
-                               JOIN `products` p ON ii.product_id = p.id 
-                               GROUP BY p.material 
-                               ORDER BY qty DESC LIMIT 5");
-        $materialChart = [
-            'labels' => !empty($matRows) ? array_column($matRows, 'material') : ['Brass', 'Marble', 'Panchaloha', 'Black Stone'],
-            'data' => !empty($matRows) ? array_map('intval', array_column($matRows, 'qty')) : [12, 8, 4, 3]
-        ];
+        // 8. Low stock count & list
+        $lowStockProducts = (new Product())->getLowStockProducts(6);
 
-        // 4. Payment Method Distribution
-        $payRows = $db->query("SELECT payment_method, COUNT(*) as count, SUM(grand_total) as total 
-                              FROM `invoices` 
-                              WHERE status != 'cancelled' 
-                              GROUP BY payment_method");
-        $paymentChart = [
-            'labels' => array_map('strtoupper', array_column($payRows, 'payment_method')),
-            'data' => array_map('floatval', array_column($payRows, 'total'))
-        ];
+        // 9. Recent Invoices in Selected Period (fallback to latest)
+        $recentInvoices = $db->query(
+            "SELECT i.*, c.name as customer_name, u.name as cashier_name 
+             FROM `invoices` i 
+             JOIN `customers` c ON i.customer_id = c.id 
+             JOIN `users` u ON i.user_id = u.id 
+             WHERE i.invoice_date BETWEEN ? AND ?
+             ORDER BY i.id DESC LIMIT 8",
+            [$startDate, $endDate]
+        );
+        if (empty($recentInvoices)) {
+            $recentInvoices = $db->query(
+                "SELECT i.*, c.name as customer_name, u.name as cashier_name 
+                 FROM `invoices` i 
+                 JOIN `customers` c ON i.customer_id = c.id 
+                 JOIN `users` u ON i.user_id = u.id 
+                 ORDER BY i.id DESC LIMIT 8"
+            );
+        }
 
-        // 5. Recent Invoices
-        $recentInvoices = $db->query("SELECT i.*, c.name as customer_name, u.name as cashier_name 
-                                      FROM `invoices` i 
-                                      JOIN `customers` c ON i.customer_id = c.id 
-                                      JOIN `users` u ON i.user_id = u.id 
-                                      ORDER BY i.id DESC LIMIT 6");
-
-        // 6. Recent Audit Logs
+        // 10. Audit Logs
         $recentLogs = (new AuditLog())->getRecentLogs(6);
 
-        $this->render('dashboard.index', [
-            'pageTitle' => 'Executive Dashboard - ' . getSetting('company_name', 'Divya Murti ERP'),
-            'todaySales' => $todaySales,
-            'todayInvoicesCount' => $todayInvoicesCount,
+        $payload = [
+            'period' => $period,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'periodTitle' => $periodTitle,
+            'periodSubtitle' => $periodSubtitle,
+            'periodSales' => $periodSales,
+            'periodSalesFormatted' => formatCurrency($periodSales),
+            'periodInvoicesCount' => $periodInvoicesCount,
             'monthSales' => $monthSales,
+            'monthSalesFormatted' => formatCurrency($monthSales),
             'monthInvoicesCount' => $monthInvoicesCount,
-            'totalRevenue' => $totalRevenue,
-            'totalCustomers' => $totalCustomers,
-            'customerOutstanding' => $customerOutstanding,
-            'totalProducts' => $totalProducts,
+            'overallSales' => $overallSales,
+            'overallSalesFormatted' => formatCurrency($overallSales),
+            'overallInvoicesCount' => $overallInvoicesCount,
             'stockValuation' => $stockValuation,
+            'stockValuationFormatted' => formatCurrency($stockValuation),
+            'totalProductInvestment' => $totalProductInvestment,
+            'totalProductInvestmentFormatted' => formatCurrency($totalProductInvestment),
+            'stockExpectedMargin' => $stockExpectedMargin,
+            'stockExpectedMarginFormatted' => formatCurrency($stockExpectedMargin),
+            'stockMarginPercent' => $stockMarginPercent,
+            'periodRevenue' => $periodRevenue,
+            'periodCogs' => $periodCogs,
+            'periodGrossMargin' => $periodGrossMargin,
+            'periodMarginPercent' => $periodMarginPercent,
+            'totalProducts' => $totalProducts,
             'totalStockPieces' => $totalStockPieces,
-            'cashInHand' => $cashInHand,
-            'bankBalance' => $bankBalance,
-            'supplierPayables' => $supplierPayables,
-            'lowStockCount' => $lowStockCount,
             'lowStockProducts' => $lowStockProducts,
-            'todayExpenses' => $todayExpenses,
             'salesTrend' => $salesTrend,
-            'materialChart' => $materialChart,
-            'paymentChart' => $paymentChart,
             'recentInvoices' => $recentInvoices,
             'recentLogs' => $recentLogs
-        ]);
+        ];
+
+        if ($request->isAjax() || $request->input('format') === 'json') {
+            Response::json(['success' => true, 'data' => $payload]);
+            return;
+        }
+
+        $this->render('dashboard.index', array_merge($payload, [
+            'pageTitle' => 'Executive Dashboard - ' . getSetting('company_name', 'Divya Murti ERP')
+        ]));
     }
 }
