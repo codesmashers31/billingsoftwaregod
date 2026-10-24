@@ -160,6 +160,8 @@
                 <?php 
                     $stock = (int)$p['current_stock'];
                     $isOutOfStock = $stock <= 0; 
+                    // Yellow warning if low stock (e.g. 1 or 2 left, when initial stock was higher)
+                    $isYellowWarning = (!$isOutOfStock && $stock <= 2 && (int)($p['initial_stock'] ?? 10) > 2);
                 ?>
                 <div data-product-id="<?= $p['id'] ?>"
                      data-max-stock="<?= $stock ?>"
@@ -170,13 +172,17 @@
                      data-code="<?= escapeHtml($p['code'] ?: $p['sku']) ?>"
                      data-disabled="false"
                      onclick="handleProductCardClick(this)"
-                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock bg-red-50 border-2 border-red-500 cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer' ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
+                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock bg-red-50/90 border-2 border-red-500 cursor-pointer shadow-xs' : ($isYellowWarning ? 'yellow-blink-warning bg-amber-50/90 border-2 border-amber-400 cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer') ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
                     <div>
                         <div class="flex items-center justify-between gap-1">
-                            <span class="pos-code-badge text-[10px] font-bold <?= $isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200' ?> px-2 py-1 rounded-md border whitespace-nowrap truncate"><?= $p['code'] ?: $p['sku'] ?></span>
+                            <span class="pos-code-badge text-[10px] font-bold <?= $isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : ($isYellowWarning ? 'text-amber-900 bg-amber-100 border-amber-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200') ?> px-2 py-1 rounded-md border whitespace-nowrap truncate"><?= $p['code'] ?: $p['sku'] ?></span>
                             <?php if ($isOutOfStock): ?>
                                 <span class="pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1">
                                     <i class="fas fa-ban text-[9px]"></i> Out of Stock
+                                </span>
+                            <?php elseif ($isYellowWarning): ?>
+                                <span class="pos-stock-badge bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1">
+                                    <i class="fas fa-exclamation-triangle text-[9px]"></i> Only <?= $stock ?> left!
                                 </span>
                             <?php else: ?>
                                 <span class="pos-stock-badge bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0">
@@ -184,16 +190,16 @@
                                 </span>
                             <?php endif; ?>
                         </div>
-                        <h4 class="pos-prod-title text-[13px] font-extrabold <?= $isOutOfStock ? 'text-red-950' : 'text-slate-900 group-hover:text-amber-700' ?> transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
+                        <h4 class="pos-prod-title text-[13px] font-extrabold <?= $isOutOfStock ? 'text-red-950' : ($isYellowWarning ? 'text-amber-950' : 'text-slate-900 group-hover:text-amber-700') ?> transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
                             <?= sanitize($p['name']) ?>
                         </h4>
                     </div>
                     <div class="mt-auto pt-3 flex items-center justify-between">
                         <div class="flex items-baseline">
                             <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
-                            <span class="pos-price-val text-[14px] font-black <?= $isOutOfStock ? 'text-red-900' : 'text-slate-900' ?> font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
+                            <span class="pos-price-val text-[14px] font-black <?= $isOutOfStock ? 'text-red-900' : ($isYellowWarning ? 'text-amber-900' : 'text-slate-900') ?> font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
                         </div>
-                        <button type="button" class="pos-add-btn w-7 h-7 rounded-lg <?= $isOutOfStock ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer' ?> flex items-center justify-center transition-all shadow-sm">
+                        <button type="button" class="pos-add-btn w-7 h-7 rounded-lg <?= $isOutOfStock ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm' : ($isYellowWarning ? 'bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold cursor-pointer' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer') ?> flex items-center justify-center transition-all shadow-sm">
                             <i class="fas fa-plus text-xs"></i>
                         </button>
                     </div>

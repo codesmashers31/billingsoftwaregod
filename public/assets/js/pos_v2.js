@@ -130,6 +130,70 @@ function handleProductCardClick(cardEl) {
 }
 window.handleProductCardClick = handleProductCardClick;
 
+function updateProductGridStockStates() {
+    const gridCards = document.querySelectorAll('#pos-product-grid .pos-product-card');
+    if (!gridCards.length) return;
+
+    gridCards.forEach(card => {
+        const prodId = parseInt(card.dataset.productId);
+        const maxStock = parseInt(card.dataset.maxStock) || 0;
+        const cartItem = posCart.find(i => i.product_id === prodId);
+        const inCartQty = cartItem ? cartItem.quantity : 0;
+        const remainingStock = Math.max(0, maxStock - inCartQty);
+
+        const isOutOfStock = (maxStock <= 0 || remainingStock <= 0);
+        // Yellow blinking warning: when product had initial stock > 2, and either remaining <= 2 or inCart >= 80% of stock
+        const isYellowWarning = (!isOutOfStock && maxStock > 2 && (remainingStock <= 2 || (inCartQty > 0 && (inCartQty / maxStock) >= 0.8)));
+
+        const badgeEl = card.querySelector('.pos-stock-badge');
+        const codeBadge = card.querySelector('.pos-code-badge');
+        const titleEl = card.querySelector('.pos-prod-title');
+        const priceEl = card.querySelector('.pos-price-val');
+        const addBtn = card.querySelector('.pos-add-btn');
+
+        // Remove previous state classes
+        card.classList.remove(
+            'pos-card-out-of-stock', 'bg-red-50', 'bg-red-50/90', 'border-red-500', 'border-2',
+            'yellow-blink-warning', 'bg-amber-50', 'bg-amber-50/90', 'border-amber-400', 'border-amber-500',
+            'bg-white', 'border-slate-100', 'border'
+        );
+
+        if (isOutOfStock) {
+            card.classList.add('pos-card-out-of-stock', 'bg-red-50/90', 'border-2', 'border-red-500');
+            if (badgeEl) {
+                badgeEl.className = 'pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1';
+                badgeEl.innerHTML = `<i class="fas fa-ban text-[9px]"></i> ${maxStock <= 0 ? 'Out of Stock' : '0 in stock'}`;
+            }
+            if (codeBadge) codeBadge.className = 'pos-code-badge text-[10px] font-bold text-red-800 bg-red-100 border-red-300 px-2 py-1 rounded-md border whitespace-nowrap truncate';
+            if (titleEl) { titleEl.className = 'pos-prod-title text-[13px] font-extrabold text-red-950 transition-colors line-clamp-2 h-[36px] leading-snug mt-2'; }
+            if (priceEl) { priceEl.className = 'pos-price-val text-[14px] font-black text-red-900 font-mono ml-1'; }
+            if (addBtn) { addBtn.className = 'pos-add-btn w-7 h-7 rounded-lg bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm flex items-center justify-center transition-all'; }
+        } else if (isYellowWarning) {
+            card.classList.add('yellow-blink-warning', 'bg-amber-50/90', 'border-2', 'border-amber-400');
+            if (badgeEl) {
+                badgeEl.className = 'pos-stock-badge bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1';
+                badgeEl.innerHTML = `<i class="fas fa-exclamation-triangle text-[9px]"></i> Only ${remainingStock} left!`;
+            }
+            if (codeBadge) codeBadge.className = 'pos-code-badge text-[10px] font-bold text-amber-900 bg-amber-100 border-amber-300 px-2 py-1 rounded-md border whitespace-nowrap truncate';
+            if (titleEl) { titleEl.className = 'pos-prod-title text-[13px] font-extrabold text-amber-950 transition-colors line-clamp-2 h-[36px] leading-snug mt-2'; }
+            if (priceEl) { priceEl.className = 'pos-price-val text-[14px] font-black text-amber-900 font-mono ml-1'; }
+            if (addBtn) { addBtn.className = 'pos-add-btn w-7 h-7 rounded-lg bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold cursor-pointer shadow-sm flex items-center justify-center transition-all'; }
+        } else {
+            card.classList.add('bg-white', 'border', 'border-slate-100');
+            const inCartLabel = inCartQty > 0 ? ` (${inCartQty} in cart)` : '';
+            if (badgeEl) {
+                badgeEl.className = 'pos-stock-badge bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0';
+                badgeEl.innerHTML = `${remainingStock} in stock${inCartLabel}`;
+            }
+            if (codeBadge) codeBadge.className = 'pos-code-badge text-[10px] font-bold text-amber-700 bg-[#fff8ef] border-amber-200 px-2 py-1 rounded-md border whitespace-nowrap truncate';
+            if (titleEl) { titleEl.className = 'pos-prod-title text-[13px] font-extrabold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 h-[36px] leading-snug mt-2'; }
+            if (priceEl) { priceEl.className = 'pos-price-val text-[14px] font-black text-slate-900 font-mono ml-1'; }
+            if (addBtn) { addBtn.className = 'pos-add-btn w-7 h-7 rounded-lg bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer flex items-center justify-center transition-all shadow-sm'; }
+        }
+    });
+}
+window.updateProductGridStockStates = updateProductGridStockStates;
+
 function renderProductGrid(products) {
     const grid = document.getElementById('pos-product-grid');
     if (!grid) return;
@@ -152,14 +216,33 @@ function renderProductGrid(products) {
         const inCartQty = cartItem ? cartItem.quantity : 0;
         const remainingStock = Math.max(0, maxStock - inCartQty);
         const isOutOfStock = (remainingStock <= 0 || maxStock <= 0);
+        // Yellow blinking warning on product card: when initial stock > 2 and remaining <= 2 or inCart >= 80%
+        const isYellowWarning = (!isOutOfStock && maxStock > 2 && (remainingStock <= 2 || (inCartQty > 0 && (inCartQty / maxStock) >= 0.8)));
 
         const safeName = escapeHtml(p.name);
         const code = escapeHtml(p.code || p.sku || '');
 
+        let cardClass = 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer';
         let stockBadge = '';
+        let codeClass = 'text-amber-700 bg-[#fff8ef] border-amber-200';
+        let titleClass = 'text-slate-900 group-hover:text-amber-700';
+        let priceClass = 'text-slate-900';
+        let addBtnClass = 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white';
+
         if (isOutOfStock) {
-            const label = maxStock <= 0 ? 'Out of Stock' : '0 in stock (Max Reached)';
-            stockBadge = `<span class="pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1"><i class="fas fa-ban text-[9px]"></i> ${label}</span>`;
+            cardClass = 'pos-card-out-of-stock bg-red-50/90 border-2 border-red-500 cursor-pointer shadow-xs';
+            stockBadge = `<span class="pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1"><i class="fas fa-ban text-[9px]"></i> ${maxStock <= 0 ? 'Out of Stock' : '0 in stock'}</span>`;
+            codeClass = 'text-red-800 bg-red-100 border-red-300';
+            titleClass = 'text-red-950';
+            priceClass = 'text-red-900';
+            addBtnClass = 'bg-red-600 text-white hover:bg-red-700';
+        } else if (isYellowWarning) {
+            cardClass = 'yellow-blink-warning bg-amber-50/90 border-2 border-amber-400 cursor-pointer shadow-xs';
+            stockBadge = `<span class="pos-stock-badge bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-600 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1"><i class="fas fa-exclamation-triangle text-[9px]"></i> Only ${remainingStock} left!</span>`;
+            codeClass = 'text-amber-900 bg-amber-100 border-amber-300';
+            titleClass = 'text-amber-950';
+            priceClass = 'text-amber-900';
+            addBtnClass = 'bg-amber-500 text-slate-950 hover:bg-amber-600 font-bold';
         } else {
             const inCartLabel = inCartQty > 0 ? ` (${inCartQty} in cart)` : '';
             stockBadge = `<span class="pos-stock-badge bg-[#f0fdf4] text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#bbf7d0] whitespace-nowrap shrink-0">${remainingStock} in stock${inCartLabel}</span>`;
@@ -175,22 +258,22 @@ function renderProductGrid(products) {
                  data-code="${code}"
                  data-disabled="false"
                  onclick="handleProductCardClick(this)" 
-                 class="pos-product-card h-[144px] ${isOutOfStock ? 'pos-card-out-of-stock bg-red-50/90 border-2 border-red-500 cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer'} shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
+                 class="pos-product-card h-[144px] ${cardClass} shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
                 <div>
                     <div class="flex items-center justify-between gap-1">
-                        <span class="pos-code-badge text-[10px] font-bold ${isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200'} px-2 py-1 rounded-md border whitespace-nowrap truncate">${code}</span>
+                        <span class="pos-code-badge text-[10px] font-bold ${codeClass} px-2 py-1 rounded-md border whitespace-nowrap truncate">${code}</span>
                         ${stockBadge}
                     </div>
-                    <h4 class="pos-prod-title text-[13px] font-extrabold ${isOutOfStock ? 'text-red-950' : 'text-slate-900 group-hover:text-amber-700'} transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
+                    <h4 class="pos-prod-title text-[13px] font-extrabold ${titleClass} transition-colors line-clamp-2 h-[36px] leading-snug mt-2">
                         ${safeName}
                     </h4>
                 </div>
                 <div class="mt-auto pt-3 flex items-center justify-between">
                     <div class="flex items-baseline">
                         <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
-                        <span class="pos-price-val text-[14px] font-black ${isOutOfStock ? 'text-red-900' : 'text-slate-900'} font-mono ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        <span class="pos-price-val text-[14px] font-black ${priceClass} font-mono ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                     </div>
-                    <button type="button" class="pos-add-btn w-7 h-7 rounded-lg ${isOutOfStock ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer'} flex items-center justify-center transition-all shadow-sm">
+                    <button type="button" class="pos-add-btn w-7 h-7 rounded-lg ${addBtnClass} flex items-center justify-center transition-all shadow-sm cursor-pointer">
                         <i class="fas fa-plus text-xs"></i>
                     </button>
                 </div>
@@ -402,6 +485,9 @@ function renderCart() {
         const taxLabelEl = document.getElementById('summary-tax-label');
         if (taxLabelEl) taxLabelEl.textContent = 'GST Tax:';
         updateTotalsUI(0, 0, 0, 0, 0, 0);
+        if (typeof updateProductGridStockStates === 'function') {
+            updateProductGridStockStates();
+        }
         return;
     }
 
@@ -424,32 +510,28 @@ function renderCart() {
         const maxStock = parseInt(item.max_stock) || 0;
         const qty = parseInt(item.quantity) || 1;
         const remainingStock = maxStock - qty;
-        const consumptionRatio = maxStock > 0 ? (qty / maxStock) : 1;
 
         const isOutOfStock = (maxStock <= 0 || remainingStock <= 0);
-        // Yellow blinking warning when: original stock > 2 AND (added >= 80% or remaining <= 2) AND not out of stock
-        const isYellowWarning = (!isOutOfStock && maxStock > 2 && (consumptionRatio >= 0.8 || remainingStock <= 2));
-
-        let rowStyleClasses = 'bg-white border-slate-200 hover:border-amber-300 shadow-xs';
+        // In the billing cart table, rows are kept clean, stable, and readable without screen-flashing animations
+        const rowStyleClasses = isOutOfStock 
+            ? 'bg-red-50/60 border border-red-200 shadow-xs' 
+            : 'bg-white border border-slate-200 hover:border-amber-300 shadow-xs';
+        
         let stockStatusBadge = '';
-
         if (isOutOfStock) {
-            rowStyleClasses = 'bg-red-50/95 border-2 border-red-500 red-out-of-stock-row text-red-950 shadow-md';
             stockStatusBadge = `
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-600 text-white font-black text-[9px] uppercase tracking-wider shadow-xs">
-                    <i class="fas fa-ban text-[8px]"></i> Out of Stock Sale (${maxStock} in stock)
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-bold text-[9px] border border-red-200 uppercase tracking-wider">
+                    <i class="fas fa-ban text-[8px]"></i> Out of Stock (${maxStock} in stock)
                 </span>
             `;
-        } else if (isYellowWarning) {
-            rowStyleClasses = 'bg-amber-50/95 border-2 border-amber-400 yellow-blink-warning shadow-md';
-            const pct = Math.round(consumptionRatio * 100);
+        } else if (maxStock > 0 && remainingStock <= 2 && maxStock > 2) {
             stockStatusBadge = `
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-black text-[9px] uppercase tracking-wider shadow-xs">
-                    <i class="fas fa-exclamation-triangle text-[8px]"></i> Warning: ${pct}% Added (${remainingStock} left)
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[9px] border border-amber-200">
+                    <i class="fas fa-exclamation-triangle text-[8px]"></i> Low (${remainingStock} left)
                 </span>
             `;
-        } else {
-            stockStatusBadge = maxStock > 0 ? `<span class="text-[10px] text-slate-400 font-medium">(${remainingStock} of ${maxStock} in stock)</span>` : '';
+        } else if (maxStock > 0) {
+            stockStatusBadge = `<span class="text-[10px] text-slate-400 font-medium">(${remainingStock} of ${maxStock} in stock)</span>`;
         }
 
         html += `
@@ -1196,6 +1278,9 @@ function calculatePosTotalPaidFromMethods() {
     }
 
     calculatePosBalance();
+    if (typeof updateProductGridStockStates === 'function') {
+        updateProductGridStockStates();
+    }
 }
 window.calculatePosTotalPaidFromMethods = calculatePosTotalPaidFromMethods;
 window.onPosPaymentMethodChange = calculatePosTotalPaidFromMethods;
