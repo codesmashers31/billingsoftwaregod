@@ -153,6 +153,59 @@
                 </button>
             </div>
 
+            <!-- Product Search & Filter Controls -->
+            <div class="mb-5 bg-white p-4 rounded-xl border border-amber-200/90 shadow-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+                    <!-- Search Input -->
+                    <div class="lg:col-span-4 relative">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="product-search-input" oninput="filterProductTable()" placeholder="Search product name, SKU, barcode, supplier..." class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium">
+                        <button type="button" onclick="clearProductSearch()" id="product-search-clear" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="lg:col-span-3">
+                        <select id="product-category-filter" onchange="filterProductTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                    <!-- Supplier Filter -->
+                    <div class="lg:col-span-3">
+                        <select id="product-supplier-filter" onchange="filterProductTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium">
+                            <option value="">All Suppliers</option>
+                        </select>
+                    </div>
+
+                    <!-- Stock Status Filter -->
+                    <div class="lg:col-span-2">
+                        <select id="product-stock-filter" onchange="filterProductTable()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium">
+                            <option value="">All Stock</option>
+                            <option value="in_stock">In Stock (&gt; 0)</option>
+                            <option value="low_stock">Low Stock (≤ Min)</option>
+                            <option value="out_of_stock">Out of Stock (0)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Secondary row: Reset & Counter -->
+                <div class="mt-3 pt-3 border-t border-amber-100 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="resetProductFilters()" title="Reset Filters" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-all shadow-xs flex items-center gap-1.5">
+                            <i class="fas fa-undo text-[10px]"></i> Reset Filters
+                        </button>
+                        <span id="product-filter-count-badge" class="text-[11px] font-bold text-amber-900 bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-200 whitespace-nowrap">
+                            0 Products
+                        </span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 font-medium">
+                        <i class="fas fa-mouse-pointer text-amber-500 mr-1"></i>Click any product row or number to copy
+                    </div>
+                </div>
+            </div>
+
             <!-- Product Table -->
             <div class="overflow-x-auto rounded-xl border border-amber-200">
                 <table class="w-full text-left text-xs text-slate-600">
@@ -179,6 +232,27 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Product Pagination Controls -->
+            <div class="mt-4 pt-3 border-t border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" id="product-pagination-container">
+                <div class="flex items-center gap-2 text-slate-500 font-medium">
+                    <span id="product-page-info">Showing 0 to 0 of 0 entries</span>
+                    <span class="mx-1">•</span>
+                    <label class="flex items-center gap-1.5">
+                        <span>Show</span>
+                        <select id="product-per-page-select" onchange="changeProductPerPage(this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs outline-none focus:border-amber-500 font-bold text-slate-700">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>per page</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-1.5" id="product-page-buttons">
+                    <!-- Page buttons injected via JS -->
+                </div>
             </div>
         </div>
 
@@ -1428,6 +1502,15 @@
 
         if (sectionId === 'invoice-section' && typeof renderInvoiceTable === 'function') {
             renderInvoiceTable();
+        }
+        if (sectionId === 'product-section' && typeof renderProductTable === 'function') {
+            renderProductTable();
+        }
+        if (sectionId === 'barcode-section' && typeof renderBarcodeTable === 'function') {
+            renderBarcodeTable();
+        }
+        if (sectionId === 'supplier-section' && typeof renderSupplierTable === 'function') {
+            renderSupplierTable();
         }
     }
 
@@ -4192,26 +4275,170 @@
         }
     }
 
+    // --- PRODUCT SEARCH, FILTER & PAGINATION STATE ---
+    let productCurrentPage = 1;
+    let productPerPage = 10;
+    let productSearchQuery = '';
+    let productCategoryFilter = '';
+    let productSupplierFilter = '';
+    let productStockFilter = '';
+
+    function filterProductTable() {
+        productSearchQuery = (document.getElementById('product-search-input')?.value || '').toLowerCase().trim();
+        productCategoryFilter = (document.getElementById('product-category-filter')?.value || '').trim();
+        productSupplierFilter = (document.getElementById('product-supplier-filter')?.value || '').trim();
+        productStockFilter = (document.getElementById('product-stock-filter')?.value || '').trim();
+        productCurrentPage = 1;
+
+        const clearBtn = document.getElementById('product-search-clear');
+        if (clearBtn) {
+            if (productSearchQuery.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+
+        renderProductTable();
+    }
+
+    function clearProductSearch() {
+        const inp = document.getElementById('product-search-input');
+        if (inp) inp.value = '';
+        filterProductTable();
+    }
+
+    function resetProductFilters() {
+        const sInp = document.getElementById('product-search-input');
+        if (sInp) sInp.value = '';
+        const cSel = document.getElementById('product-category-filter');
+        if (cSel) cSel.value = '';
+        const supSel = document.getElementById('product-supplier-filter');
+        if (supSel) supSel.value = '';
+        const stSel = document.getElementById('product-stock-filter');
+        if (stSel) stSel.value = '';
+
+        productSearchQuery = '';
+        productCategoryFilter = '';
+        productSupplierFilter = '';
+        productStockFilter = '';
+        productCurrentPage = 1;
+        filterProductTable();
+    }
+
+    function changeProductPerPage(val) {
+        productPerPage = parseInt(val) || 10;
+        productCurrentPage = 1;
+        renderProductTable();
+    }
+
+    function goToProductPage(page) {
+        productCurrentPage = page;
+        renderProductTable();
+    }
+
+    function populateProductFilterDropdowns() {
+        // Categories
+        const catSelect = document.getElementById('product-category-filter');
+        if (catSelect && catSelect.options.length <= 1) {
+            const curVal = catSelect.value;
+            const uniqueCats = [...new Set(products.map(p => p.prod_category).filter(Boolean))].sort();
+            uniqueCats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                catSelect.appendChild(opt);
+            });
+            if (curVal) catSelect.value = curVal;
+        }
+
+        // Suppliers
+        const supSelect = document.getElementById('product-supplier-filter');
+        if (supSelect && supSelect.options.length <= 1) {
+            const curVal = supSelect.value;
+            suppliers.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.supplier_name || s.name || ('Supplier #' + s.id);
+                supSelect.appendChild(opt);
+            });
+            if (curVal) supSelect.value = curVal;
+        }
+    }
+
     function renderProductTable() {
+        populateProductFilterDropdowns();
+
         const tbody = document.getElementById('product-table-body');
         if (!tbody) return;
-        if (products.length === 0) {
+
+        // Apply filters
+        const filtered = products.filter(p => {
+            const pName = (p.prod_name || '').toLowerCase();
+            const pSku = (p.prod_sku || '').toLowerCase();
+            const pBarcode = (p.prod_barcode || '').toLowerCase();
+            const pBrand = (p.prod_brand || '').toLowerCase();
+            const pCat = (p.prod_category || '').toLowerCase();
+            const sup = suppliers.find(s => String(s.id) === String(p.prod_supplier_id));
+            const suppName = (sup ? (sup.supplier_name || sup.name || '') : '').toLowerCase();
+
+            if (productSearchQuery) {
+                const matches = pName.includes(productSearchQuery) ||
+                                pSku.includes(productSearchQuery) ||
+                                pBarcode.includes(productSearchQuery) ||
+                                pBrand.includes(productSearchQuery) ||
+                                pCat.includes(productSearchQuery) ||
+                                suppName.includes(productSearchQuery);
+                if (!matches) return false;
+            }
+
+            if (productCategoryFilter) {
+                if (pCat !== productCategoryFilter.toLowerCase()) return false;
+            }
+
+            if (productSupplierFilter) {
+                if (String(p.prod_supplier_id) !== String(productSupplierFilter)) return false;
+            }
+
+            const stock = p.prod_current_stock !== undefined ? p.prod_current_stock : (parseInt(p.prod_unit) || 0);
+            const minStock = p.prod_min_stock || 0;
+
+            if (productStockFilter === 'in_stock' && stock <= 0) return false;
+            if (productStockFilter === 'out_of_stock' && stock > 0) return false;
+            if (productStockFilter === 'low_stock' && (stock <= 0 || stock > minStock)) return false;
+
+            return true;
+        });
+
+        // Update badge
+        const badge = document.getElementById('product-filter-count-badge');
+        if (badge) {
+            badge.textContent = `${filtered.length} of ${products.length} Products`;
+        }
+
+        if (filtered.length === 0) {
             tbody.innerHTML = `
                 <tr id="product-empty-state-row">
                     <td colspan="9" class="py-12 text-center text-amber-400">
                         <i class="fas fa-box-open text-3xl mb-3 block text-amber-300"></i>
                         <p class="font-bold text-amber-600 text-sm">No products found</p>
-                        <p class="text-xs mt-1">Click "Add Products Detail" to create your first entry.</p>
+                        <p class="text-xs mt-1 text-slate-500">Try adjusting your search query or filters above.</p>
                     </td>
                 </tr>`;
+            renderProductPagination(0);
             return;
         }
-        
+
+        // Pagination calculations
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / productPerPage) || 1;
+        if (productCurrentPage > totalPages) productCurrentPage = totalPages;
+        if (productCurrentPage < 1) productCurrentPage = 1;
+
+        const startIdx = (productCurrentPage - 1) * productPerPage;
+        const pageItems = filtered.slice(startIdx, startIdx + productPerPage);
+
         tbody.innerHTML = '';
-        
-        products.forEach(p => {
+        pageItems.forEach(p => {
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-amber-50/30 transition-colors';
+            tr.className = 'hover:bg-amber-50/30 transition-colors text-xs border-b border-amber-100/60';
             
             let offerDisplay = 'N/A';
             if (p.prod_offer_available === 'Yes' && p.prod_offer_amount) {
@@ -4219,8 +4446,8 @@
             }
             
             let supplierName = 'Unknown';
-            const sup = suppliers.find(s => s.id == p.prod_supplier_id);
-            if (sup) supplierName = sup.supplier_name;
+            const sup = suppliers.find(s => String(s.id) === String(p.prod_supplier_id));
+            if (sup) supplierName = sup.supplier_name || sup.name || 'Unknown';
 
             const purchasePrice = parseFloat(p.prod_purchase_price) || 0;
             const sellingPrice = parseFloat(p.prod_selling_price) || 0;
@@ -4245,8 +4472,8 @@
                 <td class="py-3.5 px-4 text-center whitespace-nowrap">
                     <div class="font-bold ${stock <= (p.prod_min_stock || 0) ? 'text-rose-600' : 'text-slate-800'} text-xs cursor-pointer" data-copy="${stock}" title="Click to copy stock units">${stock} <span class="text-[10px] font-normal text-slate-400">${unit}</span></div>
                     ${p.last_restocked_qty > 0 ? `
-                        <div class="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Last restock: +${p.last_restocked_qty} (Total restocked: ${p.total_restocked_qty || p.last_restocked_qty})">
-                            <i class="fas fa-arrow-up text-[8px]"></i> +${p.last_restocked_qty} restocked
+                        <div class="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Last restock: +${p.last_restocked_qty}">
+                            <i class="fas fa-arrow-up text-[8px]"></i> +${p.last_restocked_qty}
                         </div>` : ''}
                 </td>
                 <td class="py-3.5 px-4 text-center font-bold text-fuchsia-600 text-xs whitespace-nowrap">${offerDisplay}</td>
@@ -4265,39 +4492,63 @@
             `;
             tbody.appendChild(tr);
         });
+
+        renderProductPagination(totalItems);
     }
 
-    async function deleteProduct(id) {
-        const confirmed = await showConfirmDialog({
-            title: 'Delete Product',
-            message: 'Are you sure you want to delete this product?<br><span class="text-rose-500 text-xs font-semibold mt-1 inline-block">This action cannot be undone.</span>',
-            confirmText: 'Yes, Delete',
-            type: 'danger'
-        });
-        if (!confirmed) return;
+    function renderProductPagination(totalItems) {
+        const pageInfo = document.getElementById('product-page-info');
+        const buttonsContainer = document.getElementById('product-page-buttons');
+        if (!pageInfo || !buttonsContainer) return;
 
-        try {
-            const formData = new FormData();
-            formData.append('_csrf_token', window.CSRF_TOKEN || '');
-            const res = await fetch((window.APP_URL || '') + '/products/delete/' + id, {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const data = await res.json();
-            if (data.success) {
-                showToast('success', data.message || 'Product deleted successfully.');
-                await refreshStateFromDb();
-            } else {
-                showToast('error', data.message || 'Failed to delete product.');
-            }
-        } catch (err) {
-            console.error('Error deleting product:', err);
-            showToast('error', 'Network error occurred while deleting product.');
+        if (totalItems === 0) {
+            pageInfo.textContent = 'Showing 0 to 0 of 0 entries';
+            buttonsContainer.innerHTML = '';
+            return;
         }
+
+        const totalPages = Math.ceil(totalItems / productPerPage) || 1;
+        const startItem = (productCurrentPage - 1) * productPerPage + 1;
+        const endItem = Math.min(productCurrentPage * productPerPage, totalItems);
+
+        pageInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalItems} entries`;
+
+        let btnsHtml = '';
+
+        // Prev Button
+        btnsHtml += `
+            <button type="button" onclick="goToProductPage(${productCurrentPage - 1})" ${productCurrentPage <= 1 ? 'disabled class="px-2.5 py-1 rounded-lg text-slate-300 border border-slate-200 cursor-not-allowed"' : 'class="px-2.5 py-1 rounded-lg text-slate-700 hover:bg-amber-100 hover:text-amber-800 border border-slate-200 transition-colors font-bold"'}>
+                <i class="fas fa-chevron-left text-[10px]"></i> Prev
+            </button>
+        `;
+
+        // Page Numbers (up to 5 around current)
+        let startPage = Math.max(1, productCurrentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const isCur = i === productCurrentPage;
+            btnsHtml += `
+                <button type="button" onclick="goToProductPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold transition-colors ${isCur ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-700 hover:bg-slate-100 border border-slate-200'}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next Button
+        btnsHtml += `
+            <button type="button" onclick="goToProductPage(${productCurrentPage + 1})" ${productCurrentPage >= totalPages ? 'disabled class="px-2.5 py-1 rounded-lg text-slate-300 border border-slate-200 cursor-not-allowed"' : 'class="px-2.5 py-1 rounded-lg text-slate-700 hover:bg-amber-100 hover:text-amber-800 border border-slate-200 transition-colors font-bold"'}>
+                Next <i class="fas fa-chevron-right text-[10px]"></i>
+            </button>
+        `;
+
+        buttonsContainer.innerHTML = btnsHtml;
     }
 
-    function viewProduct(id) {
+        function viewProduct(id) {
         const p = products.find(prod => String(prod.id) === String(id));
         if (!p) {
             showToast('error', 'Product not found.');
