@@ -83,6 +83,34 @@
             .custom-scrollbar::-webkit-scrollbar-thumb:hover {
                 background: #94a3b8;
             }
+            @keyframes yellowWarningBlink {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+                    border-color: #f59e0b;
+                    background-color: #fffbeb;
+                }
+                50% {
+                    box-shadow: 0 0 12px 2px rgba(245, 158, 11, 0.7);
+                    border-color: #d97706;
+                    background-color: #fef3c7;
+                }
+            }
+            .yellow-blink-warning {
+                animation: yellowWarningBlink 1.4s ease-in-out infinite;
+            }
+            @keyframes redOutStockPulse {
+                0%, 100% {
+                    border-color: #ef4444;
+                    background-color: #fef2f2;
+                }
+                50% {
+                    border-color: #dc2626;
+                    background-color: #fee2e2;
+                }
+            }
+            .red-out-of-stock-row {
+                animation: redOutStockPulse 2s ease-in-out infinite;
+            }
         </style>
 
         <script>
@@ -140,9 +168,9 @@
                      data-discount="<?= $p['discount_percent'] ?? 0 ?>"
                      data-gst="<?= $p['gst_percent'] ?? 12 ?>"
                      data-code="<?= escapeHtml($p['code'] ?: $p['sku']) ?>"
-                     data-disabled="<?= $isOutOfStock ? 'true' : 'false' ?>"
+                     data-disabled="false"
                      onclick="handleProductCardClick(this)"
-                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock bg-red-50 border-2 border-red-500 cursor-not-allowed shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer' ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
+                     class="pos-product-card h-[144px] <?= $isOutOfStock ? 'pos-card-out-of-stock bg-red-50 border-2 border-red-500 cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer' ?> shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
                     <div>
                         <div class="flex items-center justify-between gap-1">
                             <span class="pos-code-badge text-[10px] font-bold <?= $isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200' ?> px-2 py-1 rounded-md border whitespace-nowrap truncate"><?= $p['code'] ?: $p['sku'] ?></span>
@@ -165,8 +193,8 @@
                             <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
                             <span class="pos-price-val text-[14px] font-black <?= $isOutOfStock ? 'text-red-900' : 'text-slate-900' ?> font-mono ml-1"><?= formatCurrency($p['selling_price']) ?></span>
                         </div>
-                        <button type="button" class="pos-add-btn w-7 h-7 rounded-lg <?= $isOutOfStock ? 'bg-red-200 text-red-700 border border-red-300 cursor-not-allowed' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer' ?> flex items-center justify-center transition-all shadow-sm" <?= $isOutOfStock ? 'disabled' : '' ?>>
-                            <i class="fas <?= $isOutOfStock ? 'fa-ban' : 'fa-plus' ?> text-xs"></i>
+                        <button type="button" class="pos-add-btn w-7 h-7 rounded-lg <?= $isOutOfStock ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer' ?> flex items-center justify-center transition-all shadow-sm">
+                            <i class="fas fa-plus text-xs"></i>
                         </button>
                     </div>
                 </div>
@@ -176,20 +204,33 @@
 
     <!-- RIGHT SIDE: Reactive Cart & Fast Checkout (35% width) -->
     <div class="w-full lg:w-[420px] xl:w-[450px] flex flex-col bg-white border border-slate-200 rounded-2xl p-4 shadow-sm shrink-0 overflow-hidden">
-        <!-- Customer Banner -->
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between mb-3 shrink-0">
-            <div class="flex items-center gap-2.5 overflow-hidden">
-                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-200">
-                    <i class="fas fa-user"></i>
+        <!-- Customer Live Direct Filling Banner -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3 shrink-0">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-200">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <span class="font-extrabold text-slate-800 text-xs tracking-tight">Customer Info (Direct Live Filling)</span>
                 </div>
-                <div class="overflow-hidden">
-                    <div id="selected-customer-name" class="font-bold text-slate-900 text-xs truncate">Walk-in Retail Customer</div>
-                    <div id="selected-customer-mobile" class="text-[10px] text-slate-500 font-mono">9999999999 • Regular</div>
+                <button type="button" onclick="openCustomerModal()" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 shadow-xs">
+                    <i class="fas fa-search text-[10px] text-amber-600"></i> Search [F4]
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile No *</label>
+                    <input type="tel" id="pos-customer-mobile" value="9999999999" placeholder="Enter 10-digit mobile" 
+                           oninput="onCustomerInputsChanged()"
+                           class="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Customer Name *</label>
+                    <input type="text" id="pos-customer-name" value="Walk-in Retail Customer" placeholder="Enter customer name" 
+                           oninput="onCustomerInputsChanged()"
+                           class="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 outline-none transition-all">
                 </div>
             </div>
-            <button onclick="openCustomerModal()" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold transition-all shrink-0">
-                Change [F4]
-            </button>
         </div>
 
         <!-- Cart Header -->
@@ -210,7 +251,8 @@
             <!-- Overall Discount Input -->
             <div class="flex items-center justify-between text-slate-600 font-medium">
                 <span>Overall Discount (₹):</span>
-                <input type="number" id="pos-overall-discount" value="0" min="0" step="any" placeholder="0.00" 
+                <input type="text" inputmode="decimal" id="pos-overall-discount" placeholder="0.00" 
+                       oninput="renderCart()"
                        class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs text-slate-900 font-mono text-right focus:border-amber-500 outline-none">
             </div>
 
@@ -272,7 +314,7 @@
                 <button onclick="holdCurrentBill()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors border border-slate-200">
                     <i class="fas fa-pause text-amber-600"></i> Hold [F9]
                 </button>
-                <button id="btn-pos-pay" onclick="openPaymentModal()" disabled class="col-span-2 gold-btn font-extrabold py-2.5 rounded-xl text-sm shadow-md flex items-center justify-center gap-2">
+                <button id="btn-pos-pay" onclick="openPaymentModal()" class="col-span-2 gold-btn font-extrabold py-2.5 rounded-xl text-sm shadow-md flex items-center justify-center gap-2">
                     <i class="fas fa-check-circle"></i> Complete Bill [F8]
                 </button>
             </div>

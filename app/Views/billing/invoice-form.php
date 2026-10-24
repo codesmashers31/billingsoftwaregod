@@ -346,9 +346,10 @@
                         <div class="flex justify-between items-center pt-1 border-t border-slate-100">
                             <div class="flex items-center gap-1.5">
                                 <span>Overall Discount:</span>
-                                <input type="number" step="0.1" min="0" max="100" name="overall_discount_percent" id="overall_disc_pct"
+                                <input type="text" inputmode="decimal" name="overall_discount_percent" id="overall_disc_pct"
                                        oninput="calculateTotals()"
-                                       value="<?= (float)($invoice['overall_discount_percent'] ?? 0) ?>"
+                                       placeholder="0.0"
+                                       value="<?= !empty($invoice['overall_discount_percent']) && (float)$invoice['overall_discount_percent'] > 0 ? (float)$invoice['overall_discount_percent'] : '' ?>"
                                        class="w-14 bg-slate-50 border border-slate-300 rounded px-1.5 py-0.5 text-xs font-mono text-center outline-none">
                                 <span class="text-[11px]">%</span>
                             </div>

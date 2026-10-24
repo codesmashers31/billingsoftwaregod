@@ -264,7 +264,8 @@ class BillingController extends Controller {
                 }
 
                 if ($prod['current_stock'] < $qty) {
-                    throw new \Exception("Insufficient stock for '{$prod['name']}'. Available: {$prod['current_stock']}, Requested: {$qty}");
+                    $outOfStockNote = "Out-of-stock sale: '{$prod['name']}' (Stock was: {$prod['current_stock']}, Sold: {$qty})";
+                    $notes = $notes ? ($notes . " | " . $outOfStockNote) : $outOfStockNote;
                 }
 
                 $gross = $qty * $unitPrice;
@@ -896,7 +897,7 @@ class BillingController extends Controller {
 
                 // Available stock check for completed/finalized invoices
                 if ($status === 'completed' && $prod['current_stock'] < $qty) {
-                    throw new \Exception("Insufficient stock for '{$prod['name']}'. Available: {$prod['current_stock']}, Requested: {$qty}. Cannot sell more than available stock.");
+                    $notes = $notes ? ($notes . " | Out-of-stock sale: '{$prod['name']}' (Stock was: {$prod['current_stock']}, Sold: {$qty})") : "Out-of-stock sale: '{$prod['name']}' (Stock was: {$prod['current_stock']}, Sold: {$qty})";
                 }
 
                 $gross = round($qty * $unitPrice, 2);

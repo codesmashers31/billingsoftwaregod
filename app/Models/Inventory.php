@@ -14,7 +14,7 @@ class Inventory extends Model {
     /**
      * Record inventory transaction and atomically update product stock.
      */
-    public function adjustStock(int $productId, int $qtyChange, string $txType, ?string $refType = null, ?int $refId = null, ?string $refNo = null, ?string $notes = null, int $userId = 1): bool {
+    public function adjustStock(int $productId, int $qtyChange, string $txType, ?string $refType = null, ?int $refId = null, ?string $refNo = null, ?string $notes = null, int $userId = 1, bool $allowNegative = true): bool {
         // Fetch current stock
         $prodModel = new Product();
         $product = $prodModel->find($productId);
@@ -25,7 +25,7 @@ class Inventory extends Model {
         $prevStock = (int)$product['current_stock'];
         $newStock = $prevStock + $qtyChange;
 
-        if ($newStock < 0) {
+        if ($newStock < 0 && !$allowNegative) {
             throw new Exception("Insufficient stock for {$product['name']}. Available: {$prevStock}, Requested deduction: " . abs($qtyChange));
         }
 

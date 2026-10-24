@@ -57,7 +57,7 @@ function initPosEventListeners() {
             openCustomerModal();
         } else if (e.key === 'F8') {
             e.preventDefault();
-            if (posCart.length > 0) openPaymentModal();
+            openPaymentModal();
         } else if (e.key === 'F9') {
             e.preventDefault();
             holdCurrentBill();
@@ -119,19 +119,8 @@ function filterCategory(categoryId, btnEl) {
 
 function handleProductCardClick(cardEl) {
     if (!cardEl) return;
-    const isDisabled = cardEl.dataset.disabled === 'true';
     const name = cardEl.dataset.name || 'Product';
     const maxStock = parseInt(cardEl.dataset.maxStock) || 0;
-    
-    if (isDisabled) {
-        if (maxStock <= 0) {
-            showToast('error', `Cannot add "${name}" — completely out of stock (0 available).`);
-        } else {
-            showToast('error', `Cannot add more "${name}" — specified stock limit (${maxStock}) reached in cart.`);
-        }
-        return;
-    }
-    
     const id = parseInt(cardEl.dataset.productId);
     const unitPrice = parseFloat(cardEl.dataset.price);
     const discountPercent = parseFloat(cardEl.dataset.discount) || 0;
@@ -184,9 +173,9 @@ function renderProductGrid(products) {
                  data-discount="${p.discount_percent || 0}"
                  data-gst="${p.gst_percent || 12}"
                  data-code="${code}"
-                 data-disabled="${isOutOfStock ? 'true' : 'false'}"
+                 data-disabled="false"
                  onclick="handleProductCardClick(this)" 
-                 class="pos-product-card h-[144px] ${isOutOfStock ? 'pos-card-out-of-stock bg-red-50 border-2 border-red-500 cursor-not-allowed shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer'} shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
+                 class="pos-product-card h-[144px] ${isOutOfStock ? 'pos-card-out-of-stock bg-red-50/90 border-2 border-red-500 cursor-pointer shadow-xs' : 'bg-white border border-slate-100 hover:border-amber-300 hover:shadow-md cursor-pointer'} shadow-sm rounded-2xl p-3.5 flex flex-col group transition-all select-none">
                 <div>
                     <div class="flex items-center justify-between gap-1">
                         <span class="pos-code-badge text-[10px] font-bold ${isOutOfStock ? 'text-red-800 bg-red-100 border-red-300' : 'text-amber-700 bg-[#fff8ef] border-amber-200'} px-2 py-1 rounded-md border whitespace-nowrap truncate">${code}</span>
@@ -201,8 +190,8 @@ function renderProductGrid(products) {
                         <span class="text-[10px] text-slate-400 font-medium">Rate:</span>
                         <span class="pos-price-val text-[14px] font-black ${isOutOfStock ? 'text-red-900' : 'text-slate-900'} font-mono ml-1">₹${parseFloat(p.selling_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                     </div>
-                    <button type="button" class="pos-add-btn w-7 h-7 rounded-lg ${isOutOfStock ? 'bg-red-200 text-red-700 border border-red-300 cursor-not-allowed' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer'} flex items-center justify-center transition-all shadow-sm" ${isOutOfStock ? 'disabled' : ''}>
-                        <i class="fas ${isOutOfStock ? 'fa-ban' : 'fa-plus'} text-xs"></i>
+                    <button type="button" class="pos-add-btn w-7 h-7 rounded-lg ${isOutOfStock ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm' : 'bg-[#fef3c7] text-amber-700 group-hover:bg-amber-500 group-hover:text-white cursor-pointer'} flex items-center justify-center transition-all shadow-sm">
+                        <i class="fas fa-plus text-xs"></i>
                     </button>
                 </div>
             </div>
@@ -233,12 +222,9 @@ async function scanBarcodeDirect(code) {
             const stock = parseInt(p.current_stock) || 0;
             const inCart = posCart.find(i => i.product_id === parseInt(p.id))?.quantity || 0;
             if (stock <= 0) {
-                showToast('error', `Scanned item "${p.name}" is OUT OF STOCK (0 available).`);
-                return;
-            }
-            if (inCart + 1 > stock) {
-                showToast('error', `Cannot add "${p.name}". Stock limit (${stock}) reached in cart.`);
-                return;
+                showToast('warning', `Scanned "${p.name}" is OUT OF STOCK — added to cart in Red Billing mode.`);
+            } else if (inCart + 1 > stock) {
+                showToast('warning', `Quantity exceeds available stock (${stock}) for "${p.name}" — billing in Red.`);
             }
             addToCartById(p.id, p.name, p.selling_price, p.discount_percent || 0, p.gst_percent || 12, stock);
             showToast('success', `Scanned: ${p.name}`);
@@ -328,13 +314,9 @@ function addToCartById(id, name, unitPrice, discountPercent, gstPercent, maxStoc
     const inCartQty = existingIndex > -1 ? posCart[existingIndex].quantity : 0;
 
     if (maxStock <= 0) {
-        showToast('error', `Cannot add "${name}": Item is out of stock (0 available).`);
-        return;
-    }
-
-    if (inCartQty + 1 > maxStock) {
-        showToast('error', `Cannot add more "${name}". Only ${maxStock} units available.`);
-        return;
+        showToast('warning', `Item "${name}" is OUT OF STOCK — added to cart in Red Billing mode.`);
+    } else if (inCartQty + 1 > maxStock) {
+        showToast('warning', `Quantity exceeds stock (${maxStock}) for "${name}" — billing in Red.`);
     }
 
     let initialGst = parseFloat(gstPercent) || 12;
@@ -368,9 +350,11 @@ function updateItemQty(index, delta) {
 
     if (newQty <= 0) {
         posCart.splice(index, 1);
-    } else if (newQty > posCart[index].max_stock) {
-        showToast('error', `Max stock available: ${posCart[index].max_stock}`);
     } else {
+        const maxStock = parseInt(posCart[index].max_stock) || 0;
+        if (maxStock <= 0 || newQty > maxStock) {
+            showToast('warning', `Quantity exceeds stock (${maxStock}) — billing in Red.`);
+        }
         posCart[index].quantity = newQty;
     }
 
@@ -437,19 +421,55 @@ function renderCart() {
         itemDiscountTotal += discAmt;
         taxTotal += taxAmt;
 
+        const maxStock = parseInt(item.max_stock) || 0;
+        const qty = parseInt(item.quantity) || 1;
+        const remainingStock = maxStock - qty;
+        const consumptionRatio = maxStock > 0 ? (qty / maxStock) : 1;
+
+        const isOutOfStock = (maxStock <= 0 || remainingStock <= 0);
+        // Yellow blinking warning when: original stock > 2 AND (added >= 80% or remaining <= 2) AND not out of stock
+        const isYellowWarning = (!isOutOfStock && maxStock > 2 && (consumptionRatio >= 0.8 || remainingStock <= 2));
+
+        let rowStyleClasses = 'bg-white border-slate-200 hover:border-amber-300 shadow-xs';
+        let stockStatusBadge = '';
+
+        if (isOutOfStock) {
+            rowStyleClasses = 'bg-red-50/95 border-2 border-red-500 red-out-of-stock-row text-red-950 shadow-md';
+            stockStatusBadge = `
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-600 text-white font-black text-[9px] uppercase tracking-wider shadow-xs">
+                    <i class="fas fa-ban text-[8px]"></i> Out of Stock Sale (${maxStock} in stock)
+                </span>
+            `;
+        } else if (isYellowWarning) {
+            rowStyleClasses = 'bg-amber-50/95 border-2 border-amber-400 yellow-blink-warning shadow-md';
+            const pct = Math.round(consumptionRatio * 100);
+            stockStatusBadge = `
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500 text-slate-900 font-black text-[9px] uppercase tracking-wider shadow-xs">
+                    <i class="fas fa-exclamation-triangle text-[8px]"></i> Warning: ${pct}% Added (${remainingStock} left)
+                </span>
+            `;
+        } else {
+            stockStatusBadge = maxStock > 0 ? `<span class="text-[10px] text-slate-400 font-medium">(${remainingStock} of ${maxStock} in stock)</span>` : '';
+        }
+
         html += `
-            <div class="bg-white border border-slate-200 hover:border-amber-300 shadow-xs rounded-xl p-3 mb-2 flex items-center justify-between transition-all">
+            <div class="${rowStyleClasses} rounded-xl p-3 mb-2 flex items-center justify-between transition-all">
                 <div class="flex-1 pr-3">
-                    <h5 class="text-xs font-bold text-slate-900 line-clamp-1">${item.name}</h5>
-                    <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
-                        <span class="font-mono text-slate-700">₹${item.unit_price.toFixed(2)}</span>
-                        <div class="inline-flex items-center gap-1 bg-amber-50/80 border border-amber-200 rounded px-1.5 py-0.5" title="Dynamic GST Tax Rate">
-                            <span class="text-[10px] font-bold text-amber-800">GST:</span>
-                            <input type="number" min="0" max="100" step="0.5" value="${item.gst_percent}" 
-                                   onchange="updateItemGst(${idx}, this.value)" 
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h5 class="text-xs font-extrabold ${isOutOfStock ? 'text-red-950' : 'text-slate-900'} line-clamp-1">${item.name}</h5>
+                        ${stockStatusBadge}
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-2.5 flex-wrap">
+                        <span class="font-mono ${isOutOfStock ? 'text-red-900 font-bold' : 'text-slate-700'}">₹${item.unit_price.toFixed(2)}</span>
+                        
+                        <!-- Bigger GST text box without spinner arrows -->
+                        <div class="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 rounded-lg px-2 py-1 shadow-xs" title="Dynamic GST Tax Rate">
+                            <span class="text-xs font-black text-amber-900">GST:</span>
+                            <input type="text" inputmode="decimal" value="${item.gst_percent}" 
+                                   oninput="updateItemGst(${idx}, this.value)" 
                                    title="Edit GST percentage for this item"
-                                   class="w-10 bg-white border border-amber-300 rounded px-1 py-0 text-center font-mono font-bold text-[10px] text-slate-800 outline-none focus:border-amber-500">
-                            <span class="text-[10px] text-amber-800 font-bold">%</span>
+                                   class="w-14 h-7 bg-white border border-amber-400 rounded-md px-1 py-0 text-center font-mono font-black text-xs text-slate-900 outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-500 shadow-inner">
+                            <span class="text-xs text-amber-900 font-bold">%</span>
                         </div>
                     </div>
                 </div>
@@ -459,15 +479,15 @@ function renderCart() {
                         <button onclick="updateItemQty(${idx}, -1)" class="w-6 h-6 rounded bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs font-bold shadow-xs">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <span class="w-7 text-center text-xs font-bold text-slate-900 font-mono">${item.quantity}</span>
+                        <span class="w-7 text-center text-xs font-bold ${isOutOfStock ? 'text-red-900' : 'text-slate-900'} font-mono">${item.quantity}</span>
                         <button onclick="updateItemQty(${idx}, 1)" class="w-6 h-6 rounded bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs font-bold shadow-xs">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
 
                     <div class="text-right min-w-[70px]">
-                        <span class="text-xs font-black text-slate-900 font-mono block">₹${lineTotal.toFixed(2)}</span>
-                        <span class="text-[9px] text-slate-400 font-mono">tax: ₹${taxAmt.toFixed(2)}</span>
+                        <span class="text-xs font-black ${isOutOfStock ? 'text-red-950' : 'text-slate-900'} font-mono block">₹${lineTotal.toFixed(2)}</span>
+                        <span class="text-[9px] ${isOutOfStock ? 'text-red-700' : 'text-slate-400'} font-mono">tax: ₹${taxAmt.toFixed(2)}</span>
                     </div>
 
                     <button onclick="removeFromCart(${idx})" class="text-slate-400 hover:text-rose-600 p-1 transition-colors" title="Remove item">
@@ -525,8 +545,14 @@ function updateTotalsUI(subtotal, totalDisc, totalTax, roundOff, grandTotal) {
     if (elRound) elRound.textContent = (roundOff >= 0 ? '+' : '') + '₹' + roundOff.toFixed(2);
     if (elGrand) elGrand.textContent = '₹' + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     if (elPayBtn) {
-        elPayBtn.disabled = posCart.length === 0;
-        elPayBtn.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Pay ₹${grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})} [F8]`;
+        elPayBtn.disabled = false;
+        if (posCart.length === 0) {
+            elPayBtn.classList.add('opacity-75');
+            elPayBtn.innerHTML = `<i class="fas fa-shopping-cart mr-2"></i>Complete Bill [F8]`;
+        } else {
+            elPayBtn.classList.remove('opacity-75');
+            elPayBtn.innerHTML = `<i class="fas fa-check-circle mr-2"></i>Pay ₹${grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})} [F8]`;
+        }
     }
 }
 
@@ -554,13 +580,13 @@ function syncProductCardsStockState() {
         const priceEl = card.querySelector('.pos-price-val');
         
         if (remainingStock <= 0 || maxStock <= 0) {
-            // OUT OF STOCK -> Display RED and DISABLE card
-            card.dataset.disabled = 'true';
-            card.classList.remove('bg-white', 'border-slate-100', 'hover:border-amber-300', 'hover:shadow-md', 'cursor-pointer');
-            card.classList.add('pos-card-out-of-stock', 'bg-red-50', 'border-2', 'border-red-500', 'cursor-not-allowed', 'shadow-xs');
+            // OUT OF STOCK -> Display RED warning, but ALLOW billing!
+            card.dataset.disabled = 'false';
+            card.classList.remove('bg-white', 'border-slate-100', 'hover:border-amber-300', 'cursor-not-allowed');
+            card.classList.add('pos-card-out-of-stock', 'bg-red-50', 'border-2', 'border-red-500', 'cursor-pointer', 'shadow-xs');
             
             if (badgeEl) {
-                const label = maxStock <= 0 ? 'Out of Stock' : '0 in stock (Max Reached)';
+                const label = maxStock <= 0 ? 'Out of Stock (Red Bill)' : '0 in stock (Red Bill)';
                 badgeEl.className = 'pos-stock-badge bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-red-700 shadow-xs whitespace-nowrap shrink-0 flex items-center gap-1';
                 badgeEl.innerHTML = `<i class="fas fa-ban text-[9px]"></i> ${label}`;
             }
@@ -574,9 +600,9 @@ function syncProductCardsStockState() {
                 priceEl.className = 'pos-price-val text-[14px] font-black text-red-900 font-mono ml-1';
             }
             if (btnEl) {
-                btnEl.className = 'pos-add-btn w-7 h-7 rounded-lg bg-red-200 text-red-700 border border-red-300 flex items-center justify-center transition-all shadow-xs cursor-not-allowed';
-                btnEl.innerHTML = '<i class="fas fa-ban text-xs"></i>';
-                btnEl.setAttribute('disabled', 'disabled');
+                btnEl.className = 'pos-add-btn w-7 h-7 rounded-lg bg-red-600 text-white hover:bg-red-700 flex items-center justify-center transition-all shadow-xs cursor-pointer';
+                btnEl.innerHTML = '<i class="fas fa-plus text-xs"></i>';
+                btnEl.removeAttribute('disabled');
             }
         } else {
             // IN STOCK -> Active White / Amber design
@@ -776,6 +802,24 @@ function prefillQuickAdd(val) {
 }
 window.prefillQuickAdd = prefillQuickAdd;
 
+function onCustomerInputsChanged() {
+    const mobileInp = document.getElementById('pos-customer-mobile');
+    const nameInp = document.getElementById('pos-customer-name');
+    
+    const mobile = (mobileInp?.value || '').trim();
+    const name = (nameInp?.value || '').trim();
+    
+    selectedCustomer.mobile = mobile || '9999999999';
+    selectedCustomer.name = name || 'Walk-in Retail Customer';
+    
+    // Update Payment Modal Customer Info
+    const payNameEl = document.getElementById('modal-pay-customer-name');
+    const payMobileEl = document.getElementById('modal-pay-customer-mobile');
+    if (payNameEl) payNameEl.textContent = selectedCustomer.name;
+    if (payMobileEl) payMobileEl.textContent = selectedCustomer.mobile;
+}
+window.onCustomerInputsChanged = onCustomerInputsChanged;
+
 function selectCustomer(id, name, mobile, state) {
     selectedCustomer = { 
         id: parseInt(id) || 1, 
@@ -784,7 +828,13 @@ function selectCustomer(id, name, mobile, state) {
         state: String(state || 'Tamil Nadu') 
     };
 
-    // Update POS Header Banner
+    // Update Live Input fields in POS Header
+    const mobileInp = document.getElementById('pos-customer-mobile');
+    const nameInp = document.getElementById('pos-customer-name');
+    if (mobileInp) mobileInp.value = selectedCustomer.mobile;
+    if (nameInp) nameInp.value = selectedCustomer.name;
+
+    // Backward compatibility for static banner elements if any
     const nameEl = document.getElementById('selected-customer-name');
     const mobileEl = document.getElementById('selected-customer-mobile');
     if (nameEl) nameEl.textContent = selectedCustomer.name;
@@ -1141,7 +1191,17 @@ window.onPosPaymentMethodChange = calculatePosTotalPaidFromMethods;
  * Payment Modal & Checkout Completion
  */
 function openPaymentModal() {
-    if (posCart.length === 0) return;
+    if (!posCart || posCart.length === 0) {
+        showToast('error', 'Cannot complete bill: Cart is empty! Please add at least 1 product.');
+        const s = document.getElementById('pos-search-input');
+        if (s) {
+            s.focus();
+            s.select();
+            s.classList.add('ring-2', 'ring-rose-500');
+            setTimeout(() => s.classList.remove('ring-2', 'ring-rose-500'), 1500);
+        }
+        return;
+    }
 
     const elGrand = document.getElementById('summary-grandtotal');
     const grandVal = parseFloat(elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : '0') || 0;
@@ -1270,8 +1330,8 @@ async function processCheckout() {
     const payload = {
         _csrf_token: window.CSRF_TOKEN,
         customer_id: selectedCustomer.id,
-        customer_name: selectedCustomer.name,
-        customer_mobile: selectedCustomer.mobile,
+        customer_name: (document.getElementById('pos-customer-name')?.value || selectedCustomer.name || 'Walk-in Retail Customer').trim(),
+        customer_mobile: (document.getElementById('pos-customer-mobile')?.value || selectedCustomer.mobile || '9999999999').trim(),
         payment_method: method,
         payment_methods: selectedMethods,
         payment_amounts: paymentAmounts,
