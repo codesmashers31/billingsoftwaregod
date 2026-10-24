@@ -26,7 +26,7 @@ class BillingController extends Controller {
         $accModel = new Account();
 
         $categories = $catModel->where("status = 'active'", [], 'name ASC');
-        $initialProducts = $prodModel->searchForPos('', null, 40);
+        $initialProducts = $prodModel->searchForPos('', null, 100);
         $accounts = $accModel->where("status = 'active' AND type IN ('cash', 'bank')", [], 'type ASC, name ASC');
 
         $this->render('billing.pos', [
@@ -42,7 +42,7 @@ class BillingController extends Controller {
         $categoryId = $request->input('category_id') ? (int)$request->input('category_id') : null;
 
         $prodModel = new Product();
-        $products = $prodModel->searchForPos($q, $categoryId, 30);
+        $products = $prodModel->searchForPos($q, $categoryId, 100);
         Response::json(['data' => $products]);
     }
 
@@ -241,7 +241,9 @@ class BillingController extends Controller {
                     $customer['name'] = $custNameInput;
                 }
             } else {
+                $custCode = $custModel->generateCustomerCode();
                 $newCustId = $custModel->create([
+                    'customer_code' => $custCode,
                     'name' => $custNameInput,
                     'mobile' => $cleanDigits,
                     'customer_type' => 'retail',

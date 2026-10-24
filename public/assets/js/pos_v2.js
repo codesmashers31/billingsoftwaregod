@@ -1503,6 +1503,14 @@ async function processCheckout() {
             posCart = [];
             renderCart();
 
+            // Auto-refresh product catalog grid from server so stock deductions and out-of-stock/warning badges update immediately
+            const curSearchVal = document.getElementById('pos-search-input')?.value.trim() || '';
+            try {
+                await searchProducts(curSearchVal);
+            } catch (catalogErr) {
+                console.error('POS product grid refresh error:', catalogErr);
+            }
+
             // Clear direct customer input fields to restore clean placeholders for next sale
             const cNameInp = document.getElementById('pos-customer-name');
             const cMobInp = document.getElementById('pos-customer-mobile');

@@ -11,6 +11,29 @@ class Customer extends Model {
         'outstanding_balance', 'customer_type', 'status'
     ];
 
+    /**
+     * Generate unique sequential customer code e.g. CUST-0009
+     */
+    public function generateCustomerCode(): string {
+        $maxId = (int)($this->db->query("SELECT MAX(id) as max_id FROM `customers`")[0]['max_id'] ?? 0);
+        $next = max($maxId + 1, $this->count() + 1);
+        $code = 'CUST-' . str_pad((string)$next, 4, '0', STR_PAD_LEFT);
+        while ($this->findBy('customer_code', $code)) {
+            $code = 'CUST-' . rand(1000, 9999);
+        }
+        return $code;
+    }
+
+    /**
+     * Intercept customer creation to guarantee unique customer_code is never empty
+     */
+    public function create(array $data): int|string {
+        if (empty($data['customer_code'])) {
+            $data['customer_code'] = $this->generateCustomerCode();
+        }
+        return parent::create($data);
+    }
+
     public function findOrCreate(array $data): array {
         $mobile = trim($data['mobile'] ?? '');
         $name = trim($data['name'] ?? '');
@@ -22,12 +45,9 @@ class Customer extends Model {
             }
         }
 
-        $code = 'CUST-' . str_pad((string)($this->count() + 1), 4, '0', STR_PAD_LEFT);
-        while ($this->findBy('customer_code', $code)) {
-            $code = 'CUST-' . rand(1000, 9999);
+        if (empty($data['customer_code'])) {
+            $data['customer_code'] = $this->generateCustomerCode();
         }
-
-        $data['customer_code'] = $code;
         $data['name'] = $name ?: 'Cash Customer';
         $data['mobile'] = $mobile ?: '9999999999';
         $data['status'] = $data['status'] ?? 'active';
