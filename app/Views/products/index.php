@@ -115,7 +115,6 @@
                         <tr>
                             <th class="py-3 px-4">Supplier</th>
                             <th class="py-3 px-4">Mobile</th>
-                            <th class="py-3 px-4">Barcode No.</th>
                             <th class="py-3 px-4">Products</th>
                             <th class="py-3 px-4">GST Number</th>
                             <th class="py-3 px-4">Status</th>
@@ -124,7 +123,7 @@
                     </thead>
                     <tbody id="supplier-table-body" class="divide-y divide-slate-100">
                         <tr id="empty-state-row">
-                            <td colspan="7" class="py-12 text-center text-slate-400">
+                            <td colspan="6" class="py-12 text-center text-slate-400">
                                 <i class="fas fa-box-open text-3xl mb-3 block text-slate-300"></i>
                                 <p class="font-bold text-slate-600 text-sm">No suppliers found</p>
                                 <p class="text-xs mt-1">Click "Add Supplier" to create your first entry.</p>
@@ -927,6 +926,142 @@
                 <button type="submit" form="product-form" class="px-5 py-2.5 rounded-xl text-white bg-amber-600 hover:bg-amber-700 text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                     <i class="fas fa-save"></i> Save Product
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplier Products Detailed Sheet Modal -->
+<div id="supplier-products-modal" onclick="if(event.target === this) closeSupplierProductsModal()" class="hidden fixed inset-0 z-[105] bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+    <div class="min-h-full w-full flex items-center justify-center p-3 sm:p-6 py-8">
+        <div class="bg-white rounded-2xl w-full max-w-6xl shadow-2xl relative animate-fade-in mx-auto flex flex-col max-h-[92vh]">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">
+                        <i class="fas fa-warehouse"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-extrabold text-slate-900" id="sp-modal-supplier-name">Supplier Name</h3>
+                            <span id="sp-modal-supplier-code" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">SUP-0000</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5 font-medium" id="sp-modal-supplier-info">Phone • Location • GST</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="printSupplierProductsSheet()" title="Print / Export Sheet" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs">
+                        <i class="fas fa-print"></i> Print Sheet
+                    </button>
+                    <button type="button" onclick="closeSupplierProductsModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors">
+                        <i class="fas fa-times text-base"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1" id="supplier-sheet-printable-area">
+                <!-- 4 KPI Summary Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3.5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Products Associated</span>
+                            <span class="text-base sm:text-lg font-black text-indigo-950 font-mono" id="sp-kpi-total-products">0</span>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Units Sold</span>
+                            <span class="text-base sm:text-lg font-black text-emerald-950 font-mono" id="sp-kpi-units-sold">0 Units</span>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-3.5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">In Stock (Unsold)</span>
+                            <span class="text-base sm:text-lg font-black text-amber-950 font-mono" id="sp-kpi-stock-remaining">0 Units</span>
+                        </div>
+                    </div>
+                    <div class="bg-purple-50/50 border border-purple-100 rounded-xl p-3.5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Sales Revenue</span>
+                            <span class="text-base sm:text-lg font-black text-purple-950 font-mono" id="sp-kpi-sales-revenue">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inner Search & Filter Bar for Sheet -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="w-full sm:w-72 relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="sp-sheet-search" oninput="renderSupplierProductsSheet()" placeholder="Search product name, SKU..." class="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-500 transition-all font-medium">
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <select id="sp-sheet-status-filter" onchange="renderSupplierProductsSheet()" class="w-full sm:w-auto bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-indigo-500 font-medium">
+                            <option value="">All Product Statuses</option>
+                            <option value="partially_sold">Partially Sold</option>
+                            <option value="sold_out">Sold Out</option>
+                            <option value="in_stock">In Stock (Unsold)</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                        </select>
+                        <button type="button" onclick="openAddProductForSupplier(currentSheetSupplierId)" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shadow-xs">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product Sales Sheet Table -->
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-100/90 text-slate-700 uppercase text-[10px] font-black border-b border-slate-200 tracking-wider">
+                            <tr>
+                                <th class="py-3 px-3 text-center w-10">#</th>
+                                <th class="py-3 px-3 min-w-[200px]">Product & SKU</th>
+                                <th class="py-3 px-3 min-w-[120px]">Category</th>
+                                <th class="py-3 px-3 min-w-[105px]">Supply Date</th>
+                                <th class="py-3 px-3 text-right min-w-[100px]">Piece Rate</th>
+                                <th class="py-3 px-3 text-center min-w-[80px]">Margin %</th>
+                                <th class="py-3 px-3 text-right min-w-[100px]">Selling Price</th>
+                                <th class="py-3 px-3 text-center min-w-[80px]">Sold</th>
+                                <th class="py-3 px-3 text-center min-w-[80px]">In Stock</th>
+                                <th class="py-3 px-3 text-center min-w-[120px]">Sales Status</th>
+                                <th class="py-3 px-3 text-right min-w-[120px]">Total Sold Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sp-sheet-table-body" class="divide-y divide-slate-100 bg-white">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold">
+                            <tr id="sp-sheet-footer-row">
+                                <!-- Populated dynamically -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex items-center justify-between sticky bottom-0 z-20">
+                <span class="text-xs text-slate-500 font-medium">Full detailed sheet showing product sales, pricing, and stock metrics.</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeSupplierProductsModal()" class="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all shadow-xs">
+                        Close
+                    </button>
+                    <button type="button" onclick="openAddProductForSupplier(currentSheetSupplierId)" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                        <i class="fas fa-plus"></i> Add Another Product
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2420,9 +2555,7 @@
                 <td class="py-3 px-4">
                     <div class="font-bold text-slate-700">${suppMobile}</div>
                 </td>
-                <td class="py-3 px-4 font-mono text-[12px] font-bold text-indigo-700 bg-indigo-50/50 rounded-lg text-center tracking-wider">
-                    ${suppCode}
-                </td>
+                
                 <td class="py-3 px-4">
                     ${productButtonHtml}
                 </td>
@@ -2476,13 +2609,19 @@
         renderSupplierProductsSheet();
 
         const modal = document.getElementById('supplier-products-modal');
-        if (modal) modal.classList.remove('hidden');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'block';
+        }
     }
 
     function closeSupplierProductsModal() {
         currentSheetSupplierId = null;
         const modal = document.getElementById('supplier-products-modal');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
     }
 
     function openAddProductForSupplier(supplierId) {
