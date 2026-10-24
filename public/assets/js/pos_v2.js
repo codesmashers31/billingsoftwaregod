@@ -802,21 +802,48 @@ function prefillQuickAdd(val) {
 }
 window.prefillQuickAdd = prefillQuickAdd;
 
+let customerLookupTimer = null;
 function onCustomerInputsChanged() {
     const mobileInp = document.getElementById('pos-customer-mobile');
     const nameInp = document.getElementById('pos-customer-name');
     
     const mobile = (mobileInp?.value || '').trim();
+    const cleanDigits = mobile.replace(/\D/g, '');
     const name = (nameInp?.value || '').trim();
     
-    selectedCustomer.mobile = mobile || '9999999999';
-    selectedCustomer.name = name || 'Walk-in Retail Customer';
+    selectedCustomer.mobile = cleanDigits;
+    selectedCustomer.name = name;
     
     // Update Payment Modal Customer Info
     const payNameEl = document.getElementById('modal-pay-customer-name');
     const payMobileEl = document.getElementById('modal-pay-customer-mobile');
-    if (payNameEl) payNameEl.textContent = selectedCustomer.name;
-    if (payMobileEl) payMobileEl.textContent = selectedCustomer.mobile;
+    if (payNameEl) payNameEl.textContent = name || 'Customer Name Required';
+    if (payMobileEl) payMobileEl.textContent = cleanDigits || '10-digit Mobile Required';
+
+    // Auto lookup customer if exactly 10 digits entered
+    if (cleanDigits.length === 10) {
+        clearTimeout(customerLookupTimer);
+        customerLookupTimer = setTimeout(async () => {
+            try {
+                const res = await fetch(`${window.APP_URL}/customers/search?q=${encodeURIComponent(cleanDigits)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await res.json();
+                const found = (data.data || []).find(c => c.mobile && c.mobile.replace(/\D/g, '') === cleanDigits);
+                if (found && found.name) {
+                    if (nameInp && (!nameInp.value || nameInp.value === 'Walk-in Retail Customer')) {
+                        nameInp.value = found.name;
+                        selectedCustomer.name = found.name;
+                        selectedCustomer.id = found.id;
+                        if (payNameEl) payNameEl.textContent = found.name;
+                        showToast('info', `Found registered customer: ${found.name}`);
+                    }
+                }
+            } catch (err) {
+                // silent
+            }
+        }, 250);
+    }
 }
 window.onCustomerInputsChanged = onCustomerInputsChanged;
 
@@ -1189,6 +1216,36 @@ function openPaymentModal() {
         return;
     }
 
+    // MANDATORY CUSTOMER DETAILS VALIDATION: Billing will NOT proceed without customer mobile & name!
+    const mobileInp = document.getElementById('pos-customer-mobile');
+    const nameInp = document.getElementById('pos-customer-name');
+    const mobileVal = (mobileInp?.value || '').trim();
+    const cleanDigits = mobileVal.replace(/\D/g, '');
+    const nameVal = (nameInp?.value || '').trim();
+
+    if (!cleanDigits || cleanDigits.length < 10) {
+        showToast('error', 'Customer Details Required: Please enter 10-digit Customer Mobile Number to proceed with billing!');
+        if (mobileInp) {
+            mobileInp.focus();
+            mobileInp.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+            setTimeout(() => mobileInp.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500'), 2200);
+        }
+        return;
+    }
+
+    if (!nameVal) {
+        showToast('error', 'Customer Details Required: Please enter Customer Full Name to proceed with billing!');
+        if (nameInp) {
+            nameInp.focus();
+            nameInp.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+            setTimeout(() => nameInp.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500'), 2200);
+        }
+        return;
+    }
+
+    selectedCustomer.name = nameVal;
+    selectedCustomer.mobile = cleanDigits;
+
     const elGrand = document.getElementById('summary-grandtotal');
     const grandVal = parseFloat(elGrand ? elGrand.textContent.replace(/[^\d.-]/g, '') : '0') || 0;
 
@@ -1309,11 +1366,28 @@ async function processCheckout() {
         billGstPercent = parseFloat(activeBillGstMode);
     }
 
+    const rawCustName = (document.getElementById('pos-customer-name')?.value || selectedCustomer.name || '').trim();
+    const rawCustMobile = (document.getElementById('pos-customer-mobile')?.value || selectedCustomer.mobile || '').trim();
+    const cleanCustMobile = rawCustMobile.replace(/\D/g, '');
+
+    if (!cleanCustMobile || cleanCustMobile.length < 10) {
+        showToast('error', 'Customer Details Required: Please enter 10-digit Customer Mobile Number.');
+        if (payBtn) { payBtn.disabled = false; payBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Complete Transaction'; }
+        return;
+    }
+    if (!rawCustName) {
+        showToast('error', 'Customer Details Required: Please enter Customer Full Name.');
+        if (payBtn) { payBtn.disabled = false; payBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Complete Transaction'; }
+        return;
+    }
+
+    const receiptPreference = document.querySelector('input[name="pos_receipt_mode"]:checked')?.value || 'thermal';
+
     const payload = {
         _csrf_token: window.CSRF_TOKEN,
         customer_id: selectedCustomer.id,
-        customer_name: (document.getElementById('pos-customer-name')?.value || selectedCustomer.name || 'Walk-in Retail Customer').trim(),
-        customer_mobile: (document.getElementById('pos-customer-mobile')?.value || selectedCustomer.mobile || '9999999999').trim(),
+        customer_name: rawCustName,
+        customer_mobile: cleanCustMobile,
         payment_method: method,
         payment_methods: selectedMethods,
         payment_amounts: paymentAmounts,
@@ -1357,27 +1431,39 @@ async function processCheckout() {
             document.getElementById('completed-invoice-no').textContent = result.data.invoice_no;
             const cNameEl = document.getElementById('completed-customer-name');
             const cMobEl = document.getElementById('completed-customer-mobile');
-            const finalCustName = result.data.customer_name || 'Walk-in Retail Customer';
-            const finalCustMob = result.data.customer_mobile || '';
+            const finalCustName = result.data.customer_name || rawCustName || 'Customer';
+            const finalCustMob = result.data.customer_mobile || cleanCustMobile || '';
             if (cNameEl) cNameEl.textContent = finalCustName;
-            if (cMobEl) cMobEl.textContent = finalCustMob || 'Counter Sale';
+            if (cMobEl) cMobEl.textContent = finalCustMob;
 
-            // Thermal 80mm Print
+            // Thermal 80mm Print handler
             const thermalBtn = document.getElementById('btn-print-thermal');
             if (thermalBtn) {
                 thermalBtn.onclick = () => window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
             }
 
-            // WhatsApp Share Bill
+            // WhatsApp Share Bill handler
             const waBtn = document.getElementById('btn-share-whatsapp');
             if (waBtn) {
                 waBtn.onclick = () => sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
             }
 
-            // View Bill
+            // View Bill handler
             const viewBtn = document.getElementById('btn-view-invoice');
             if (viewBtn) {
                 viewBtn.onclick = () => window.location.href = result.data.view_url;
+            }
+
+            // Automatically execute customer's receipt delivery choice
+            if (receiptPreference === 'whatsapp') {
+                sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
+            } else if (receiptPreference === 'thermal') {
+                window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
+            } else if (receiptPreference === 'both') {
+                window.open(result.data.print_thermal_url, '_blank', 'width=400,height=600');
+                setTimeout(() => {
+                    sendInvoiceToWhatsApp(result.data, finalCustName, finalCustMob);
+                }, 400);
             }
 
             openModal('pos-complete-modal');
@@ -1419,19 +1505,21 @@ function escapeHtml(str) {
 function sendInvoiceToWhatsApp(invoiceData, customerName, customerMobile) {
     let mobile = (customerMobile || '').replace(/\D/g, '');
 
-    // If mobile is dummy or not 10 digits, prompt operator for actual WhatsApp number
-    if (!mobile || mobile === '9999999999' || mobile.length < 10) {
-        const entered = prompt('Please enter the customer\'s 10-digit WhatsApp Mobile Number:');
+    // Fallback prompt only if mobile is missing
+    if (!mobile || mobile.length < 10) {
+        const entered = prompt('Please enter customer WhatsApp Mobile Number (10 digits):');
         if (!entered) return;
         mobile = entered.replace(/\D/g, '');
         if (mobile.length < 10) {
-            showToast('error', 'Please enter a valid 10-digit WhatsApp mobile number.');
+            showToast('error', 'Please enter a valid 10-digit mobile number.');
             return;
         }
     }
 
-    // Prefix with India country code 91 if 10 digits
-    if (mobile.length === 10) {
+    // Handle 12-digit numbers starting with 91 or format 10-digit to 91XXXXXXXXXX
+    if (mobile.length === 12 && mobile.startsWith('91')) {
+        // already has 91
+    } else if (mobile.length === 10) {
         mobile = '91' + mobile;
     }
 

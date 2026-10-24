@@ -204,14 +204,17 @@
 
     <!-- RIGHT SIDE: Reactive Cart & Fast Checkout (35% width) -->
     <div class="w-full lg:w-[420px] xl:w-[450px] flex flex-col bg-white border border-slate-200 rounded-2xl p-4 shadow-sm shrink-0 overflow-hidden">
-        <!-- Customer Live Direct Filling Banner -->
+        <!-- Customer Live Direct Filling Banner (Mandatory for Billing) -->
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3 shrink-0">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2 overflow-hidden">
                     <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-200">
-                        <i class="fas fa-user-edit"></i>
+                        <i class="fas fa-user-check"></i>
                     </div>
-                    <span class="font-extrabold text-slate-800 text-xs tracking-tight">Customer Info (Direct Live Filling)</span>
+                    <span class="font-extrabold text-slate-800 text-xs tracking-tight flex items-center gap-1">
+                        <span>Customer Details</span>
+                        <span class="text-rose-600 text-[10px] font-black uppercase tracking-wider">(Required for Bill)</span>
+                    </span>
                 </div>
                 <button type="button" onclick="openCustomerModal()" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 shadow-xs">
                     <i class="fas fa-search text-[10px] text-amber-600"></i> Search [F4]
@@ -219,14 +222,19 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile No *</label>
-                    <input type="tel" id="pos-customer-mobile" value="" placeholder="Mobile Number" 
+                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Mobile No <span class="text-rose-600 font-black">*</span>
+                    </label>
+                    <input type="tel" id="pos-customer-mobile" value="" placeholder="10-digit Mobile Number *" 
+                           maxlength="10"
                            oninput="onCustomerInputsChanged()"
                            class="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Customer Name *</label>
-                    <input type="text" id="pos-customer-name" value="" placeholder="Customer Name" 
+                    <label class="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Customer Name <span class="text-rose-600 font-black">*</span>
+                    </label>
+                    <input type="text" id="pos-customer-name" value="" placeholder="Customer Full Name *" 
                            oninput="onCustomerInputsChanged()"
                            class="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 outline-none transition-all">
                 </div>
@@ -462,6 +470,34 @@
                     <label class="block font-bold text-slate-700 mb-1">Balance to Pay (₹)</label>
                     <input type="number" step="0.01" id="modal-balance-amount" readonly class="w-full bg-rose-50 border border-rose-200 text-rose-700 font-bold rounded-xl px-3 py-2 text-sm outline-none cursor-not-allowed font-mono" value="0.00">
                     <p class="text-[10px] text-slate-400 mt-1">Formula: Balance = Total Amount - Total Amount Paid</p>
+                </div>
+            </div>
+
+            <!-- Receipt Delivery Option -->
+            <div class="pt-1">
+                <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <i class="fas fa-paper-plane text-amber-600 text-xs"></i>
+                        <span>Bill Delivery Method (Customer Preference)</span>
+                    </span>
+                    <span class="text-[10px] text-amber-700 font-bold uppercase tracking-wider">Select delivery</span>
+                </label>
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 hover:border-amber-400 bg-white select-none transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:shadow-xs">
+                        <input type="radio" name="pos_receipt_mode" value="thermal" checked class="hidden">
+                        <i class="fas fa-receipt text-lg text-amber-600"></i>
+                        <span class="text-xs font-bold text-slate-800">Thermal Print</span>
+                    </label>
+                    <label class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 hover:border-emerald-400 bg-white select-none transition-all has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-xs">
+                        <input type="radio" name="pos_receipt_mode" value="whatsapp" class="hidden">
+                        <i class="fab fa-whatsapp text-xl text-emerald-600"></i>
+                        <span class="text-xs font-bold text-slate-800">WhatsApp Bill</span>
+                    </label>
+                    <label class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1.5 hover:border-indigo-400 bg-white select-none transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 has-[:checked]:shadow-xs">
+                        <input type="radio" name="pos_receipt_mode" value="both" class="hidden">
+                        <i class="fas fa-print text-lg text-indigo-600"></i>
+                        <span class="text-xs font-bold text-slate-800">Print + WhatsApp</span>
+                    </label>
                 </div>
             </div>
 

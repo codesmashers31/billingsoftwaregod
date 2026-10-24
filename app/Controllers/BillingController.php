@@ -217,22 +217,37 @@ class BillingController extends Controller {
 
             $custMobileInput = trim((string)$request->input('customer_mobile', ''));
             $custNameInput = trim((string)$request->input('customer_name', ''));
+            $cleanDigits = preg_replace('/\D/', '', $custMobileInput);
 
-            if (!empty($custMobileInput) && $custMobileInput !== '9999999999') {
+            if (empty($cleanDigits) || strlen($cleanDigits) < 10) {
+                throw new \Exception('Customer Details Required: Please provide a valid 10-digit Customer Mobile Number to complete billing.');
+            }
+
+            if (empty($custNameInput)) {
+                throw new \Exception('Customer Details Required: Please provide Customer Full Name to complete billing.');
+            }
+
+            $existing = $custModel->findBy('mobile', $cleanDigits);
+            if (!$existing && $cleanDigits !== $custMobileInput) {
                 $existing = $custModel->findBy('mobile', $custMobileInput);
-                if ($existing) {
-                    $customer = $existing;
-                    $customerId = (int)$customer['id'];
-                } elseif ($customerId === 1 || empty($customer['mobile']) || $customer['mobile'] === '9999999999') {
-                    $newCustId = $custModel->create([
-                        'name' => $custNameInput ?: ($customer['name'] ?? 'Counter Customer'),
-                        'mobile' => $custMobileInput,
-                        'customer_type' => 'retail',
-                        'status' => 'active'
-                    ]);
-                    $customer = $custModel->find($newCustId);
-                    $customerId = (int)$newCustId;
+            }
+
+            if ($existing) {
+                $customer = $existing;
+                $customerId = (int)$customer['id'];
+                if (!empty($custNameInput) && $customer['name'] === 'Walk-in Retail Customer') {
+                    $custModel->update($customerId, ['name' => $custNameInput]);
+                    $customer['name'] = $custNameInput;
                 }
+            } else {
+                $newCustId = $custModel->create([
+                    'name' => $custNameInput,
+                    'mobile' => $cleanDigits,
+                    'customer_type' => 'retail',
+                    'status' => 'active'
+                ]);
+                $customer = $custModel->find($newCustId);
+                $customerId = (int)$newCustId;
             }
 
             $invoiceNo = $invModel->generateInvoiceNo();
