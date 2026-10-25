@@ -259,7 +259,14 @@
                         <i class="fas fa-credit-card text-amber-600"></i> Payment Information
                     </h3>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sales Mode</label>
+                            <select name="sales_mode" id="sales_mode" class="w-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none">
+                                <option value="offline" <?= ($invoice['sales_mode'] ?? 'offline') === 'offline' ? 'selected' : '' ?>>Offline (Showroom / Store)</option>
+                                <option value="online" <?= ($invoice['sales_mode'] ?? '') === 'online' ? 'selected' : '' ?>>Online (Remote / Web)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Payment Method</label>
                             <select name="payment_method" id="pay_method" class="w-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-amber-500 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none">

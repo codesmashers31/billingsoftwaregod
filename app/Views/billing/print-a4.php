@@ -126,6 +126,7 @@ $items = $items ?? $invoice['items'] ?? [];
                     <?= nl2br(sanitize($invoice['customer_shipping_address'] ?: ($invoice['customer_address'] ?: 'Counter Delivery'))) ?>
                 </div>
                 <div class="font-mono text-[11px] text-slate-700 space-y-0.5">
+                    <div>Sales Mode: <strong class="uppercase text-slate-900"><?= $invoice['sales_mode'] ?? 'OFFLINE' ?></strong></div>
                     <div>Payment Method: <strong class="uppercase"><?= $invoice['payment_method'] ?></strong></div>
                     <div>Payment Terms: <strong><?= sanitize($invoice['payment_terms'] ?? 'Immediate') ?></strong></div>
                     <div>Status: <strong class="uppercase text-<?= $invoice['payment_status'] === 'paid' ? 'emerald-700' : ($invoice['payment_status'] === 'partial' ? 'amber-700' : 'rose-700') ?>"><?= $invoice['payment_status'] ?></strong></div>

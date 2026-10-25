@@ -118,6 +118,50 @@ class DashboardController extends Controller {
         $periodGrossMargin = $periodRevenue - $periodCogs;
         $periodMarginPercent = $periodRevenue > 0 ? round(($periodGrossMargin / $periodRevenue) * 100, 1) : 0;
 
+        // 6b. Online vs Offline Sales Breakdown (Period & Overall)
+        $resPeriodOnline = $db->query(
+            "SELECT 
+                COALESCE(SUM(grand_total), 0) as online_sales,
+                COUNT(*) as online_count
+             FROM `invoices` 
+             WHERE sales_mode = 'online' AND status != 'cancelled' AND invoice_date BETWEEN ? AND ?",
+            [$startDate, $endDate]
+        );
+        $periodOnlineSales = (float)($resPeriodOnline[0]['online_sales'] ?? 0);
+        $periodOnlineCount = (int)($resPeriodOnline[0]['online_count'] ?? 0);
+        $periodOnlinePercent = $periodSales > 0 ? round(($periodOnlineSales / $periodSales) * 100, 1) : 0;
+
+        $resOverallOnline = $db->query(
+            "SELECT 
+                COALESCE(SUM(grand_total), 0) as online_sales,
+                COUNT(*) as online_count
+             FROM `invoices` 
+             WHERE sales_mode = 'online' AND status != 'cancelled'"
+        );
+        $overallOnlineSales = (float)($resOverallOnline[0]['online_sales'] ?? 0);
+        $overallOnlineCount = (int)($resOverallOnline[0]['online_count'] ?? 0);
+
+        $resPeriodOffline = $db->query(
+            "SELECT 
+                COALESCE(SUM(grand_total), 0) as offline_sales,
+                COUNT(*) as offline_count
+             FROM `invoices` 
+             WHERE (sales_mode = 'offline' OR sales_mode IS NULL OR sales_mode = '') AND status != 'cancelled' AND invoice_date BETWEEN ? AND ?",
+            [$startDate, $endDate]
+        );
+        $periodOfflineSales = (float)($resPeriodOffline[0]['offline_sales'] ?? 0);
+        $periodOfflineCount = (int)($resPeriodOffline[0]['offline_count'] ?? 0);
+
+        $resOverallOffline = $db->query(
+            "SELECT 
+                COALESCE(SUM(grand_total), 0) as offline_sales,
+                COUNT(*) as offline_count
+             FROM `invoices` 
+             WHERE (sales_mode = 'offline' OR sales_mode IS NULL OR sales_mode = '') AND status != 'cancelled'"
+        );
+        $overallOfflineSales = (float)($resOverallOffline[0]['offline_sales'] ?? 0);
+        $overallOfflineCount = (int)($resOverallOffline[0]['offline_count'] ?? 0);
+
         // 7. Dynamic Sales Trend Chart Data (Adapts to Selected Period)
         $salesTrend = ['labels' => [], 'data' => []];
         if ($period === 'today') {
@@ -203,6 +247,19 @@ class DashboardController extends Controller {
             'periodCogs' => $periodCogs,
             'periodGrossMargin' => $periodGrossMargin,
             'periodMarginPercent' => $periodMarginPercent,
+            'periodOnlineSales' => $periodOnlineSales,
+            'periodOnlineSalesFormatted' => formatCurrency($periodOnlineSales),
+            'periodOnlineCount' => $periodOnlineCount,
+            'periodOnlinePercent' => $periodOnlinePercent,
+            'overallOnlineSales' => $overallOnlineSales,
+            'overallOnlineSalesFormatted' => formatCurrency($overallOnlineSales),
+            'overallOnlineCount' => $overallOnlineCount,
+            'periodOfflineSales' => $periodOfflineSales,
+            'periodOfflineSalesFormatted' => formatCurrency($periodOfflineSales),
+            'periodOfflineCount' => $periodOfflineCount,
+            'overallOfflineSales' => $overallOfflineSales,
+            'overallOfflineSalesFormatted' => formatCurrency($overallOfflineSales),
+            'overallOfflineCount' => $overallOfflineCount,
             'totalProducts' => $totalProducts,
             'totalStockPieces' => $totalStockPieces,
             'lowStockProducts' => $lowStockProducts,

@@ -171,20 +171,21 @@
             </p>
         </div>
 
-        <!-- Card C: Period Realized Sales Profit Margin -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-amber-400 transition-all">
+        <!-- Card C: Online Sales Turnover (Replaced Gross Profit as requested) -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-blue-400 transition-all">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <i class="fas fa-trophy text-amber-600"></i> Period Sales Gross Profit
+                    <i class="fas fa-globe text-blue-600"></i> Online Sales
                 </span>
-                <span class="text-[10px] bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-200 font-mono" id="card-period-margin-pct">
-                    <?= $periodMarginPercent ?>% Margin
+                <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 font-mono" id="card-online-pct">
+                    <?= $periodOnlinePercent ?>% of Sales
                 </span>
             </div>
-            <h3 class="text-2xl font-black text-slate-900 font-mono mt-1" id="card-period-margin"><?= formatCurrency($periodGrossMargin) ?></h3>
-            <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                Gross profit realized on sales invoices during this selected period (Revenue minus product buy costs).
-            </p>
+            <h3 class="text-2xl font-black text-blue-700 font-mono mt-1" id="card-online-sales"><?= $periodOnlineSalesFormatted ?></h3>
+            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+                <span id="card-online-count"><i class="fas fa-shopping-bag text-blue-500 mr-1"></i> <?= $periodOnlineCount ?> online orders</span>
+                <span id="card-overall-online" class="font-bold text-slate-700" title="Overall Lifetime Online Sales">Overall: <?= $overallOnlineSalesFormatted ?> (<?= $overallOnlineCount ?>)</span>
+            </div>
         </div>
     </div>
 
@@ -275,7 +276,14 @@
                             <tr><td colspan="5" class="py-6 text-center text-slate-400">No invoices recorded in this period.</td></tr>
                         <?php else: foreach ($recentInvoices as $inv): ?>
                             <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="py-2.5 px-3 font-mono font-bold text-slate-900"><?= $inv['invoice_no'] ?></td>
+                                <td class="py-2.5 px-3 font-mono font-bold text-slate-900">
+                                    <?= $inv['invoice_no'] ?>
+                                    <?php if (($inv['sales_mode'] ?? 'offline') === 'online'): ?>
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 ml-1"><i class="fas fa-globe text-[8px]"></i> Online</span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 ml-1"><i class="fas fa-store text-[8px]"></i> Offline</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="py-2.5 px-3 font-medium text-slate-800"><?= sanitize($inv['customer_name']) ?></td>
                                 <td class="py-2.5 px-3 font-mono font-bold text-slate-900"><?= formatCurrency($inv['grand_total']) ?></td>
                                 <td class="py-2.5 px-3 text-[11px] text-slate-500"><?= date('d M Y', strtotime($inv['invoice_date'])) ?></td>
@@ -484,10 +492,14 @@ async function fetchDashboardMetrics(params) {
             if (cMarg) cMarg.textContent = d.stockExpectedMarginFormatted;
             if (cMargBadge) cMargBadge.textContent = `${d.stockMarginPercent}% Margin`;
 
-            const cPeriodMarg = document.getElementById('card-period-margin');
-            const cPeriodMargPct = document.getElementById('card-period-margin-pct');
-            if (cPeriodMarg) cPeriodMarg.textContent = '₹' + parseFloat(d.periodGrossMargin).toLocaleString('en-IN', {minimumFractionDigits: 2});
-            if (cPeriodMargPct) cPeriodMargPct.textContent = `${d.periodMarginPercent}% Margin`;
+            const cOnlineSales = document.getElementById('card-online-sales');
+            const cOnlinePct = document.getElementById('card-online-pct');
+            const cOnlineCount = document.getElementById('card-online-count');
+            const cOverallOnline = document.getElementById('card-overall-online');
+            if (cOnlineSales) cOnlineSales.textContent = d.periodOnlineSalesFormatted;
+            if (cOnlinePct) cOnlinePct.textContent = `${d.periodOnlinePercent}% of Sales`;
+            if (cOnlineCount) cOnlineCount.innerHTML = `<i class="fas fa-shopping-bag text-blue-500 mr-1"></i> ${d.periodOnlineCount} online orders`;
+            if (cOverallOnline) cOverallOnline.textContent = `Overall: ${d.overallOnlineSalesFormatted} (${d.overallOnlineCount})`;
 
             // 4. Update Chart
             const chartTotalEl = document.getElementById('chart-period-total');
@@ -507,7 +519,12 @@ async function fetchDashboardMetrics(params) {
                         const dateFormatted = new Date(inv.invoice_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                         rowsHtml += `
                             <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${inv.invoice_no}</td>
+                                <td class="py-2.5 px-3 font-mono font-bold text-slate-900">
+                                    ${inv.invoice_no}
+                                    ${inv.sales_mode === 'online' 
+                                        ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 ml-1"><i class="fas fa-globe text-[8px]"></i> Online</span>'
+                                        : '<span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 ml-1"><i class="fas fa-store text-[8px]"></i> Offline</span>'}
+                                </td>
                                 <td class="py-2.5 px-3 font-medium text-slate-800">${escapeHtml(inv.customer_name)}</td>
                                 <td class="py-2.5 px-3 font-mono font-bold text-slate-900">₹${parseFloat(inv.grand_total).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                                 <td class="py-2.5 px-3 text-[11px] text-slate-500">${dateFormatted}</td>

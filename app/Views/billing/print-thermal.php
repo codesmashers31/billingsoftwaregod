@@ -74,7 +74,7 @@
             <span>NET TOTAL:</span>
             <span>₹<?= number_format((float)$invoice['grand_total'], 2) ?></span>
         </div>
-        <div class="flex justify-between pt-0.5"><span>Paid (<?= strtoupper($invoice['payment_method']) ?>):</span><span>₹<?= number_format((float)$invoice['paid_amount'], 2) ?></span></div>
+        <div class="flex justify-between pt-0.5"><span>Paid (<?= strtoupper($invoice['payment_method']) ?> • <?= strtoupper($invoice['sales_mode'] ?? 'OFFLINE') ?>):</span><span>₹<?= number_format((float)$invoice['paid_amount'], 2) ?></span></div>
     </div>
 
     <div class="text-center pt-3 border-t border-dashed border-black text-[9px]">

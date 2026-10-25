@@ -118,6 +118,16 @@
                 <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-amber-50 text-amber-800 border border-amber-200 uppercase tracking-wide">
                     <?= sanitize(ucwords(str_replace('_', ' ', $invoice['invoice_type'] ?? 'tax_invoice'))) ?>
                 </span>
+                <?php $smode = strtolower($invoice['sales_mode'] ?? 'offline'); ?>
+                <?php if ($smode === 'online'): ?>
+                    <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wide flex items-center gap-1">
+                        <i class="fas fa-globe text-[10px]"></i> Online Sale
+                    </span>
+                <?php else: ?>
+                    <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wide flex items-center gap-1">
+                        <i class="fas fa-store text-[10px]"></i> Offline Sale
+                    </span>
+                <?php endif; ?>
             </div>
             <p class="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
                 <span><i class="far fa-calendar-alt text-slate-400 mr-1"></i> Date: <strong><?= formatDate($invoice['invoice_date']) ?></strong> <?= $invoice['invoice_time'] ?? '' ?></span>
@@ -274,7 +284,7 @@
                         <span class="text-base font-black text-blue-950 mt-1 block">₹<?= number_format((float)$invoice['grand_total'], 2) ?></span>
                     </div>
                     <div class="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-200">
-                        <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-700 block">Amount Paid (<?= strtoupper($invoice['payment_method'] ?? 'cash') ?>)</span>
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-700 block">Amount Paid (<?= strtoupper($invoice['payment_method'] ?? 'cash') ?> • <?= strtoupper($invoice['sales_mode'] ?? 'OFFLINE') ?>)</span>
                         <span class="text-base font-black text-emerald-950 mt-1 block">₹<?= number_format((float)$invoice['paid_amount'], 2) ?></span>
                     </div>
                     <div class="bg-rose-50/60 p-3.5 rounded-xl border border-rose-200">

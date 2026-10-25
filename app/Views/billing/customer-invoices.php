@@ -75,7 +75,7 @@
 
     <!-- Filters & Search Toolbar -->
     <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-        <form method="GET" action="<?= url('customer-invoices') ?>" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        <form method="GET" action="<?= url('customer-invoices') ?>" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2.5">
             <div class="lg:col-span-2">
                 <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Search Customer / Invoice</label>
                 <div class="relative">
@@ -84,6 +84,15 @@
                            placeholder="Invoice #, Customer Name, Mobile..." 
                            class="w-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-amber-500 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 outline-none">
                 </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sales Mode</label>
+                <select name="sales_mode" class="w-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-amber-500 rounded-xl px-2.5 py-2 text-xs text-slate-900 outline-none">
+                    <option value="">All Modes</option>
+                    <option value="offline" <?= ($filters['sales_mode'] ?? '') === 'offline' ? 'selected' : '' ?>>Offline (Store)</option>
+                    <option value="online" <?= ($filters['sales_mode'] ?? '') === 'online' ? 'selected' : '' ?>>Online</option>
+                </select>
             </div>
 
             <div>
@@ -142,6 +151,7 @@
                         <th class="py-3.5 px-4 font-bold text-slate-700 text-right">Grand Total</th>
                         <th class="py-3.5 px-4 font-bold text-slate-700 text-right">Paid / Due</th>
                         <th class="py-3.5 px-4 font-bold text-slate-700 text-center">Payment Mode</th>
+                        <th class="py-3.5 px-4 font-bold text-slate-700 text-center">Sales Mode</th>
                         <th class="py-3.5 px-4 font-bold text-slate-700 text-center">Status</th>
                         <th class="py-3.5 px-4 font-bold text-slate-700 text-right">Actions</th>
                     </tr>
@@ -149,7 +159,7 @@
                 <tbody class="divide-y divide-slate-100">
                     <?php if (empty($invoices)): ?>
                         <tr>
-                            <td colspan="9" class="py-12 text-center text-slate-400">
+                            <td colspan="10" class="py-12 text-center text-slate-400">
                                 <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400 text-xl">
                                     <i class="fas fa-file-invoice"></i>
                                 </div>
@@ -261,6 +271,20 @@
                                 <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 capitalize">
                                     <i class="fas <?= $mIcon ?> text-[10px]"></i> <?= sanitize($method) ?>
                                 </span>
+                            </td>
+
+                            <!-- Sales Mode (Offline / Online) -->
+                            <td class="py-3 px-4 text-center">
+                                <?php $smode = strtolower($inv['sales_mode'] ?? 'offline'); ?>
+                                <?php if ($smode === 'online'): ?>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                        <i class="fas fa-globe text-[10px]"></i> Online
+                                    </span>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                        <i class="fas fa-store text-[10px]"></i> Offline
+                                    </span>
+                                <?php endif; ?>
                             </td>
 
                             <!-- Status Badge -->
@@ -533,6 +557,7 @@ function previewInvoice(id) {
                     <div>GST Tax: <strong class="text-slate-900">₹${Number(inv.tax_amount).toFixed(2)}</strong></div>
                     ${Number(inv.overall_discount_amount) > 0 ? '<div>Discount: <strong class="text-emerald-700">-₹' + Number(inv.overall_discount_amount).toFixed(2) + '</strong></div>' : ''}
                     <div>Payment Method: <strong class="capitalize text-slate-900">${inv.payment_method}</strong></div>
+                    <div>Sales Mode: <strong class="capitalize ${inv.sales_mode === 'online' ? 'text-blue-600 font-bold' : 'text-slate-900'}">${inv.sales_mode || 'offline'}</strong></div>
                 </div>
                 <div class="text-right space-y-1">
                     <div class="text-sm font-extrabold text-slate-900">Grand Total: ₹${Number(inv.grand_total).toFixed(2)}</div>

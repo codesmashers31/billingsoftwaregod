@@ -109,6 +109,11 @@ class Invoice extends Model {
             $params[] = $filters['payment_method'];
         }
 
+        if (!empty($filters['sales_mode'])) {
+            $conditions[] = "i.sales_mode = ?";
+            $params[] = $filters['sales_mode'];
+        }
+
         $whereClause = implode(' AND ', $conditions);
         $offset = max(0, ($page - 1) * $perPage);
 
@@ -171,6 +176,11 @@ class Invoice extends Model {
             $conditions[] = "i.payment_method = ?";
             $params[] = $filters['payment_method'];
         }
+
+        if (!empty($filters['sales_mode'])) {
+            $conditions[] = "i.sales_mode = ?";
+            $params[] = $filters['sales_mode'];
+        }
         if (!empty($filters['date_from'])) {
             $conditions[] = "i.invoice_date >= ?";
             $params[] = $filters['date_from'];
@@ -187,7 +197,11 @@ class Invoice extends Model {
                     COALESCE(SUM(CASE WHEN i.status != 'cancelled' THEN i.paid_amount ELSE 0 END), 0) as total_paid,
                     COALESCE(SUM(CASE WHEN i.status != 'cancelled' THEN i.due_amount ELSE 0 END), 0) as total_due,
                     COALESCE(SUM(CASE WHEN i.payment_status = 'paid' THEN 1 ELSE 0 END), 0) as paid_count,
-                    COALESCE(SUM(CASE WHEN i.due_amount > 0 AND i.status != 'cancelled' THEN 1 ELSE 0 END), 0) as due_count
+                    COALESCE(SUM(CASE WHEN i.due_amount > 0 AND i.status != 'cancelled' THEN 1 ELSE 0 END), 0) as due_count,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' AND i.sales_mode = 'online' THEN i.grand_total ELSE 0 END), 0) as total_online_sales,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' AND i.sales_mode = 'online' THEN 1 ELSE 0 END), 0) as online_count,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' AND (i.sales_mode = 'offline' OR i.sales_mode IS NULL OR i.sales_mode = '') THEN i.grand_total ELSE 0 END), 0) as total_offline_sales,
+                    COALESCE(SUM(CASE WHEN i.status != 'cancelled' AND (i.sales_mode = 'offline' OR i.sales_mode IS NULL OR i.sales_mode = '') THEN 1 ELSE 0 END), 0) as offline_count
                 FROM `invoices` i 
                 LEFT JOIN `customers` c ON i.customer_id = c.id 
                 WHERE {$whereClause}";
@@ -199,6 +213,10 @@ class Invoice extends Model {
             'total_due' => 0.00,
             'paid_count' => 0,
             'due_count' => 0,
+            'total_online_sales' => 0.00,
+            'online_count' => 0,
+            'total_offline_sales' => 0.00,
+            'offline_count' => 0,
         ];
     }
 

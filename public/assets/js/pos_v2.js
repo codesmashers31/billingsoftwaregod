@@ -1341,6 +1341,10 @@ function openPaymentModal() {
     if (payModalCustName) payModalCustName.textContent = selectedCustomer.name || 'Walk-in Retail Customer';
     if (payModalCustMobile) payModalCustMobile.textContent = selectedCustomer.mobile || '9999999999';
     
+    // Reset sales mode: Default to Offline
+    const offlineRadio = document.querySelector('input[name="pos_sales_mode"][value="offline"]');
+    if (offlineRadio) offlineRadio.checked = true;
+
     // Reset payment methods: Cash and UPI only
     const methodConfigs = [
         { chk: 'pos_chk_cash', input: 'pos_payment_amount_cash', defaultChecked: true },
@@ -1423,6 +1427,7 @@ async function processCheckout() {
         payBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing Invoice...';
     }
 
+    const salesMode = document.querySelector('input[name="pos_sales_mode"]:checked')?.value || 'offline';
     const checkedBoxes = Array.from(document.querySelectorAll('input[name="payment_methods[]"]:checked')).map(cb => cb.value);
     const selectedMethods = checkedBoxes.length > 0 ? checkedBoxes : ['cash'];
     const method = selectedMethods.length > 1 ? 'split' : selectedMethods[0];
@@ -1468,6 +1473,7 @@ async function processCheckout() {
         customer_id: selectedCustomer.id,
         customer_name: rawCustName,
         customer_mobile: cleanCustMobile,
+        sales_mode: salesMode,
         payment_method: method,
         payment_methods: selectedMethods,
         payment_amounts: paymentAmounts,

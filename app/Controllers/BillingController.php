@@ -103,12 +103,14 @@ class BillingController extends Controller {
         $paymentMethod = trim((string)$request->input('payment_method', ''));
         $dateFrom = trim((string)$request->input('date_from', ''));
         $dateTo = trim((string)$request->input('date_to', ''));
+        $salesMode = trim((string)$request->input('sales_mode', ''));
 
         $filters = [
             'search' => $search,
             'payment_status' => $paymentStatus,
             'invoice_type' => $invoiceType,
             'payment_method' => $paymentMethod,
+            'sales_mode' => $salesMode,
             'date_from' => $dateFrom,
             'date_to' => $dateTo,
         ];
@@ -416,6 +418,10 @@ class BillingController extends Controller {
                 $invoiceNotes = $notes ? "{$notes} | Payment: [{$breakdownDetail}]" : "Payment: [{$breakdownDetail}]";
             }
 
+            // Sales Channel / Mode (Offline vs Online)
+            $rawSalesMode = strtolower(trim((string)$request->input('sales_mode', 'offline')));
+            $salesMode = in_array($rawSalesMode, ['offline', 'online']) ? $rawSalesMode : 'offline';
+
             // 1. Create Invoice Header
             $invoiceId = $invModel->create([
                 'invoice_no' => $invoiceNo,
@@ -436,6 +442,7 @@ class BillingController extends Controller {
                 'paid_amount' => $paidAmount,
                 'due_amount' => $dueAmount,
                 'payment_method' => $primaryMethod,
+                'sales_mode' => $salesMode,
                 'status' => 'completed',
                 'payment_status' => $paymentStatus,
                 'notes' => $invoiceNotes
@@ -1022,6 +1029,9 @@ class BillingController extends Controller {
             $dueAmount = max(0, $grandTotal - $paidAmount);
             $paymentStatus = $dueAmount <= 0.01 ? 'paid' : ($paidAmount > 0 ? 'partial' : 'unpaid');
 
+            $rawSalesMode = strtolower(trim((string)$request->input('sales_mode', 'offline')));
+            $salesMode = in_array($rawSalesMode, ['offline', 'online']) ? $rawSalesMode : 'offline';
+
             $invoiceData = [
                 'invoice_no' => $invoiceNo,
                 'invoice_type' => $invoiceType,
@@ -1046,6 +1056,7 @@ class BillingController extends Controller {
                 'paid_amount' => $paidAmount,
                 'due_amount' => $dueAmount,
                 'payment_method' => $paymentMethod,
+                'sales_mode' => $salesMode,
                 'status' => $status,
                 'payment_status' => $paymentStatus,
                 'notes' => $notes

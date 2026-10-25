@@ -2102,12 +2102,16 @@
         const div = document.createElement('div');
         div.className = 'supplier-product-block relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-amber-200 rounded-lg bg-white shadow-sm';
         
-        let marginVal = '';
+        let marginVal = '60.00';
         if (productData) {
             if (productData.margin_percentage !== undefined && productData.margin_percentage !== null && productData.margin_percentage !== '') {
-                marginVal = productData.margin_percentage;
+                marginVal = parseFloat(productData.margin_percentage).toFixed(2);
             } else if (productData.prod_margin_percentage !== undefined && productData.prod_margin_percentage !== null && productData.prod_margin_percentage !== '') {
-                marginVal = productData.prod_margin_percentage;
+                marginVal = parseFloat(productData.prod_margin_percentage).toFixed(2);
+            } else if (productData.prod_selling_price && productData.prod_piece_rate && parseFloat(productData.prod_piece_rate) > 0) {
+                const sp = parseFloat(productData.prod_selling_price);
+                const pr = parseFloat(productData.prod_piece_rate);
+                marginVal = (((sp - pr) / pr) * 100).toFixed(2);
             }
         }
 
@@ -2146,12 +2150,12 @@
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Margin Percentage (%)</label>
-                <input type="number" step="0.01" min="0" name="sp_margin_percentage[]" value="${marginVal}" placeholder="Enter Margin % (Default: 60%)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" oninput="calculateSupplierSellingPrice(this)">
+                <input type="number" step="0.01" min="0" name="sp_margin_percentage[]" value="${marginVal}" placeholder="60.00" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" oninput="calculateSupplierSellingPrice(this)" onblur="if(this.value.trim()===''){ this.value='60.00'; calculateSupplierSellingPrice(this); }">
                 <span class="text-[10px] text-rose-500 hidden mt-0.5 err-margin-msg"></span>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Selling Price (₹)</label>
-                <input type="number" step="0.01" min="0" name="sp_selling_price[]" value="${productData ? (productData.prod_selling_price || '') : ''}" class="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                <input type="number" step="0.01" min="0" name="sp_selling_price[]" value="${productData ? (productData.prod_selling_price || '') : ''}" class="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" oninput="calculateSupplierMarginFromSellingPrice(this)">
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">GST (%)</label>
@@ -2218,6 +2222,50 @@
             }
         } else {
             if (sellingInput) sellingInput.value = '';
+        }
+    }
+
+    function calculateSupplierMarginFromSellingPrice(element) {
+        const parentBlock = element.closest('.supplier-product-block');
+        if (!parentBlock) return;
+        const pieceRateInput = parentBlock.querySelector('input[name="sp_piece_rate[]"]');
+        const marginInput = parentBlock.querySelector('input[name="sp_margin_percentage[]"]');
+        const sellingInput = parentBlock.querySelector('input[name="sp_selling_price[]"]');
+        const errSpan = parentBlock.querySelector('.err-margin-msg');
+
+        if (errSpan) {
+            errSpan.textContent = '';
+            errSpan.classList.add('hidden');
+        }
+        if (marginInput) marginInput.classList.remove('border-rose-500');
+
+        const pieceRate = parseFloat(pieceRateInput ? pieceRateInput.value : 0) || 0;
+        const rawSelling = sellingInput ? sellingInput.value.trim() : '';
+
+        if (rawSelling === '') {
+            return;
+        }
+
+        const sellingPrice = parseFloat(rawSelling);
+        if (isNaN(sellingPrice) || sellingPrice < 0) {
+            return;
+        }
+
+        if (pieceRate > 0) {
+            const marginPct = ((sellingPrice - pieceRate) / pieceRate) * 100.0;
+            if (marginInput) {
+                marginInput.value = marginPct.toFixed(2);
+            }
+            if (marginPct < 0) {
+                if (errSpan) {
+                    errSpan.textContent = 'Warning: Selling price is below piece rate';
+                    errSpan.classList.remove('hidden');
+                }
+            }
+        } else if (pieceRate === 0 && sellingPrice > 0) {
+            if (marginInput) {
+                marginInput.value = '100.00';
+            }
         }
     }
 
@@ -4838,12 +4886,16 @@
         const div = document.createElement('div');
         div.className = 'product-product-block relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-amber-200 rounded-lg bg-white shadow-sm';
         
-        let marginVal = '';
+        let marginVal = '60.00';
         if (productData) {
             if (productData.margin_percentage !== undefined && productData.margin_percentage !== null && productData.margin_percentage !== '') {
-                marginVal = productData.margin_percentage;
+                marginVal = parseFloat(productData.margin_percentage).toFixed(2);
             } else if (productData.prod_margin_percentage !== undefined && productData.prod_margin_percentage !== null && productData.prod_margin_percentage !== '') {
-                marginVal = productData.prod_margin_percentage;
+                marginVal = parseFloat(productData.prod_margin_percentage).toFixed(2);
+            } else if (productData.prod_selling_price && productData.prod_piece_rate && parseFloat(productData.prod_piece_rate) > 0) {
+                const sp = parseFloat(productData.prod_selling_price);
+                const pr = parseFloat(productData.prod_piece_rate);
+                marginVal = (((sp - pr) / pr) * 100).toFixed(2);
             }
         }
 
@@ -4882,12 +4934,12 @@
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Margin Percentage (%)</label>
-                <input type="number" step="0.01" min="0" name="ap_margin_percentage[]" value="${marginVal}" placeholder="Enter Margin % (Default: 60%)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" oninput="calculateProductSellingPrice(this)">
+                <input type="number" step="0.01" min="0" name="ap_margin_percentage[]" value="${marginVal}" placeholder="60.00" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" oninput="calculateProductSellingPrice(this)" onblur="if(this.value.trim()===''){ this.value='60.00'; calculateProductSellingPrice(this); }">
                 <span class="text-[10px] text-rose-500 hidden mt-0.5 err-margin-msg"></span>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">Selling Price (₹)</label>
-                <input type="number" step="0.01" min="0" name="ap_selling_price[]" value="${productData ? (productData.prod_selling_price || '') : ''}" class="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                <input type="number" step="0.01" min="0" name="ap_selling_price[]" value="${productData ? (productData.prod_selling_price || '') : ''}" class="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" oninput="calculateProductMarginFromSellingPrice(this)">
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-700 mb-1">GST (%)</label>
@@ -5023,6 +5075,50 @@
             }
         } else {
             if (sellingInput) sellingInput.value = '';
+        }
+    }
+
+    function calculateProductMarginFromSellingPrice(element) {
+        const parentBlock = element.closest('.product-product-block');
+        if (!parentBlock) return;
+        const pieceRateInput = parentBlock.querySelector('input[name="ap_piece_rate[]"]');
+        const marginInput = parentBlock.querySelector('input[name="ap_margin_percentage[]"]');
+        const sellingInput = parentBlock.querySelector('input[name="ap_selling_price[]"]');
+        const errSpan = parentBlock.querySelector('.err-margin-msg');
+
+        if (errSpan) {
+            errSpan.textContent = '';
+            errSpan.classList.add('hidden');
+        }
+        if (marginInput) marginInput.classList.remove('border-rose-500');
+
+        const pieceRate = parseFloat(pieceRateInput ? pieceRateInput.value : 0) || 0;
+        const rawSelling = sellingInput ? sellingInput.value.trim() : '';
+
+        if (rawSelling === '') {
+            return;
+        }
+
+        const sellingPrice = parseFloat(rawSelling);
+        if (isNaN(sellingPrice) || sellingPrice < 0) {
+            return;
+        }
+
+        if (pieceRate > 0) {
+            const marginPct = ((sellingPrice - pieceRate) / pieceRate) * 100.0;
+            if (marginInput) {
+                marginInput.value = marginPct.toFixed(2);
+            }
+            if (marginPct < 0) {
+                if (errSpan) {
+                    errSpan.textContent = 'Warning: Selling price is below piece rate';
+                    errSpan.classList.remove('hidden');
+                }
+            }
+        } else if (pieceRate === 0 && sellingPrice > 0) {
+            if (marginInput) {
+                marginInput.value = '100.00';
+            }
         }
     }
 

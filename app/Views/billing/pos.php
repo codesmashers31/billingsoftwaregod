@@ -439,6 +439,37 @@
                 <h2 id="modal-pay-grandtotal" class="text-3xl font-black font-mono text-slate-900 mt-1">₹0.00</h2>
             </div>
 
+            <!-- Sales Channel / Mode: Offline vs Online (Default: Offline) -->
+            <div>
+                <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <i class="fas fa-store-alt text-amber-600"></i> Sales Channel / Mode
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Default: Offline</span>
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 flex items-center gap-2.5 hover:border-amber-500 bg-white select-none transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/70 has-[:checked]:shadow-xs">
+                        <input type="radio" name="pos_sales_mode" value="offline" checked class="w-4 h-4 text-amber-600 focus:ring-amber-500">
+                        <div>
+                            <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fas fa-store text-amber-600"></i> Offline Sale
+                            </span>
+                            <span class="text-[10px] text-slate-500 block leading-tight">Store / Showroom Counter</span>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 flex items-center gap-2.5 hover:border-blue-500 bg-white select-none transition-all has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/70 has-[:checked]:shadow-xs">
+                        <input type="radio" name="pos_sales_mode" value="online" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <div>
+                            <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fas fa-globe text-blue-600"></i> Online Sale
+                            </span>
+                            <span class="text-[10px] text-slate-500 block leading-tight">Remote / WhatsApp / Web</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <!-- Select Payment Method: Cash and UPI Only -->
             <div>
                 <label class="block font-bold text-slate-700 mb-2">Select Payment Method</label>
