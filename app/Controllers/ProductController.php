@@ -348,10 +348,15 @@ class ProductController extends Controller {
 
             // Check if user entered an additional payment in Add Products Detail
             $prodCashAmt = max(0, (float)$request->input('prod_payment_amount_cash', 0));
+            $prodCardAmt = max(0, (float)$request->input('prod_payment_amount_card', 0));
             $prodUpiAmt = max(0, (float)$request->input('prod_payment_amount_upi', 0));
             $prodBankAmt = max(0, (float)$request->input('prod_payment_amount_bank', 0));
             $prodCreditAmt = max(0, (float)$request->input('prod_payment_amount_credit', 0));
-            $prodMethodSum = round($prodCashAmt + $prodUpiAmt + $prodBankAmt + $prodCreditAmt, 2);
+            $prodMethodSum = round($prodCashAmt + $prodCardAmt + $prodUpiAmt + $prodBankAmt + $prodCreditAmt, 2);
+
+            $chosenMethods = $request->input('prod_payment_methods', []);
+            if (!is_array($chosenMethods)) $chosenMethods = [$chosenMethods];
+            $actualMethod = !empty($chosenMethods) ? implode(', ', $chosenMethods) : ($prevMethod ?: 'Cash');
 
             $rawAddPaid = $request->input('prod_total_amount_paid') !== null
                 ? $request->input('prod_total_amount_paid')
@@ -388,14 +393,15 @@ class ProductController extends Controller {
                         ON DUPLICATE KEY UPDATE 
                             `paid_amount` = VALUES(`paid_amount`),
                             `payment_status` = VALUES(`payment_status`),
+                            `payment_method` = VALUES(`payment_method`),
                             `updated_at` = CURRENT_TIMESTAMP",
-                       [$supplierId, $newPaid, $newStatus, $prevMethod, date('Y-m-d'), 'Product addition payment sync']);
+                       [$supplierId, $newPaid, $newStatus, $actualMethod, date('Y-m-d'), 'Product addition payment sync']);
 
             if ($additionalPaid > 0) {
                 $db->query("INSERT INTO `supplier_payment_history` 
                             (`supplier_id`, `amount_paid`, `total_amount`, `balance_amount`, `payment_status`, `payment_method`, `payment_date`, `notes`, `created_by`)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                           [$supplierId, $additionalPaid, $totalPurchaseAmount, $newBalance, $newStatus, $prevMethod, date('Y-m-d'), 'Additional payment on product addition', Auth::id() ?: 1]);
+                           [$supplierId, $additionalPaid, $totalPurchaseAmount, $newBalance, $newStatus, $actualMethod, date('Y-m-d'), 'Additional payment on product addition', Auth::id() ?: 1]);
             }
 
             // Update suppliers table outstanding_balance

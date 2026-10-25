@@ -807,14 +807,23 @@
                 </div>
 
                 <label class="block text-xs font-bold text-slate-700 mb-3">Select Payment Methods</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5">
                     <!-- Cash -->
                     <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
                         <label class="flex items-center gap-2 cursor-pointer w-full">
                             <input type="checkbox" value="Cash" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Cash</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_cash" id="payment_amount_cash" oninput="calculateSupplierTotalPaid()" placeholder="Cash Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_cash" id="payment_amount_cash" oninput="calculateSupplierTotalPaid()" placeholder="Cash (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
+                    </div>
+
+                    <!-- Card -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                        <label class="flex items-center gap-2 cursor-pointer w-full">
+                            <input type="checkbox" value="Card" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_card')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                            <span class="text-sm font-bold text-slate-700">Card</span>
+                        </label>
+                        <input type="number" step="0.01" min="0" name="payment_amount_card" id="payment_amount_card" oninput="calculateSupplierTotalPaid()" placeholder="Card (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                     </div>
 
                     <!-- UPI -->
@@ -823,7 +832,7 @@
                             <input type="checkbox" value="UPI" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">UPI</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_upi" id="payment_amount_upi" oninput="calculateSupplierTotalPaid()" placeholder="UPI Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_upi" id="payment_amount_upi" oninput="calculateSupplierTotalPaid()" placeholder="UPI (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                     </div>
 
                     <!-- Bank Transfer -->
@@ -832,7 +841,7 @@
                             <input type="checkbox" value="Bank Transfer" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Bank Transfer</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_bank" id="payment_amount_bank" oninput="calculateSupplierTotalPaid()" placeholder="Bank Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_bank" id="payment_amount_bank" oninput="calculateSupplierTotalPaid()" placeholder="Bank (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                     </div>
 
                     <!-- Credit -->
@@ -841,7 +850,7 @@
                             <input type="checkbox" value="Credit" name="payment_methods[]" onchange="toggleSupplierPaymentAmount(this, 'payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                             <span class="text-sm font-bold text-slate-700">Credit</span>
                         </label>
-                        <input type="number" step="0.01" min="0" name="payment_amount_credit" id="payment_amount_credit" oninput="calculateSupplierTotalPaid()" placeholder="Credit Amount (₹) e.g. 10000" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        <input type="number" step="0.01" min="0" name="payment_amount_credit" id="payment_amount_credit" oninput="calculateSupplierTotalPaid()" placeholder="Credit (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                     </div>
                 </div>
 
@@ -997,46 +1006,55 @@
                     <h4 class="text-sm font-bold text-slate-800 border-b border-emerald-200 pb-2 mb-4"><i class="fas fa-credit-card text-emerald-500 mr-2"></i>3. Payment Information</h4>
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Total Amount Purchased (₹)</label>
-                        <input type="number" step="0.01" min="0" name="prod_total_amount_purchased" id="prod_total_amount_purchased" oninput="calculateProdTotalPaid()" class="w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                        <input type="number" step="0.01" min="0" name="prod_total_amount_purchased" id="prod_total_amount_purchased" oninput="onProdTotalPurchasedInput()" class="w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
                     </div>
 
                     <label class="block text-xs font-bold text-slate-700 mb-3">Select Payment Methods</label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5">
                         
                         <!-- Cash -->
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                            <label class="flex items-center gap-2 cursor-pointer">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                            <label class="flex items-center gap-2 cursor-pointer w-full">
                                 <input type="checkbox" value="Cash" name="prod_payment_methods[]" onchange="toggleProdPaymentAmount(this, 'prod_payment_amount_cash')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-bold text-slate-700">Cash</span>
                             </label>
-                            <input type="number" step="0.01" min="0" name="prod_payment_amount_cash" id="prod_payment_amount_cash" oninput="calculateProdTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                            <input type="number" step="0.01" min="0" name="prod_payment_amount_cash" id="prod_payment_amount_cash" oninput="calculateProdTotalPaid()" placeholder="Cash (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
+                        </div>
+
+                        <!-- Card -->
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                            <label class="flex items-center gap-2 cursor-pointer w-full">
+                                <input type="checkbox" value="Card" name="prod_payment_methods[]" onchange="toggleProdPaymentAmount(this, 'prod_payment_amount_card')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-bold text-slate-700">Card</span>
+                            </label>
+                            <input type="number" step="0.01" min="0" name="prod_payment_amount_card" id="prod_payment_amount_card" oninput="calculateProdTotalPaid()" placeholder="Card (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                         </div>
 
                         <!-- UPI -->
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                            <label class="flex items-center gap-2 cursor-pointer">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                            <label class="flex items-center gap-2 cursor-pointer w-full">
                                 <input type="checkbox" value="UPI" name="prod_payment_methods[]" onchange="toggleProdPaymentAmount(this, 'prod_payment_amount_upi')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-bold text-slate-700">UPI</span>
                             </label>
-                            <input type="number" step="0.01" min="0" name="prod_payment_amount_upi" id="prod_payment_amount_upi" oninput="calculateProdTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                            <input type="number" step="0.01" min="0" name="prod_payment_amount_upi" id="prod_payment_amount_upi" oninput="calculateProdTotalPaid()" placeholder="UPI (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                         </div>
 
                         <!-- Bank Transfer -->
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                            <label class="flex items-center gap-2 cursor-pointer">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                            <label class="flex items-center gap-2 cursor-pointer w-full">
                                 <input type="checkbox" value="Bank Transfer" name="prod_payment_methods[]" onchange="toggleProdPaymentAmount(this, 'prod_payment_amount_bank')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-bold text-slate-700">Bank Transfer</span>
                             </label>
-                            <input type="number" step="0.01" min="0" name="prod_payment_amount_bank" id="prod_payment_amount_bank" oninput="calculateProdTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                            <input type="number" step="0.01" min="0" name="prod_payment_amount_bank" id="prod_payment_amount_bank" oninput="calculateProdTotalPaid()" placeholder="Bank (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                         </div>
 
                         <!-- Credit -->
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 transition-all">
-                            <label class="flex items-center gap-2 cursor-pointer">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 hover:border-emerald-300 transition-all">
+                            <label class="flex items-center gap-2 cursor-pointer w-full">
                                 <input type="checkbox" value="Credit" name="prod_payment_methods[]" onchange="toggleProdPaymentAmount(this, 'prod_payment_amount_credit')" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-bold text-slate-700">Credit</span>
                             </label>
-                            <input type="number" step="0.01" min="0" name="prod_payment_amount_credit" id="prod_payment_amount_credit" oninput="calculateProdTotalPaid()" placeholder="Amount (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                            <input type="number" step="0.01" min="0" name="prod_payment_amount_credit" id="prod_payment_amount_credit" oninput="calculateProdTotalPaid()" placeholder="Credit (₹)" class="hidden w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
                         </div>
                     </div>
 
@@ -2372,26 +2390,49 @@
 
         if (checkbox.checked) {
             input.classList.remove('hidden');
-            // If empty, auto-fill remaining balance
+            // Auto-fill remaining balance into this input
+            const totalPurchased = parseFloat(document.getElementById('total_amount_purchased')?.value || 0) || 0;
+            const otherPaid = getSupplierOtherMethodsPaid(inputId);
+            const remaining = Math.max(0, totalPurchased - otherPaid);
             if (input.value === '' || parseFloat(input.value) === 0) {
-                const totalPurchased = parseFloat(document.getElementById('total_amount_purchased').value) || 0;
-                const otherPaid = getSupplierOtherMethodsPaid(inputId);
-                const remaining = Math.max(0, totalPurchased - otherPaid);
                 if (remaining > 0) {
                     input.value = remaining.toFixed(2);
+                } else if (otherPaid === 0 && totalPurchased > 0) {
+                    input.value = totalPurchased.toFixed(2);
+                } else {
+                    input.value = '0.00';
                 }
             }
             input.focus();
+            input.select();
         } else {
             input.classList.add('hidden');
             input.value = '';
+
+            // If exactly one method remains checked, give it the total purchase amount
+            const checkedCheckboxes = Array.from(document.querySelectorAll('#supplier-form input[name="payment_methods[]"]:checked'));
+            if (checkedCheckboxes.length === 1) {
+                const totalPurchased = parseFloat(document.getElementById('total_amount_purchased')?.value || 0) || 0;
+                const methodMap = {
+                    'Cash': 'payment_amount_cash',
+                    'Card': 'payment_amount_card',
+                    'UPI': 'payment_amount_upi',
+                    'Bank Transfer': 'payment_amount_bank',
+                    'Credit': 'payment_amount_credit'
+                };
+                const activeInputId = methodMap[checkedCheckboxes[0].value];
+                const activeInput = document.getElementById(activeInputId);
+                if (activeInput && (!activeInput.value || parseFloat(activeInput.value) === 0 || parseFloat(activeInput.value) < totalPurchased)) {
+                    activeInput.value = totalPurchased > 0 ? totalPurchased.toFixed(2) : '';
+                }
+            }
         }
         calculateSupplierTotalPaid();
     }
 
     function getSupplierOtherMethodsPaid(excludeInputId) {
         let sum = 0;
-        const methodIds = ['payment_amount_cash', 'payment_amount_upi', 'payment_amount_bank', 'payment_amount_credit'];
+        const methodIds = ['payment_amount_cash', 'payment_amount_card', 'payment_amount_upi', 'payment_amount_bank', 'payment_amount_credit'];
         methodIds.forEach(id => {
             if (id !== excludeInputId) {
                 const el = document.getElementById(id);
@@ -2405,16 +2446,18 @@
 
     function calculateSupplierTotalPaid() {
         const cashInput = document.getElementById('payment_amount_cash');
+        const cardInput = document.getElementById('payment_amount_card');
         const upiInput = document.getElementById('payment_amount_upi');
         const bankInput = document.getElementById('payment_amount_bank');
         const creditInput = document.getElementById('payment_amount_credit');
 
         const cash = (cashInput && !cashInput.classList.contains('hidden')) ? (parseFloat(cashInput.value) || 0) : 0;
+        const card = (cardInput && !cardInput.classList.contains('hidden')) ? (parseFloat(cardInput.value) || 0) : 0;
         const upi = (upiInput && !upiInput.classList.contains('hidden')) ? (parseFloat(upiInput.value) || 0) : 0;
         const bank = (bankInput && !bankInput.classList.contains('hidden')) ? (parseFloat(bankInput.value) || 0) : 0;
         const credit = (creditInput && !creditInput.classList.contains('hidden')) ? (parseFloat(creditInput.value) || 0) : 0;
 
-        const totalPaid = cash + upi + bank + credit;
+        const totalPaid = cash + card + upi + bank + credit;
         const paidInput = document.getElementById('total_payment_entered');
         const checkedCount = document.querySelectorAll('#supplier-form input[name="payment_methods[]"]:checked').length;
 
@@ -2427,7 +2470,7 @@
         }
 
         const errSpan = document.getElementById('err-total_paid');
-        const totalPurchased = parseFloat(document.getElementById('total_amount_purchased').value) || 0;
+        const totalPurchased = parseFloat(document.getElementById('total_amount_purchased')?.value || 0) || 0;
         if (errSpan) {
             if (totalPurchased > 0 && totalPaid > totalPurchased) {
                 errSpan.textContent = `Paid amount (₹${totalPaid.toFixed(2)}) cannot exceed total purchase amount (₹${totalPurchased.toFixed(2)})`;
@@ -2442,7 +2485,23 @@
     }
 
     function onTotalPurchasedInput() {
-        calculateSupplierPaymentStatus();
+        const total = parseFloat(document.getElementById('total_amount_purchased')?.value || 0) || 0;
+        const checkedCheckboxes = Array.from(document.querySelectorAll('#supplier-form input[name="payment_methods[]"]:checked'));
+        if (checkedCheckboxes.length === 1) {
+            const methodMap = {
+                'Cash': 'payment_amount_cash',
+                'Card': 'payment_amount_card',
+                'UPI': 'payment_amount_upi',
+                'Bank Transfer': 'payment_amount_bank',
+                'Credit': 'payment_amount_credit'
+            };
+            const activeInputId = methodMap[checkedCheckboxes[0].value];
+            const activeInput = document.getElementById(activeInputId);
+            if (activeInput) {
+                activeInput.value = total > 0 ? total.toFixed(2) : '';
+            }
+        }
+        calculateSupplierTotalPaid();
     }
 
     function onPaymentMethodToggle() {
@@ -2463,6 +2522,7 @@
         if (checkedCheckboxes.length === 1) {
             const methodMap = {
                 'Cash': 'payment_amount_cash',
+                'Card': 'payment_amount_card',
                 'UPI': 'payment_amount_upi',
                 'Bank Transfer': 'payment_amount_bank',
                 'Credit': 'payment_amount_credit'
@@ -2516,14 +2576,12 @@
         // Automatic Status calculation
         let status = 'Unpaid';
         if (total <= 0) {
-            // Zero Amount Condition: do not mark as Paid
             status = 'Unpaid';
             if (badge) {
                 badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200';
                 badge.textContent = 'Status: Unpaid (Draft)';
             }
         } else if (paidRaw >= total) {
-            // Condition 1: Paid
             status = 'Paid';
             if (balanceInput) balanceInput.value = '0.00';
             if (badge) {
@@ -2531,14 +2589,12 @@
                 badge.textContent = 'Status: Paid';
             }
         } else if (paidRaw > 0) {
-            // Condition 2: Partially Paid
             status = 'Partially Paid';
             if (badge) {
                 badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300';
                 badge.textContent = 'Status: Partially Paid';
             }
         } else {
-            // Condition 3: Unpaid
             status = 'Unpaid';
             if (badge) {
                 badge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-800 border border-rose-300';
@@ -2551,28 +2607,110 @@
         }
     }
 
+    function getProdOtherMethodsPaid(excludeInputId) {
+        let sum = 0;
+        const methodIds = ['prod_payment_amount_cash', 'prod_payment_amount_card', 'prod_payment_amount_upi', 'prod_payment_amount_bank', 'prod_payment_amount_credit'];
+        methodIds.forEach(id => {
+            if (id !== excludeInputId) {
+                const el = document.getElementById(id);
+                if (el && !el.classList.contains('hidden')) {
+                    sum += (parseFloat(el.value) || 0);
+                }
+            }
+        });
+        return sum;
+    }
+
     function toggleProdPaymentAmount(checkbox, inputId) {
         const input = document.getElementById(inputId);
+        if (!input) return;
+
         if (checkbox.checked) {
             input.classList.remove('hidden');
+            const totalPurchased = parseFloat(document.getElementById('prod_total_amount_purchased')?.value || 0) || 0;
+            const otherPaid = getProdOtherMethodsPaid(inputId);
+            const remaining = Math.max(0, totalPurchased - otherPaid);
+
+            // Auto-fill remaining balance into this input if empty or 0
+            if (input.value === '' || parseFloat(input.value) === 0) {
+                if (remaining > 0) {
+                    input.value = remaining.toFixed(2);
+                } else if (otherPaid === 0 && totalPurchased > 0) {
+                    input.value = totalPurchased.toFixed(2);
+                } else {
+                    input.value = '0.00';
+                }
+            }
+            input.focus();
+            input.select();
         } else {
             input.classList.add('hidden');
             input.value = '';
+
+            // If after unchecking, exactly one method remains checked, transfer the full total purchased amount to it
+            const checkedCheckboxes = Array.from(document.querySelectorAll('#product-form input[name="prod_payment_methods[]"]:checked'));
+            if (checkedCheckboxes.length === 1) {
+                const totalPurchased = parseFloat(document.getElementById('prod_total_amount_purchased')?.value || 0) || 0;
+                const methodMap = {
+                    'Cash': 'prod_payment_amount_cash',
+                    'Card': 'prod_payment_amount_card',
+                    'UPI': 'prod_payment_amount_upi',
+                    'Bank Transfer': 'prod_payment_amount_bank',
+                    'Credit': 'prod_payment_amount_credit'
+                };
+                const activeInputId = methodMap[checkedCheckboxes[0].value];
+                const activeInput = document.getElementById(activeInputId);
+                if (activeInput && (!activeInput.value || parseFloat(activeInput.value) === 0 || parseFloat(activeInput.value) < totalPurchased)) {
+                    activeInput.value = totalPurchased > 0 ? totalPurchased.toFixed(2) : '';
+                }
+            }
+        }
+        calculateProdTotalPaid();
+    }
+
+    function onProdTotalPurchasedInput() {
+        const total = parseFloat(document.getElementById('prod_total_amount_purchased')?.value || 0) || 0;
+        const checkedCheckboxes = Array.from(document.querySelectorAll('#product-form input[name="prod_payment_methods[]"]:checked'));
+        if (checkedCheckboxes.length === 1) {
+            const methodMap = {
+                'Cash': 'prod_payment_amount_cash',
+                'Card': 'prod_payment_amount_card',
+                'UPI': 'prod_payment_amount_upi',
+                'Bank Transfer': 'prod_payment_amount_bank',
+                'Credit': 'prod_payment_amount_credit'
+            };
+            const activeInputId = methodMap[checkedCheckboxes[0].value];
+            const activeInput = document.getElementById(activeInputId);
+            if (activeInput) {
+                activeInput.value = total > 0 ? total.toFixed(2) : '';
+            }
         }
         calculateProdTotalPaid();
     }
 
     function calculateProdTotalPaid() {
-        const cash = parseFloat(document.getElementById('prod_payment_amount_cash').value) || 0;
-        const upi = parseFloat(document.getElementById('prod_payment_amount_upi').value) || 0;
-        const bank = parseFloat(document.getElementById('prod_payment_amount_bank').value) || 0;
-        const credit = parseFloat(document.getElementById('prod_payment_amount_credit').value) || 0;
-        
-        const totalPaid = cash + upi + bank + credit;
+        const cashInput = document.getElementById('prod_payment_amount_cash');
+        const cardInput = document.getElementById('prod_payment_amount_card');
+        const upiInput = document.getElementById('prod_payment_amount_upi');
+        const bankInput = document.getElementById('prod_payment_amount_bank');
+        const creditInput = document.getElementById('prod_payment_amount_credit');
+
+        const cash = (cashInput && !cashInput.classList.contains('hidden')) ? (parseFloat(cashInput.value) || 0) : 0;
+        const card = (cardInput && !cardInput.classList.contains('hidden')) ? (parseFloat(cardInput.value) || 0) : 0;
+        const upi = (upiInput && !upiInput.classList.contains('hidden')) ? (parseFloat(upiInput.value) || 0) : 0;
+        const bank = (bankInput && !bankInput.classList.contains('hidden')) ? (parseFloat(bankInput.value) || 0) : 0;
+        const credit = (creditInput && !creditInput.classList.contains('hidden')) ? (parseFloat(creditInput.value) || 0) : 0;
+
+        const totalPaid = cash + card + upi + bank + credit;
         const totalPaidInput = document.getElementById('prod_total_payment_entered');
-        
+        const checkedCount = document.querySelectorAll('#product-form input[name="prod_payment_methods[]"]:checked').length;
+
         if (totalPaidInput) {
-            totalPaidInput.value = totalPaid > 0 ? totalPaid.toFixed(2) : '';
+            if (checkedCount > 0 || totalPaid > 0) {
+                totalPaidInput.value = totalPaid > 0 ? totalPaid.toFixed(2) : '0.00';
+            } else {
+                totalPaidInput.value = '';
+            }
         }
 
         // Calculate Balance
@@ -2581,15 +2719,15 @@
         if (totalAmountPurchasedInput && balanceInput) {
             const totalPurchased = parseFloat(totalAmountPurchasedInput.value) || 0;
             let balance = totalPurchased - totalPaid;
-            // Prevent negative balance display, or allow it to show overpayment
+
             balanceInput.value = balance !== 0 ? balance.toFixed(2) : '0.00';
-            
-            if (balance < 0) {
-                balanceInput.classList.replace('text-rose-800', 'text-emerald-800');
-                balanceInput.classList.replace('bg-rose-50', 'bg-emerald-50');
+
+            if (balance <= 0) {
+                balanceInput.classList.remove('text-rose-800', 'bg-rose-50', 'border-rose-200');
+                balanceInput.classList.add('text-emerald-800', 'bg-emerald-50', 'border-emerald-200');
             } else {
-                balanceInput.classList.replace('text-emerald-800', 'text-rose-800');
-                balanceInput.classList.replace('bg-emerald-50', 'bg-rose-50');
+                balanceInput.classList.remove('text-emerald-800', 'bg-emerald-50', 'border-emerald-200');
+                balanceInput.classList.add('text-rose-800', 'bg-rose-50', 'border-rose-200');
             }
         }
     }
@@ -4208,6 +4346,17 @@
         document.getElementById('product-products-container').innerHTML = '';
         addProductProductField();
 
+        // Reset Section 3 Payment Information
+        ['prod_payment_amount_cash', 'prod_payment_amount_card', 'prod_payment_amount_upi', 'prod_payment_amount_bank', 'prod_payment_amount_credit'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.value = ''; el.classList.add('hidden'); }
+        });
+        document.querySelectorAll('#product-form input[name="prod_payment_methods[]"]').forEach(cb => cb.checked = false);
+        const ptotInp = document.getElementById('prod_total_payment_entered');
+        if (ptotInp) ptotInp.value = '';
+        const pbalInp = document.getElementById('prod_balance_amount');
+        if (pbalInp) pbalInp.value = '0.00';
+
         toggleProductOffer();
         const modal = document.getElementById('product-modal');
         if (modal) {
@@ -5167,6 +5316,23 @@
             totalAmountInput.value = total > 0 ? total.toFixed(2) : '';
         }
         
+        // If exactly one payment method is checked, sync its value with new total
+        const checkedCheckboxes = Array.from(document.querySelectorAll('#product-form input[name="prod_payment_methods[]"]:checked'));
+        if (checkedCheckboxes.length === 1) {
+            const methodMap = {
+                'Cash': 'prod_payment_amount_cash',
+                'Card': 'prod_payment_amount_card',
+                'UPI': 'prod_payment_amount_upi',
+                'Bank Transfer': 'prod_payment_amount_bank',
+                'Credit': 'prod_payment_amount_credit'
+            };
+            const activeInputId = methodMap[checkedCheckboxes[0].value];
+            const activeInput = document.getElementById(activeInputId);
+            if (activeInput) {
+                activeInput.value = total > 0 ? total.toFixed(2) : '';
+            }
+        }
+
         calculateProdTotalPaid();
     }
 

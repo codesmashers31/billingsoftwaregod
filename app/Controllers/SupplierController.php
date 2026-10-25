@@ -346,10 +346,11 @@ class SupplierController extends Controller {
 
             // Read payment information from Section 3
             $cashAmt = max(0, (float)$request->input('payment_amount_cash', 0));
+            $cardAmt = max(0, (float)$request->input('payment_amount_card', 0));
             $upiAmt = max(0, (float)$request->input('payment_amount_upi', 0));
             $bankAmt = max(0, (float)$request->input('payment_amount_bank', 0));
             $creditAmt = max(0, (float)$request->input('payment_amount_credit', 0));
-            $methodSum = round($cashAmt + $upiAmt + $bankAmt + $creditAmt, 2);
+            $methodSum = round($cashAmt + $cardAmt + $upiAmt + $bankAmt + $creditAmt, 2);
 
             $rawPaidInput = $request->input('total_amount_paid') !== null 
                 ? $request->input('total_amount_paid') 
