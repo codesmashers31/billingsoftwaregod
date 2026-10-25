@@ -155,20 +155,53 @@
             </p>
         </div>
 
-        <!-- Card B: Expected Inventory Margin (Profit Amount) -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-blue-400 transition-all">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <i class="fas fa-chart-pie text-blue-600"></i> Expected Inventory Profit
-                </span>
-                <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 font-mono" id="card-margin-badge">
-                    <?= $stockMarginPercent ?>% Margin
-                </span>
+        <!-- Card B: Expected Inventory Profit Goal & Sales Tracking -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-blue-400 transition-all flex flex-col justify-between relative">
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fas fa-bullseye text-blue-600"></i> Expected Inventory Profit
+                    </span>
+                    <button type="button" onclick="openProfitTargetModal()" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all shadow-2xs cursor-pointer" title="Click to set target profit amount and date range">
+                        <i class="fas fa-edit"></i> Edit Target
+                    </button>
+                </div>
+
+                <!-- Main Achieved Profit Display -->
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h3 class="text-2xl font-black text-blue-700 font-mono" id="card-target-achieved"><?= $targetAchievedProfitFormatted ?></h3>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded border <?= $isTargetAchieved ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200' ?> font-mono" id="card-target-badge">
+                        <?= $isTargetAchieved ? 'Goal Reached 🎉' : $targetPercent . '% Achieved' ?>
+                    </span>
+                </div>
+
+                <!-- Target Goal & Dates Info -->
+                <div class="text-[11px] text-slate-500 mt-1.5 font-medium flex items-center justify-between flex-wrap gap-1">
+                    <span>Target Goal: <strong class="text-slate-900 font-mono font-bold" id="card-target-amount-text"><?= $targetProfitAmountFormatted ?></strong></span>
+                    <span class="text-[10px] text-slate-600 font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200" id="card-target-dates-text"><?= date('d M', strtotime($targetStartDate)) ?> - <?= date('d M Y', strtotime($targetEndDate)) ?></span>
+                </div>
+
+                <!-- Animated Progress Bar -->
+                <div class="w-full bg-slate-100 rounded-full h-2 my-2.5 overflow-hidden border border-slate-200">
+                    <div id="card-target-progress-bar" class="h-full <?= $isTargetAchieved ? 'bg-emerald-500' : 'bg-gradient-to-r from-blue-500 to-indigo-600' ?> rounded-full transition-all duration-500" style="width: <?= min(100, max(0, $targetPercent)) ?>%;"></div>
+                </div>
+
+                <!-- Remaining / Surplus Status -->
+                <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-medium" id="card-target-remaining-label">
+                        <?= $isTargetAchieved ? 'Surplus Earned:' : 'Remaining to Goal:' ?>
+                    </span>
+                    <span class="font-mono font-bold <?= $isTargetAchieved ? 'text-emerald-700' : 'text-amber-700' ?>" id="card-target-remaining-val">
+                        <?= $isTargetAchieved ? '+' . $targetSurplusFormatted : $targetRemainingFormatted ?>
+                    </span>
+                </div>
             </div>
-            <h3 class="text-2xl font-black text-blue-700 font-mono mt-1" id="card-margin"><?= $stockExpectedMarginFormatted ?></h3>
-            <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                Total retail selling value minus original buy cost on current store inventory.
-            </p>
+
+            <!-- Billed Sales Footnote -->
+            <div class="text-[10px] text-slate-500 mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
+                <span id="card-target-sales-info"><i class="fas fa-shopping-cart text-slate-400 mr-1"></i> Billed Sales: <strong class="text-slate-700 font-mono"><?= $targetPeriodSalesFormatted ?></strong> (<?= $targetBillsCount ?> bills)</span>
+                <span class="text-blue-600 font-semibold cursor-pointer hover:underline flex items-center gap-1" onclick="openProfitTargetModal()"><i class="fas fa-sliders-h text-[9px]"></i> Adjust</span>
+            </div>
         </div>
 
         <!-- Card C: Online Sales Turnover (Replaced Gross Profit as requested) -->
@@ -324,9 +357,197 @@
     </div>
 </div>
 
+<!-- Modal: Set Expected Inventory Profit Target -->
+<div id="profit-target-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl relative transform transition-all">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm border border-blue-100">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <span>Set Expected Profit Target</span>
+            </h3>
+            <button type="button" onclick="closeProfitTargetModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <form id="profit-target-form" onsubmit="submitProfitTarget(event)" class="space-y-4 text-xs">
+            <!-- Quick Date Presets -->
+            <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">Quick Presets</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setProfitPreset('month')" class="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold rounded-lg border border-slate-200 text-center transition-all text-[11px]">This Month</button>
+                    <button type="button" onclick="setProfitPreset('next_month')" class="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold rounded-lg border border-slate-200 text-center transition-all text-[11px]">Next Month</button>
+                    <button type="button" onclick="setProfitPreset('quarter')" class="py-1.5 px-2 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold rounded-lg border border-slate-200 text-center transition-all text-[11px]">Quarter (90d)</button>
+                </div>
+            </div>
+
+            <!-- Date Range -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Start Date <span class="text-rose-500">*</span></label>
+                    <input type="date" id="modal_target_start" name="target_start_date" value="<?= $targetStartDate ?>" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 outline-none focus:border-blue-500 focus:bg-white">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">End Date <span class="text-rose-500">*</span></label>
+                    <input type="date" id="modal_target_end" name="target_end_date" value="<?= $targetEndDate ?>" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 outline-none focus:border-blue-500 focus:bg-white">
+                </div>
+            </div>
+
+            <!-- Target Profit Amount -->
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">Target Profit Amount (₹) <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-3 top-2 text-slate-400 font-bold text-sm">₹</span>
+                    <input type="number" step="0.01" min="1" id="modal_target_amount" name="target_profit_amount" value="<?= $targetProfitAmount ?>" required placeholder="e.g. 50000" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3 py-2 text-sm font-mono font-bold text-slate-900 outline-none focus:border-blue-500 focus:bg-white">
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                    As products are billed to customers between the chosen dates, the margin profit (Selling Price minus Buy Rate) earned from sales invoices will automatically count towards this target.
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeProfitTargetModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors">Cancel</button>
+                <button type="submit" id="btn-save-profit-target" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5">
+                    <i class="fas fa-check"></i> Save & Set Target
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Chart & Dynamic Filter Controller JS -->
 <script>
 let salesChartInstance = null;
+
+function openProfitTargetModal() {
+    const modal = document.getElementById('profit-target-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeProfitTargetModal() {
+    const modal = document.getElementById('profit-target-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function setProfitPreset(type) {
+    const startInput = document.getElementById('modal_target_start');
+    const endInput = document.getElementById('modal_target_end');
+    const today = new Date();
+    
+    if (type === 'month') {
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        startInput.value = firstDay.toISOString().split('T')[0];
+        endInput.value = lastDay.toISOString().split('T')[0];
+    } else if (type === 'next_month') {
+        const firstDay = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+        startInput.value = firstDay.toISOString().split('T')[0];
+        endInput.value = lastDay.toISOString().split('T')[0];
+    } else if (type === 'quarter') {
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getTime() + 90 * 86400000);
+        startInput.value = firstDay.toISOString().split('T')[0];
+        endInput.value = lastDay.toISOString().split('T')[0];
+    }
+}
+
+async function submitProfitTarget(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-profit-target');
+    const amount = document.getElementById('modal_target_amount')?.value || 0;
+    const startDate = document.getElementById('modal_target_start')?.value || '';
+    const endDate = document.getElementById('modal_target_end')?.value || '';
+
+    if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid target profit amount.');
+        return;
+    }
+    if (!startDate || !endDate) {
+        alert('Please select both Start Date and End Date.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('target_profit_amount', amount);
+        formData.append('target_start_date', startDate);
+        formData.append('target_end_date', endDate);
+        formData.append('_csrf_token', window.CSRF_TOKEN || '');
+
+        const res = await fetch('<?= url("dashboard/save-profit-target") ?>', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const resData = await res.json();
+        if (resData.success) {
+            updateTargetUI(resData.data);
+            closeProfitTargetModal();
+        } else {
+            alert(resData.message || 'Failed to update profit target.');
+        }
+    } catch (err) {
+        console.error('Error saving profit target:', err);
+        alert('Network error occurred while saving profit target.');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Save & Set Target';
+        }
+    }
+}
+
+function updateTargetUI(d) {
+    if (!d) return;
+    const elAchieved = document.getElementById('card-target-achieved');
+    const elBadge = document.getElementById('card-target-badge');
+    const elAmount = document.getElementById('card-target-amount-text');
+    const elDates = document.getElementById('card-target-dates-text');
+    const elBar = document.getElementById('card-target-progress-bar');
+    const elRemLabel = document.getElementById('card-target-remaining-label');
+    const elRemVal = document.getElementById('card-target-remaining-val');
+    const elSalesInfo = document.getElementById('card-target-sales-info');
+
+    if (elAchieved && d.targetAchievedProfitFormatted) elAchieved.textContent = d.targetAchievedProfitFormatted;
+    if (elBadge) {
+        elBadge.textContent = d.isTargetAchieved ? 'Goal Reached 🎉' : `${d.targetPercent}% Achieved`;
+        elBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded border font-mono ${d.isTargetAchieved ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`;
+    }
+    if (elAmount && d.targetProfitAmountFormatted) elAmount.textContent = d.targetProfitAmountFormatted;
+    if (elDates && d.targetStartDate && d.targetEndDate) {
+        const s = new Date(d.targetStartDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        const e = new Date(d.targetEndDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        elDates.textContent = `${s} - ${e}`;
+    }
+    if (elBar) {
+        elBar.style.width = `${Math.min(100, Math.max(0, d.targetPercent))}%`;
+        elBar.className = `h-full ${d.isTargetAchieved ? 'bg-emerald-500' : 'bg-gradient-to-r from-blue-500 to-indigo-600'} rounded-full transition-all duration-500`;
+    }
+    if (elRemLabel) elRemLabel.textContent = d.isTargetAchieved ? 'Surplus Earned:' : 'Remaining to Goal:';
+    if (elRemVal && (d.targetRemainingFormatted !== undefined || d.targetSurplusFormatted !== undefined)) {
+        elRemVal.textContent = d.isTargetAchieved ? `+${d.targetSurplusFormatted}` : d.targetRemainingFormatted;
+        elRemVal.className = `font-mono font-bold ${d.isTargetAchieved ? 'text-emerald-700' : 'text-amber-700'}`;
+    }
+    if (elSalesInfo && d.targetPeriodSalesFormatted) {
+        elSalesInfo.innerHTML = `<i class="fas fa-shopping-cart text-slate-400 mr-1"></i> Billed Sales: <strong class="text-slate-700 font-mono">${d.targetPeriodSalesFormatted}</strong> (${d.targetBillsCount} bills)`;
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initSalesChart(
@@ -496,6 +717,9 @@ async function fetchDashboardMetrics(params) {
             const cOnlinePct = document.getElementById('card-online-pct');
             const cOnlineCount = document.getElementById('card-online-count');
             const cOverallOnline = document.getElementById('card-overall-online');
+            if (d.targetProfitAmount !== undefined) {
+                updateTargetUI(d);
+            }
             if (cOnlineSales) cOnlineSales.textContent = d.periodOnlineSalesFormatted;
             if (cOnlinePct) cOnlinePct.textContent = `${d.periodOnlinePercent}% of Sales`;
             if (cOnlineCount) cOnlineCount.innerHTML = `<i class="fas fa-shopping-bag text-blue-500 mr-1"></i> ${d.periodOnlineCount} online orders`;

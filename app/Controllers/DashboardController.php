@@ -162,6 +162,32 @@ class DashboardController extends Controller {
         $overallOfflineSales = (float)($resOverallOffline[0]['offline_sales'] ?? 0);
         $overallOfflineCount = (int)($resOverallOffline[0]['offline_count'] ?? 0);
 
+        // 6c. Expected Inventory Profit Target & Actual Realized Profit from Sales
+        $targetProfitAmount = (float)getSetting('inventory_profit_target_amount', 100000.00);
+        $targetStartDate = (string)getSetting('inventory_profit_target_start', date('Y-m-01'));
+        $targetEndDate = (string)getSetting('inventory_profit_target_end', date('Y-m-t'));
+
+        $resTargetProfit = $db->query(
+            "SELECT 
+                COALESCE(SUM(ii.total_amount), 0) as target_period_sales,
+                COALESCE(SUM(ii.quantity * COALESCE(p.piece_rate, p.purchase_price, 0)), 0) as target_period_cogs,
+                COUNT(DISTINCT i.id) as target_bills_count
+             FROM `invoice_items` ii
+             JOIN `invoices` i ON ii.invoice_id = i.id
+             LEFT JOIN `products` p ON ii.product_id = p.id
+             WHERE i.status != 'cancelled' AND i.invoice_date BETWEEN ? AND ?",
+            [$targetStartDate, $targetEndDate]
+        );
+        $targetPeriodSales = (float)($resTargetProfit[0]['target_period_sales'] ?? 0);
+        $targetPeriodCogs = (float)($resTargetProfit[0]['target_period_cogs'] ?? 0);
+        $targetAchievedProfit = max(0, $targetPeriodSales - $targetPeriodCogs);
+        $targetBillsCount = (int)($resTargetProfit[0]['target_bills_count'] ?? 0);
+
+        $targetPercent = $targetProfitAmount > 0 ? round(($targetAchievedProfit / $targetProfitAmount) * 100, 1) : 0;
+        $targetRemaining = max(0, $targetProfitAmount - $targetAchievedProfit);
+        $targetSurplus = max(0, $targetAchievedProfit - $targetProfitAmount);
+        $isTargetAchieved = ($targetAchievedProfit >= $targetProfitAmount && $targetProfitAmount > 0);
+
         // 7. Dynamic Sales Trend Chart Data (Adapts to Selected Period)
         $salesTrend = ['labels' => [], 'data' => []];
         if ($period === 'today') {
@@ -260,6 +286,21 @@ class DashboardController extends Controller {
             'overallOfflineSales' => $overallOfflineSales,
             'overallOfflineSalesFormatted' => formatCurrency($overallOfflineSales),
             'overallOfflineCount' => $overallOfflineCount,
+            'targetProfitAmount' => $targetProfitAmount,
+            'targetProfitAmountFormatted' => formatCurrency($targetProfitAmount),
+            'targetStartDate' => $targetStartDate,
+            'targetEndDate' => $targetEndDate,
+            'targetPeriodSales' => $targetPeriodSales,
+            'targetPeriodSalesFormatted' => formatCurrency($targetPeriodSales),
+            'targetAchievedProfit' => $targetAchievedProfit,
+            'targetAchievedProfitFormatted' => formatCurrency($targetAchievedProfit),
+            'targetBillsCount' => $targetBillsCount,
+            'targetPercent' => $targetPercent,
+            'targetRemaining' => $targetRemaining,
+            'targetRemainingFormatted' => formatCurrency($targetRemaining),
+            'targetSurplus' => $targetSurplus,
+            'targetSurplusFormatted' => formatCurrency($targetSurplus),
+            'isTargetAchieved' => $isTargetAchieved,
             'totalProducts' => $totalProducts,
             'totalStockPieces' => $totalStockPieces,
             'lowStockProducts' => $lowStockProducts,
@@ -276,5 +317,67 @@ class DashboardController extends Controller {
         $this->render('dashboard.index', array_merge($payload, [
             'pageTitle' => 'Executive Dashboard - ' . getSetting('company_name', 'Divya Murti ERP')
         ]));
+    }
+
+    public function saveProfitTarget(Request $request): void {
+        Auth::requireAuth();
+        $amount = max(0, (float)$request->input('target_profit_amount', 0));
+        $startDate = trim((string)$request->input('target_start_date', ''));
+        $endDate = trim((string)$request->input('target_end_date', ''));
+
+        if (empty($startDate)) $startDate = date('Y-m-01');
+        if (empty($endDate)) $endDate = date('Y-m-t');
+        if ($startDate > $endDate) {
+            $tmp = $startDate; $startDate = $endDate; $endDate = $tmp;
+        }
+
+        $settingModel = new \App\Models\Setting();
+        $settingModel->set('inventory_profit_target_amount', $amount, 'dashboard', 'Target Inventory Profit Amount');
+        $settingModel->set('inventory_profit_target_start', $startDate, 'dashboard', 'Target Inventory Profit Start Date');
+        $settingModel->set('inventory_profit_target_end', $endDate, 'dashboard', 'Target Inventory Profit End Date');
+
+        $db = Database::getInstance();
+        $resTargetProfit = $db->query(
+            "SELECT 
+                COALESCE(SUM(ii.total_amount), 0) as target_period_sales,
+                COALESCE(SUM(ii.quantity * COALESCE(p.piece_rate, p.purchase_price, 0)), 0) as target_period_cogs,
+                COUNT(DISTINCT i.id) as target_bills_count
+             FROM `invoice_items` ii
+             JOIN `invoices` i ON ii.invoice_id = i.id
+             LEFT JOIN `products` p ON ii.product_id = p.id
+             WHERE i.status != 'cancelled' AND i.invoice_date BETWEEN ? AND ?",
+            [$startDate, $endDate]
+        );
+        $targetPeriodSales = (float)($resTargetProfit[0]['target_period_sales'] ?? 0);
+        $targetPeriodCogs = (float)($resTargetProfit[0]['target_period_cogs'] ?? 0);
+        $targetAchievedProfit = max(0, $targetPeriodSales - $targetPeriodCogs);
+        $targetBillsCount = (int)($resTargetProfit[0]['target_bills_count'] ?? 0);
+
+        $targetPercent = $amount > 0 ? round(($targetAchievedProfit / $amount) * 100, 1) : 0;
+        $targetRemaining = max(0, $amount - $targetAchievedProfit);
+        $targetSurplus = max(0, $targetAchievedProfit - $amount);
+        $isTargetAchieved = ($targetAchievedProfit >= $amount && $amount > 0);
+
+        Response::json([
+            'success' => true,
+            'message' => 'Expected Inventory Profit Target updated successfully!',
+            'data' => [
+                'targetProfitAmount' => $amount,
+                'targetProfitAmountFormatted' => formatCurrency($amount),
+                'targetStartDate' => $startDate,
+                'targetEndDate' => $endDate,
+                'targetPeriodSales' => $targetPeriodSales,
+                'targetPeriodSalesFormatted' => formatCurrency($targetPeriodSales),
+                'targetAchievedProfit' => $targetAchievedProfit,
+                'targetAchievedProfitFormatted' => formatCurrency($targetAchievedProfit),
+                'targetBillsCount' => $targetBillsCount,
+                'targetPercent' => $targetPercent,
+                'targetRemaining' => $targetRemaining,
+                'targetRemainingFormatted' => formatCurrency($targetRemaining),
+                'targetSurplus' => $targetSurplus,
+                'targetSurplusFormatted' => formatCurrency($targetSurplus),
+                'isTargetAchieved' => $isTargetAchieved,
+            ]
+        ]);
     }
 }

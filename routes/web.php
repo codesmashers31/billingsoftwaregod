@@ -32,6 +32,7 @@ Router::post('/reset-password', [AuthController::class, 'processResetPassword'])
 
 // 2. Dashboard
 Router::get('/dashboard', [DashboardController::class, 'index']);
+Router::post('/dashboard/save-profit-target', [DashboardController::class, 'saveProfitTarget']);
 
 // 3. User Management
 Router::get('/profile', [UserController::class, 'profile']);
