@@ -54,6 +54,10 @@ $currentUri = (new \App\Core\Request())->uri();
                 <i class="fas fa-dharmachakra text-sm w-4 <?= isActiveRoute('/products', $currentUri) ? 'text-white' : 'text-slate-400' ?>"></i>
                 <span>Product Entries</span>
             </a>
+            <a href="<?= url('barcode-settings') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/barcode-settings', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
+                <i class="fas fa-barcode text-sm w-4 <?= isActiveRoute('/barcode-settings', $currentUri) ? 'text-white' : 'text-slate-400' ?>"></i>
+                <span>Barcode Customization</span>
+            </a>
             <?php endif; ?>
             <?php if (hasPermission('categories.view')): ?>
             <a href="<?= url('categories') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/categories', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
@@ -172,6 +176,10 @@ $currentUri = (new \App\Core\Request())->uri();
             <a href="<?= url('settings') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/settings', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
                 <i class="fas fa-cog text-sm w-4 <?= isActiveRoute('/settings', $currentUri) ? 'text-white' : 'text-slate-400' ?>"></i>
                 <span>Settings</span>
+            </a>
+            <a href="<?= url('barcode-settings') ?>" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all <?= isActiveRoute('/barcode-settings', $currentUri) ? 'bg-amber-600 text-white font-bold shadow-md' : 'hover:bg-slate-100 hover:text-slate-900' ?>">
+                <i class="fas fa-barcode text-sm w-4 <?= isActiveRoute('/barcode-settings', $currentUri) ? 'text-white' : 'text-slate-400' ?>"></i>
+                <span>Barcode Settings</span>
             </a>
             <?php endif; ?>
             <?php if (hasPermission('audit.view')): ?>

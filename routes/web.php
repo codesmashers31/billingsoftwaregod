@@ -19,6 +19,7 @@ use App\Controllers\ExpenseController;
 use App\Controllers\ReportController;
 use App\Controllers\SettingsController;
 use App\Controllers\AuditController;
+use App\Controllers\BarcodeController;
 
 // 1. Authentication Routes
 Router::get('/', [DashboardController::class, 'index']);
@@ -173,3 +174,9 @@ Router::get('/reports/financial', [ReportController::class, 'financial']);
 Router::get('/settings', [SettingsController::class, 'index']);
 Router::post('/settings/update', [SettingsController::class, 'update']);
 Router::get('/audit', [AuditController::class, 'index']);
+
+// 18. Barcode Customization
+Router::get('/barcode-settings', [BarcodeController::class, 'index']);
+Router::post('/barcode-settings', [BarcodeController::class, 'save']);
+Router::post('/barcode-settings/save', [BarcodeController::class, 'save']);
+Router::get('/api/barcode/generate-sample', [BarcodeController::class, 'generateSample']);

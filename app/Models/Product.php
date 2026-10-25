@@ -157,10 +157,31 @@ class Product extends Model {
             }
         }
 
+        $prefix = strtoupper(trim((string)getSetting('barcode_prefix', 'SS')));
+        if ($prefix === '') {
+            $prefix = 'SS';
+        }
+        $digits = (int)getSetting('barcode_number_length', 4);
+        if ($digits < 2 || $digits > 10) {
+            $digits = 4;
+        }
+        $sep = (string)getSetting('barcode_separator', '-');
+
+        $min = (int)pow(10, $digits - 1);
+        $max = (int)(pow(10, $digits) - 1);
+
+        $attempts = 0;
         do {
-            $barcode = 'BAR-' . mt_rand(1000000000, 9999999999);
+            $num = mt_rand($min, $max);
+            $barcode = $prefix . $sep . $num;
             $existing = $this->findBy('barcode', $barcode);
-        } while ($existing);
+            $attempts++;
+            if ($attempts > 50) {
+                $num = mt_rand(1000, 999999);
+                $barcode = $prefix . $sep . $num;
+                $existing = $this->findBy('barcode', $barcode);
+            }
+        } while ($existing && $attempts < 100);
 
         return $barcode;
     }
@@ -168,6 +189,7 @@ class Product extends Model {
     public function generateUniqueSku(): string {
         do {
             $sku = 'SKU-' . mt_rand(10000, 99999);
+            $existing = $this->findBySKU($sku);
         } while ($existing);
 
         return $sku;

@@ -1402,6 +1402,12 @@
 </div>
 
 <script>
+    window.BARCODE_CONFIG = {
+        prefix: <?= json_encode((string)getSetting('barcode_prefix', 'SS')) ?>,
+        length: <?= (int)getSetting('barcode_number_length', 4) ?>,
+        separator: <?= json_encode((string)getSetting('barcode_separator', '-')) ?>
+    };
+
     // --- INTERACTIVE CONFIRMATION DIALOG (PROMISE-BASED) ---
     function showConfirmDialog(options = {}) {
         return new Promise((resolve) => {
@@ -1931,7 +1937,7 @@
             prod_supplier_id: p.supplier_id || p.prod_supplier_id || null,
             prod_name: p.name || p.prod_name || '',
             prod_sku: p.sku || p.prod_sku || ('SKU-' + p.id),
-            prod_barcode: p.barcode || p.prod_barcode || ('BAR-' + p.id),
+            prod_barcode: p.barcode || p.prod_barcode || ((window.BARCODE_CONFIG ? window.BARCODE_CONFIG.prefix : 'SS') + '-' + p.id),
             prod_category: p.category_name || p.prod_category || 'General',
             prod_subcategory: p.subcategory_name || p.prod_subcategory || '',
             prod_category_id: p.category_id || null,
@@ -2171,7 +2177,13 @@
     }
 
     function generateSupplierBarcode() {
-        return 'BAR-' + Math.floor(1000000000 + Math.random() * 9000000000);
+        const pfx = (window.BARCODE_CONFIG && window.BARCODE_CONFIG.prefix) ? window.BARCODE_CONFIG.prefix : 'SS';
+        const len = (window.BARCODE_CONFIG && window.BARCODE_CONFIG.length) ? window.BARCODE_CONFIG.length : 4;
+        const sep = (window.BARCODE_CONFIG && window.BARCODE_CONFIG.separator !== undefined) ? window.BARCODE_CONFIG.separator : '-';
+        const min = Math.pow(10, Math.max(2, len - 1));
+        const max = Math.pow(10, Math.max(2, len)) - 1;
+        const num = Math.floor(min + Math.random() * (max - min + 1));
+        return pfx + sep + num;
     }
 
     function calculateSupplierSellingPrice(element) {
@@ -2973,7 +2985,7 @@
                     <div class="label-box">
                         <div class="brand">God Statue Billing</div>
                         <div class="title">${p.prod_name}</div>
-                        <div class="barcode-val">${p.prod_barcode || 'BAR-' + p.id}</div>
+                        <div class="barcode-val">${p.prod_barcode || ((window.BARCODE_CONFIG ? window.BARCODE_CONFIG.prefix : 'SS') + '-' + p.id)}</div>
                         <div class="price">MRP: ₹${parseFloat(p.prod_selling_price || 0).toFixed(2)}</div>
                     </div>
                 </body>
@@ -2995,7 +3007,7 @@
             <div style="border: 1px solid #ccc; padding: 12px; border-radius: 6px; text-align: center; width: 200px; page-break-inside: avoid; display: inline-block; margin: 6px;">
                 <div style="font-size: 9px; font-weight: bold; color: #666;">God Statue Billing</div>
                 <div style="font-size: 12px; font-weight: bold; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.prod_name}</div>
-                <div style="font-size: 16px; font-weight: 900; letter-spacing: 2px; margin: 6px 0;">${p.prod_barcode || 'BAR-' + p.id}</div>
+                <div style="font-size: 16px; font-weight: 900; letter-spacing: 2px; margin: 6px 0;">${p.prod_barcode || ((window.BARCODE_CONFIG ? window.BARCODE_CONFIG.prefix : 'SS') + '-' + p.id)}</div>
                 <div style="font-size: 13px; font-weight: bold; color: #047857;">₹${parseFloat(p.prod_selling_price || 0).toFixed(2)}</div>
             </div>
         `).join('');
@@ -4565,7 +4577,7 @@
                 ? p.prod_margin_percentage 
                 : (purchasePrice > 0 ? (((sellingPrice - purchasePrice) / purchasePrice) * 100).toFixed(1) : '60.0');
 
-            const barcode = p.prod_barcode || p.prod_sku || ('BAR-' + p.id);
+            const barcode = p.prod_barcode || p.prod_sku || ((window.BARCODE_CONFIG ? window.BARCODE_CONFIG.prefix : 'SS') + '-' + p.id);
             const sku = p.prod_sku || ('SKU-' + p.id);
 
             tr.innerHTML = `
